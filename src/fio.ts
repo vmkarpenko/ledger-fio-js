@@ -15,24 +15,24 @@
  *  limitations under the License.
  ********************************************************************************/
 import type Transport from "@ledgerhq/hw-transport"
-import { DeviceStatusCodes, DeviceStatusError, DeviceVersionUnsupported } from './errors'
+import { DeviceStatusCodes, DeviceStatusError} from './errors'
+import { InvalidDataReason } from "./errors/invalidDataReason"
+import type { Version, Serial, BIP32Path, ExtendedPublicKey } from './types/public'
+import type { ValidBIP32Path } from './types/internal'
+import type { Interaction, SendParams } from './interactions/common/types'
+import { getExtendedPublicKeys } from "./interactions/getExtendedPublicKeys"
+import { getSerial } from "./interactions/getSerial"
+import { isArray, parseBIP32Path, validate } from './utils/parse'
+
+export * from './errors'
+export * from './types/public'
+
 const CLA = 0xd7
 
 export const enum INS {
   GET_VERSION = 0x00, GET_VERSION2 = 0x01
 }
 
-export type SendParams = {
-    ins: number;
-    p1: number;
-    p2: number;
-    data: Buffer;
-    expectedResponseLength?: number;
-};
-
-export type Interaction<RetValue> = Generator<SendParams, RetValue, Buffer>;
-/** @ignore */
-export type SendFn = (params: SendParams) => Promise<Buffer>;
 
 
 function wrapRetryStillInCall<T extends Function>(fn: T): T {
@@ -63,6 +63,8 @@ async function interact<T>(
     let first = true
     while (!cursor.done) {
         const apdu = cursor.value
+        console.log("11111")
+        console.log(apdu)
         const res = first
             ? await wrapRetryStillInCall(send)(apdu)
             : await send(apdu)
@@ -71,6 +73,9 @@ async function interact<T>(
     }
     return cursor.value
 }
+
+/** @ignore */
+export type SendFn = (params: SendParams) => Promise<Buffer>;
 
 function wrapConvertDeviceStatusError<T extends Function>(fn: T): T {
     // @ts-ignore
@@ -87,22 +92,10 @@ function wrapConvertDeviceStatusError<T extends Function>(fn: T): T {
 }
 
 
-export type Flags = {
-    isDebug: boolean,
-};
-
-export type Version = {
-    major: number,
-    minor: number,
-    patch: number,
-    flags: Flags,
-};
-
 export type GetVersionResponse = {
     version: Version
     compatibility: Number //for now
   }
-  
   
 
 
@@ -145,6 +138,8 @@ export class Fio {
       // Note: this is list of methods that should "lock" the transport to avoid concurrent use
       const methods = [
           "getVersion",
+          "getSerial",
+          "getExtendedPublicKeys",
       ]
       this.transport.decorateAppAPIMethods(this, methods, scrambleKey)
       this._send = async (params: SendParams): Promise<Buffer> => {
@@ -173,13 +168,112 @@ export class Fio {
    async getVersion(): Promise<GetVersionResponse> {
     const version = await interact(this._getVersion(), this._send)
     return { version, compatibility: 0 }
-}
+  }
 
-// Just for consistency
-/** @ignore */
-*_getVersion(): Interaction<Version> {
+  /** @ignore */
+  *_getVersion(): Interaction<Version> {
     return yield* getVersion()
-}
+  }
+
+  /**
+   * Returns an object containing the device serial number.
+   *
+   * @returns Result object containing the device serial number.
+   *
+   * @example
+   * const { serial } = await fio.getSerial();
+   * console.log(`Serial number ${serial}`);
+   *
+   */
+   async getSerial(): Promise<GetSerialResponse> {
+     return interact(this._getSerial(), this._send)
+  }
+  
+  /** @ignore */
+  *_getSerial(): Interaction<GetSerialResponse> {
+    const version = yield* getVersion()
+    return yield* getSerial(version)
+  }
+  
+  /**
+   * Get several public keys; one for each of the specified BIP 32 path.
+   *
+   * @param paths The paths. A path must begin with `44'/235'/account'`, and may be up to 10 indexes long.
+   * @returns The extended public keys (i.e. with chaincode) for the given paths.
+   *
+   * @example
+   * ```
+   * const [{ publicKey, chainCode }] = await fio.getExtendedPublicKeys([[ HARDENED + 44, HARDENED + 235, HARDENED + 1 ]]);
+   * console.log(publicKey);
+   * ```
+   */
+   async getExtendedPublicKeys({ paths }: GetExtendedPublicKeysRequest): 
+                               Promise<GetExtendedPublicKeysResponse> {
+    // validate the input
+    validate(isArray(paths), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+    const parsed = paths.map((path) => parseBIP32Path(path, InvalidDataReason.INVALID_PATH))
+    
+    console.log("NUNUNUNU\n");
+    console.log(parsed);
+
+    return interact(this._getExtendedPublicKeys(parsed), this._send)
+  }
+
+  /** @ignore */
+  *_getExtendedPublicKeys(paths: ValidBIP32Path[]) {
+      const version = yield* getVersion()
+      return yield* getExtendedPublicKeys(version, paths)
+  }
+
+  /**
+   * Get a public key from the specified BIP 32 path.
+   *
+   */
+  async getExtendedPublicKey(
+      { path }: GetExtendedPublicKeyRequest
+  ): Promise<GetExtendedPublicKeyResponse> {
+      return (await this.getExtendedPublicKeys({ paths: [path] }))[0]
+  }
 
 }
 
+
+/**
+ * Get device serial number ([[Fio.getSerial]]) response data
+ * @category Main
+ */
+ export type GetSerialResponse = Serial
+
+ /**
+ * Get multiple public keys ([[Fio.getExtendedPublicKeys]]) request data
+ * @category Main
+ * @see [[GetExtendedPublicKeysResponse]]
+ */
+export type GetExtendedPublicKeysRequest = {
+    /** Paths to public keys which should be derived by the device */
+    paths: BIP32Path[]
+}
+  
+/**
+ * [[Fio.getExtendedPublicKeys]] response data
+ * @category Main
+ * @see [[GetExtendedPublicKeysRequest]]
+ */
+  export type GetExtendedPublicKeysResponse = Array<ExtendedPublicKey>
+  
+  /**
+ * Get single public keys ([[Fio.getExtendedPublicKey]]) request data
+ * @category Main
+ * @see [[GetExtendedPublicKeysResponse]]
+ */
+export type GetExtendedPublicKeyRequest = {
+    /** Path to public key which should be derived */
+    path: BIP32Path
+  }
+  /**
+   * Get single public key ([[Fio.getExtendedPublicKey]]) response data
+   * @category Main
+   * @see [[GetExtendedPublicKeysResponse]]
+   */
+  export type GetExtendedPublicKeyResponse = ExtendedPublicKey
+  
