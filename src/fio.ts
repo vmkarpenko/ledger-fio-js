@@ -20,21 +20,51 @@ import { InvalidDataReason } from "./errors/invalidDataReason"
 import type { Version, Serial, BIP32Path, ExtendedPublicKey } from './types/public'
 import type { ValidBIP32Path } from './types/internal'
 import type { Interaction, SendParams } from './interactions/common/types'
-import { getExtendedPublicKeys } from "./interactions/getExtendedPublicKeys"
+import { getVersion } from "./interactions/getVersion"
 import { getSerial } from "./interactions/getSerial"
+import { getExtendedPublicKeys } from "./interactions/getExtendedPublicKeys"
 import { isArray, parseBIP32Path, validate } from './utils/parse'
+import utils from "./utils"
+import { assert } from './utils/assert'
 
 export * from './errors'
 export * from './types/public'
 
 const CLA = 0xd7
 
-export const enum INS {
-  GET_VERSION = 0x00, GET_VERSION2 = 0x01
+function wrapConvertDeviceStatusError<T extends Function>(fn: T): T {
+    // @ts-ignore
+    return async (...args) => {
+        try {
+            return await fn(...args)
+        } catch (e) {
+            if (e && e.statusCode) {
+                throw new DeviceStatusError(e.statusCode)
+            }
+            throw e
+        }
+    }
 }
 
+/**
+ * FIO API
+ *
+ * @example
+ * import Fio from "";
+ * const fio = new Fio(transport);
+ */
 
+/** @ignore */
+export type SendFn = (params: SendParams) => Promise<Buffer>;
 
+// It can happen that we try to send a message to the device
+// when the device thinks it is still in a middle of previous ADPU stream.
+// This happens mostly if host does abort communication for some reason
+// leaving ledger mid-call.
+// In this case Ledger will respond by ERR_STILL_IN_CALL *and* resetting its state to
+// default. We can therefore transparently retry the request.
+
+// Note though that only the *first* request in an multi-APDU exchange should be retried.
 function wrapRetryStillInCall<T extends Function>(fn: T): T {
     // @ts-ignore
     return async (...args: any) => {
@@ -63,8 +93,6 @@ async function interact<T>(
     let first = true
     while (!cursor.done) {
         const apdu = cursor.value
-        console.log("11111")
-        console.log(apdu)
         const res = first
             ? await wrapRetryStillInCall(send)(apdu)
             : await send(apdu)
@@ -74,58 +102,10 @@ async function interact<T>(
     return cursor.value
 }
 
-/** @ignore */
-export type SendFn = (params: SendParams) => Promise<Buffer>;
-
-function wrapConvertDeviceStatusError<T extends Function>(fn: T): T {
-    // @ts-ignore
-    return async (...args) => {
-        try {
-            return await fn(...args)
-        } catch (e) {
-            if (e && e.statusCode) {
-                throw new DeviceStatusError(e.statusCode)
-            }
-            throw e
-        }
-    }
-}
-
-
-export type GetVersionResponse = {
-    version: Version
-    compatibility: Number //for now
-  }
-  
-
-
-export function* getVersion(): Interaction<Version> {
-    // moving getVersion() logic to private function in order
-    // to disable concurrent execution protection done by this.transport.decorateAppAPIMethods()
-    // when invoked from within other calls to check app version
-
-    const P1_UNUSED = 0x00
-    const P2_UNUSED = 0x00
-    const response = yield {
-        ins: INS.GET_VERSION,
-        p1: P1_UNUSED,
-        p2: P2_UNUSED,
-        data: Buffer.alloc(0),
-        expectedResponseLength: 4,
-    }
-
-    const [major, minor, patch, flags_value] = response
-
-    const FLAG_IS_DEBUG = 1
-    //const FLAG_IS_HEADLESS = 2;
-
-    const flags = {
-        isDebug: (flags_value & FLAG_IS_DEBUG) === FLAG_IS_DEBUG,
-    }
-    return { major, minor, patch, flags }
-}
-
-
+/**
+ * Main API endpoint
+ * @category Main
+ */
 
 export class Fio {
   /** @ignore */
@@ -150,6 +130,14 @@ export class Fio {
               params.p2,
               params.data
           )
+          response = utils.stripRetcodeFromResponse(response)
+
+          if (params.expectedResponseLength != null) {
+              assert(
+                  response.length === params.expectedResponseLength,
+                  `unexpected response length: ${response.length} instead of ${params.expectedResponseLength}`
+              )
+          }
 
           return response
       }
@@ -213,9 +201,6 @@ export class Fio {
     validate(isArray(paths), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
     const parsed = paths.map((path) => parseBIP32Path(path, InvalidDataReason.INVALID_PATH))
     
-    console.log("NUNUNUNU\n");
-    console.log(parsed);
-
     return interact(this._getExtendedPublicKeys(parsed), this._send)
   }
 
@@ -237,6 +222,10 @@ export class Fio {
 
 }
 
+export type GetVersionResponse = {
+    version: Version
+    compatibility: Number //for now
+  }
 
 /**
  * Get device serial number ([[Fio.getSerial]]) response data

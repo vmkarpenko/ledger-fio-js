@@ -11,7 +11,7 @@ export function chunkBy(data: Buffer, chunkLengths: Array<number>) {
         assert(isInteger(len), "bad chunk length")
         assert(len > 0, "bad chunk length")
     }
-    assert(data.length <= sum(chunkLengths), "data too short")
+    assert(data.length >= sum(chunkLengths), "data too short")
 
     let offset = 0
     const result = []
