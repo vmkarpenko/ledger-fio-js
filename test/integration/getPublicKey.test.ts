@@ -37,10 +37,31 @@ describe("getPublicKey", async () => {
     })
 
     describe("Should reject invalid paths", () => {
-        it('path shorter than 3 indexes', async () => {
-            const promise = fio.getPublicKey({ path: str_to_path("44'/235'") })
-            await expect(promise).to.be.rejectedWith(DeviceStatusError, "Action rejected by Ledger's security policy")
+        it('path shorter than 5 indexes', async () => {
+            const promise = fio.getPublicKey({ path: str_to_path("44'/235'/0'/0") })
+            await expect(promise).to.be.rejected
+//            await expect(promise).to.be.rejectedWith(DeviceStatusError, "Action rejected by Ledger's security policy")
         })
 
+        it('path contains non-zero address', async () => {
+            const promise = fio.getPublicKey({ path: str_to_path("44'/235'/1'/0/0") })
+            await expect(promise).to.be.rejected
+        })
+
+        it('path contains non-hardened address', async () => {
+            const promise = fio.getPublicKey({ path: str_to_path("44'/235'/0/0/0") })
+            await expect(promise).to.be.rejected
+        })
+
+        it('path contains non-zero chain', async () => {
+            const promise = fio.getPublicKey({ path: str_to_path("44'/235'/0'/1/0") })
+            await expect(promise).to.be.rejected
+        })
+
+        it('path too long', async () => {
+            const promise = fio.getPublicKey({ path: str_to_path("44'/235'/0'/0/0/0") })
+            await expect(promise).to.be.rejected
+        })
     })
+
 })
