@@ -1,4 +1,5 @@
-import type { Version } from "../types/public"
+import type { Version, DeviceCompatibility } from "../types/public"
+import { DeviceVersionUnsupported } from "../errors"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
 
@@ -32,5 +33,45 @@ export function* getVersion(): Interaction<Version> {
         isDebug: (flags_value & FLAG_IS_DEBUG) === FLAG_IS_DEBUG,
     }
     return { major, minor, patch, flags }
+}
+
+export function getCompatibility(version: Version): DeviceCompatibility {
+    // We restrict forward compatibility only to backward-compatible semver changes
+    const v0_0 = isLedgerAppVersionAtLeast(version, 0, 0) && isLedgerAppVersionAtMost(version, 0, Infinity)
+
+    return {
+        isCompatible: v0_0,
+        recommendedVersion: v0_0 ? null : '0.0',
+    }
+}
+
+export function isLedgerAppVersionAtLeast(
+    version: Version,
+    minMajor: number,
+    minMinor: number
+): boolean {
+    const { major, minor } = version
+
+    return major > minMajor || (major === minMajor && minor >= minMinor)
+}
+
+export function isLedgerAppVersionAtMost(
+    version: Version,
+    maxMajor: number,
+    maxMinor: number
+): boolean {
+    const { major, minor } = version
+
+    return major < maxMajor || (major === maxMajor && minor <= maxMinor)
+}
+
+export function ensureLedgerAppVersionCompatible(
+    version: Version,
+): void {
+    const { isCompatible, recommendedVersion } = getCompatibility(version)
+
+    if (!isCompatible) {
+        throw new DeviceVersionUnsupported(`Device app version unsupported. Please upgrade to ${recommendedVersion}.`)
+    }
 }
 

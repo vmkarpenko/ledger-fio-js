@@ -43,7 +43,7 @@ export type BIP32Path = Array<number>;
 /**
  * Derived  public key
  * @category Basic types
- * @see [[Ada.getPublicKey]]
+ * @see [[Fio.getPublicKey]]
  */
  export type PublicKey = {
     publicKeyHex: string,
@@ -58,10 +58,23 @@ export type BIP32Path = Array<number>;
     isDebug: boolean,
 };
 
+export type DeviceCompatibility = {
+    /** Overall compatibility.
+     * - true if SDK supports the device with given firmware version (to the
+     *   extent of the features supported by the firmware itself)
+     * - false if SDK refuses to communicate with current device version
+     */
+    isCompatible: boolean
+    /**
+     * In case there are some compatibility problem, SDK recommended version.
+     * Clients of SDK should check whether this is null and if not, urge users to upgrade.
+     */
+    recommendedVersion: string | null
+}
 /** 
  * Device app version
  * @category Basic types
- * @see [[Ada.getVersion]]
+ * @see [[Fio.getVersion]]
  * @see [[DeviceCompatibility]]
  */
 export type Version = {
@@ -72,7 +85,7 @@ export type Version = {
 };
 
 /**
- * Response to [[Ada.getSerial]] call
+ * Response to [[Fio.getSerial]] call
  * @category Basic types
  */
  export type Serial = {

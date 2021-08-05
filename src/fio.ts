@@ -17,14 +17,14 @@
 import type Transport from "@ledgerhq/hw-transport"
 import { DeviceStatusCodes, DeviceStatusError} from './errors'
 import { InvalidDataReason } from "./errors/invalidDataReason"
-import type { Version, Serial, BIP32Path, PublicKey } from './types/public'
+import type { DeviceCompatibility, Version, Serial, BIP32Path, PublicKey } from './types/public'
 import type { ValidBIP32Path } from './types/internal'
 import type { Interaction, SendParams } from './interactions/common/types'
-import { getVersion } from "./interactions/getVersion"
+import { getVersion, getCompatibility } from "./interactions/getVersion"
 import { getSerial } from "./interactions/getSerial"
 import { getPublicKey } from "./interactions/getPublicKey"
 import { runTests } from "./interactions/runTests"
-import { parseBIP32Path, validate } from './utils/parse'
+import { parseBIP32Path, validate, isValidPath } from './utils/parse'
 import utils from "./utils"
 import { assert } from './utils/assert'
 
@@ -161,7 +161,7 @@ export class Fio {
    */
    async getVersion(): Promise<GetVersionResponse> {
     const version = await interact(this._getVersion(), this._send)
-    return { version, compatibility: 0 }
+    return { version, compatibility: getCompatibility(version) }
   }
 
   /** @ignore */
@@ -204,7 +204,7 @@ export class Fio {
    async getPublicKey({path}: GetPublicKeyRequest): 
                                Promise<GetPublicKeyResponse> {
     // validate the input
-//    validate(isBIP(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+    validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
     const parsed = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
 
     return interact(this._getPublicKey(parsed), this._send)
@@ -235,8 +235,8 @@ export class Fio {
 
 export type GetVersionResponse = {
     version: Version
-    compatibility: Number //for now
-  }
+    compatibility: DeviceCompatibility
+}
 
 /**
  * Get device serial number ([[Fio.getSerial]]) response data

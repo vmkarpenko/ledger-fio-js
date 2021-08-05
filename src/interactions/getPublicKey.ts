@@ -6,7 +6,7 @@ import { chunkBy } from "../utils/ioHelpers"
 import { path_to_buf, uint32_to_buf } from "../utils/serialize"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
-//import { ensureLedgerAppVersionCompatible } from "./getVersion"
+import { ensureLedgerAppVersionCompatible } from "./getVersion"
 
 
 const send = (params: {
@@ -21,7 +21,7 @@ export function* getPublicKey(
     version: Version,
     path: ValidBIP32Path
 ): Interaction<PublicKey> {
-//    ensureLedgerAppVersionCompatible(version)
+    ensureLedgerAppVersionCompatible(version)
 
   const enum P1 {
     UNUSED = 0x00,

@@ -15,9 +15,11 @@ describe("getVersion", async () => {
     })
 
     it("Should correctly get the semantic version of device", async () => {
-        const { version } = await fio.getVersion()
+        const { version, compatibility } = await fio.getVersion()
 
         expect(version.major).to.equal(0)
         expect(version.minor).to.equal(0)
+        expect(compatibility.isCompatible).to.be.true
+        expect(compatibility.recommendedVersion).to.be.null
     })
 })
