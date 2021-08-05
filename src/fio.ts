@@ -17,13 +17,14 @@
 import type Transport from "@ledgerhq/hw-transport"
 import { DeviceStatusCodes, DeviceStatusError} from './errors'
 import { InvalidDataReason } from "./errors/invalidDataReason"
-import type { Version, Serial, BIP32Path, ExtendedPublicKey } from './types/public'
+import type { Version, Serial, BIP32Path, PublicKey } from './types/public'
 import type { ValidBIP32Path } from './types/internal'
 import type { Interaction, SendParams } from './interactions/common/types'
 import { getVersion } from "./interactions/getVersion"
 import { getSerial } from "./interactions/getSerial"
-import { getExtendedPublicKeys } from "./interactions/getExtendedPublicKeys"
-import { isArray, parseBIP32Path, validate } from './utils/parse'
+import { getPublicKey } from "./interactions/getPublicKey"
+import { runTests } from "./interactions/runTests"
+import { parseBIP32Path, validate } from './utils/parse'
 import utils from "./utils"
 import { assert } from './utils/assert'
 
@@ -38,7 +39,11 @@ function wrapConvertDeviceStatusError<T extends Function>(fn: T): T {
         try {
             return await fn(...args)
         } catch (e) {
+            console.log("CHYBA!!!")
+            console.log(e.statusCode)
+            console.log(e)
             if (e && e.statusCode) {
+                console.log("We throw DeviceStatusError")
                 throw new DeviceStatusError(e.statusCode)
             }
             throw e
@@ -119,7 +124,7 @@ export class Fio {
       const methods = [
           "getVersion",
           "getSerial",
-          "getExtendedPublicKeys",
+          "getPublicKey",
       ]
       this.transport.decorateAppAPIMethods(this, methods, scrambleKey)
       this._send = async (params: SendParams): Promise<Buffer> => {
@@ -130,6 +135,7 @@ export class Fio {
               params.p2,
               params.data
           )
+          console.log("Dostal som sa sem!!!")
           response = utils.stripRetcodeFromResponse(response)
 
           if (params.expectedResponseLength != null) {
@@ -184,40 +190,45 @@ export class Fio {
   }
   
   /**
-   * Get several public keys; one for each of the specified BIP 32 path.
+   * Get public key for the specified BIP 32 path.
    *
-   * @param paths The paths. A path must begin with `44'/235'/account'`, and may be up to 10 indexes long.
-   * @returns The extended public keys (i.e. with chaincode) for the given paths.
+   * @param path The path. A path must begin with `44'/235'/0'/0/i`.
+   * @returns The public key (i.e. with chaincode).
    *
    * @example
    * ```
-   * const [{ publicKey, chainCode }] = await fio.getExtendedPublicKeys([[ HARDENED + 44, HARDENED + 235, HARDENED + 1 ]]);
+   * const publicKey = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]);
    * console.log(publicKey);
    * ```
    */
-   async getExtendedPublicKeys({ paths }: GetExtendedPublicKeysRequest): 
-                               Promise<GetExtendedPublicKeysResponse> {
+   async getPublicKey({path}: GetPublicKeyRequest): 
+                               Promise<GetPublicKeyResponse> {
     // validate the input
-    validate(isArray(paths), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
-    const parsed = paths.map((path) => parseBIP32Path(path, InvalidDataReason.INVALID_PATH))
-    
-    return interact(this._getExtendedPublicKeys(parsed), this._send)
+//    validate(isBIP(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+    const parsed = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
+
+    return interact(this._getPublicKey(parsed), this._send)
   }
 
   /** @ignore */
-  *_getExtendedPublicKeys(paths: ValidBIP32Path[]) {
+  *_getPublicKey(path: ValidBIP32Path) {
       const version = yield* getVersion()
-      return yield* getExtendedPublicKeys(version, paths)
+      return yield* getPublicKey(version, path)
   }
 
+
+
   /**
-   * Get a public key from the specified BIP 32 path.
-   *
+   * Runs unit tests on the device (DEVEL app build only)
    */
-  async getExtendedPublicKey(
-      { path }: GetExtendedPublicKeyRequest
-  ): Promise<GetExtendedPublicKeyResponse> {
-      return (await this.getExtendedPublicKeys({ paths: [path] }))[0]
+   async runTests(): Promise<void> {
+    return interact(this._runTests(), this._send)
+  }
+
+  /** @ignore */
+  *_runTests(): Interaction<void> {
+    const version = yield* getVersion()
+    return yield* runTests(version)
   }
 
 }
@@ -233,36 +244,22 @@ export type GetVersionResponse = {
  */
  export type GetSerialResponse = Serial
 
- /**
- * Get multiple public keys ([[Fio.getExtendedPublicKeys]]) request data
- * @category Main
- * @see [[GetExtendedPublicKeysResponse]]
- */
-export type GetExtendedPublicKeysRequest = {
-    /** Paths to public keys which should be derived by the device */
-    paths: BIP32Path[]
-}
-  
-/**
- * [[Fio.getExtendedPublicKeys]] response data
- * @category Main
- * @see [[GetExtendedPublicKeysRequest]]
- */
-  export type GetExtendedPublicKeysResponse = Array<ExtendedPublicKey>
-  
+    
   /**
- * Get single public keys ([[Fio.getExtendedPublicKey]]) request data
+ * Get single public keys ([[Fio.getPublicKey]]) request data
  * @category Main
- * @see [[GetExtendedPublicKeysResponse]]
+ * @see [[GetPublicKeyResponse]]
  */
-export type GetExtendedPublicKeyRequest = {
-    /** Path to public key which should be derived */
+  export type GetPublicKeyRequest = {
+    /** Paths to public keys which should be derived by the device */
     path: BIP32Path
   }
-  /**
-   * Get single public key ([[Fio.getExtendedPublicKey]]) response data
-   * @category Main
-   * @see [[GetExtendedPublicKeysResponse]]
-   */
-  export type GetExtendedPublicKeyResponse = ExtendedPublicKey
   
+  /**
+   * Get single public key ([[Fio.getPublicKey]]) response data
+   * @category Main
+   * @see [[GetPublicKeyRequest]]
+   */
+  export type GetPublicKeyResponse = PublicKey
+  
+  export default Fio

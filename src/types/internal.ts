@@ -13,5 +13,5 @@ export type Uint16_t = number & { __type: 'uint16_t' }
 export type Uint8_t = number & { __type: 'uint8_t' }
 
 // Our types
-export const EXTENDED_PUBLIC_KEY_LENGTH = 64
+export const PUBLIC_KEY_LENGTH = 32
 

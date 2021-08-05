@@ -41,14 +41,13 @@ export const HARDENED = 0x80000000
 export type BIP32Path = Array<number>;
 
 /**
- * Derived extended public key
+ * Derived  public key
  * @category Basic types
- * @see [[Ada.getExtendedPublicKey]]
+ * @see [[Ada.getPublicKey]]
  */
- export type ExtendedPublicKey = {
+ export type PublicKey = {
     publicKeyHex: string,
-    chainCodeHex: string,
-};
+ }
 
 /**
  * Device app flags
