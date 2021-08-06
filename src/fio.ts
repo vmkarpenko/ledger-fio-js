@@ -17,12 +17,13 @@
 import type Transport from "@ledgerhq/hw-transport"
 import { DeviceStatusCodes, DeviceStatusError} from './errors'
 import { InvalidDataReason } from "./errors/invalidDataReason"
-import type { DeviceCompatibility, Version, Serial, BIP32Path, PublicKey } from './types/public'
+import type { DeviceCompatibility, Version, Serial, BIP32Path, PublicKey, Transaction, SignedTransactionData } from './types/public'
 import type { ValidBIP32Path } from './types/internal'
 import type { Interaction, SendParams } from './interactions/common/types'
 import { getVersion, getCompatibility } from "./interactions/getVersion"
 import { getSerial } from "./interactions/getSerial"
 import { getPublicKey } from "./interactions/getPublicKey"
+import { signTransaction } from "./interactions/signTransaction"
 import { runTests } from "./interactions/runTests"
 import { parseBIP32Path, validate, isValidPath } from './utils/parse'
 import utils from "./utils"
@@ -216,6 +217,32 @@ export class Fio {
       return yield* getPublicKey(version, path)
   }
 
+  /**
+   * Sign transaction.
+   *
+   * @param path The path. A path must begin with `44'/235'/0'/0/i`.
+   * @returns The public key (i.e. with chaincode).
+   *
+   * @example
+   * ```
+   * const publicKey = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]); TODO
+   * console.log(publicKey);
+   * ```
+   */
+   async signTransaction({path, tx}: SignTransactionRequest): 
+                               Promise<SignTransactionResponse> {
+    // validate the input TODO validate transaction
+    validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+    const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
+
+    return interact(this._signTransaction(parsedPath, tx), this._send)
+  }
+
+  /** @ignore */
+  *_signTransaction(parsedPath: ValidBIP32Path, tx: Transaction) {
+      const version = yield* getVersion()
+      return yield* signTransaction(version, parsedPath, tx)
+  }
 
 
   /**
@@ -246,7 +273,7 @@ export type GetVersionResponse = {
 
     
   /**
- * Get single public keys ([[Fio.getPublicKey]]) request data
+ * Get public key ([[Fio.getPublicKey]]) request data
  * @category Main
  * @see [[GetPublicKeyResponse]]
  */
@@ -256,10 +283,28 @@ export type GetVersionResponse = {
   }
   
   /**
-   * Get single public key ([[Fio.getPublicKey]]) response data
+   * Get public key ([[Fio.getPublicKey]]) response data
    * @category Main
    * @see [[GetPublicKeyRequest]]
    */
   export type GetPublicKeyResponse = PublicKey
+  
+  /**
+ * Sign transaction  ([[Fio.signTransaction]]) request data
+ * @category Main
+ * @see [[SignTransactionResponse]]
+ */
+   export type SignTransactionRequest = {
+    /** Paths to public keys which should be derived by the device */
+    path: BIP32Path
+    tx: Transaction
+  }
+  
+  /**
+   * Get single public key ([[Fio.signTransaction]]) response data
+   * @category Main
+   * @see [[SignTransactionRequest]]
+   */
+  export type SignTransactionResponse = SignedTransactionData
   
   export default Fio

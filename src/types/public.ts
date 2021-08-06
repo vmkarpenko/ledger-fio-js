@@ -1,3 +1,5 @@
+import { Uint64_str } from "./internal";
+
 /**
  * Type for 64-bit integers.
  * 
@@ -24,30 +26,6 @@ export type bigint_like = number | bigint | string
 export const HARDENED = 0x80000000
 
 // Our types
-
-/**
- * Represents BIP 32 path.
- * 
- * @example
- * ```
- *  const HD = HARDENED
- *  const ByronAccount0 = [44 + HD, 1815 + HD, 0 + HD];
- *  const ShelleyChangeAddress0 = [1852 + HD, 1815 + HD, 0 + HD, 1, 0]; 
- * ```
- * 
- * @see [[HARDENED]]
- * @category Basic types
- */
-export type BIP32Path = Array<number>;
-
-/**
- * Derived  public key
- * @category Basic types
- * @see [[Fio.getPublicKey]]
- */
- export type PublicKey = {
-    publicKeyHex: string,
- }
 
 /**
  * Device app flags
@@ -95,4 +73,72 @@ export type Version = {
      */
     serial: string,
 };
+
+/**
+ * Represents BIP 32 path.
+ * 
+ * @example
+ * ```
+ *  const HD = HARDENED
+ *  const Address = [44 + HD, 1815 + HD, 0 + HD, 0, 0];
+ * ```
+ * 
+ * @see [[HARDENED]]
+ * @category Basic types
+ */
+ export type BIP32Path = Array<number>;
+
+ /**
+  * Derived  public key
+  * @category Basic types
+  * @see [[Fio.getPublicKey]]
+  */
+  export type PublicKey = {
+     publicKeyHex: string,
+  }
+ 
+  
+ /**
+ * Transaction witness.
+ * @see [[SignedTransactionData]]
+ * @category Basic types
+ */
+export type Witness = {
+    /**
+     * Witnessed path
+     */
+    path: BIP32Path,
+    /** 
+     * Note: this is *only* a signature.
+     * You need to add proper extended public key to form a full witness
+     */
+    witnessSignatureHex: string,
+};
+
+/**
+ * Result of signing a transaction.
+ * @category Basic types
+ * @see [[Fio.signTransaction]]
+ */
+ export type SignedTransactionData = {
+    /**
+     * Hash of signed transaction. Callers should check that they serialize tx the same way
+     */
+    txHashHex: string,
+    /**
+     * List of witnesses. Caller should assemble full transaction to be submitted to the network.
+     */
+    witness: Witness,
+};
+
+/**
+ * Represents transaction to be signed by the device.
+ * Note that this represents a *superset* of what Ledger can sign due to certain hardware app/security limitations.
+ * @category Basic types
+ * @see [[Fio.signTransaction]]
+ */
+ export type Transaction = {
+    fee: Uint64_str,
+}
+
 

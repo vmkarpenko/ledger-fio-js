@@ -6,7 +6,7 @@ import { DeviceStatusError } from "../../src/fio"
 import { str_to_path } from "../../src/utils/address"
 import { getFio } from "../test_utils"
 import type { TestCase } from "./__fixtures__/getPublicKey"
-import { testsFio } from "./__fixtures__/getPublicKey"
+import { testsPublicKey } from "./__fixtures__/getPublicKey"
 chai.use(chaiAsPromised)
 
 describe("getPublicKey", async () => {
@@ -32,7 +32,8 @@ describe("getPublicKey", async () => {
         }
 
         it('fio', async () => {
-            await test(testsFio)
+            console.log("tusom!!!!!!!!!!!")
+            await test(testsPublicKey)
         })
     })
 

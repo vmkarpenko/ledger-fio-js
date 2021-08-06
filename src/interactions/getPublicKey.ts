@@ -3,7 +3,7 @@ import { PUBLIC_KEY_LENGTH } from "../types/internal"
 import type { PublicKey, Version } from "../types/public"
 import { assert } from "../utils/assert"
 import { chunkBy } from "../utils/ioHelpers"
-import { path_to_buf, uint32_to_buf } from "../utils/serialize"
+import { path_to_buf } from "../utils/serialize"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
 import { ensureLedgerAppVersionCompatible } from "./getVersion"
@@ -48,7 +48,7 @@ export function* getPublicKey(
       expectedResponseLength: PUBLIC_KEY_LENGTH,
   })
 
-  const [publicKey, rest] = chunkBy(response, [32,])
+  const [publicKey, rest] = chunkBy(response, [65,])
   assert(rest.length === 0, "invalid response length")
 
   result.push()

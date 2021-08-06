@@ -2,7 +2,7 @@ import type { Version, Serial } from "../types/public"
 import utils from "../utils"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
-//import { ensureLedgerAppVersionCompatible } from "./getVersion"
+import { ensureLedgerAppVersionCompatible } from "./getVersion"
 
 const send = (params: {
   p1: number,
@@ -13,7 +13,7 @@ const send = (params: {
 
 
 export function* getSerial(version: Version): Interaction<Serial> {
-//    ensureLedgerAppVersionCompatible(version)
+    ensureLedgerAppVersionCompatible(version)
 
     const P1_UNUSED = 0x00
     const P2_UNUSED = 0x00
