@@ -18,7 +18,7 @@ import type Transport from "@ledgerhq/hw-transport"
 import { DeviceStatusCodes, DeviceStatusError} from './errors'
 import { InvalidDataReason } from "./errors/invalidDataReason"
 import type { DeviceCompatibility, Version, Serial, BIP32Path, PublicKey, Transaction, SignedTransactionData } from './types/public'
-import type { ValidBIP32Path } from './types/internal'
+import type { HexString, ValidBIP32Path } from './types/internal'
 import type { Interaction, SendParams } from './interactions/common/types'
 import { getVersion, getCompatibility } from "./interactions/getVersion"
 import { getSerial } from "./interactions/getSerial"
@@ -136,7 +136,7 @@ export class Fio {
               params.p2,
               params.data
           )
-          console.log("Dostal som sa sem!!!")
+          console.log(response)
           response = utils.stripRetcodeFromResponse(response)
 
           if (params.expectedResponseLength != null) {
@@ -225,23 +225,25 @@ export class Fio {
    *
    * @example
    * ```
-   * const publicKey = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]); TODO
-   * console.log(publicKey);
+   * TODO
+   * const  = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]); TODO
+   * console.log(sign);
    * ```
    */
-   async signTransaction({path, tx}: SignTransactionRequest): 
+   async signTransaction({path, chainId, tx}: SignTransactionRequest): 
                                Promise<SignTransactionResponse> {
-    // validate the input TODO validate transaction
     validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+    // TODO validate chainId 
+    // TODO validate transaction
     const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
 
-    return interact(this._signTransaction(parsedPath, tx), this._send)
+    return interact(this._signTransaction(parsedPath, chainId as HexString, tx), this._send)
   }
 
   /** @ignore */
-  *_signTransaction(parsedPath: ValidBIP32Path, tx: Transaction) {
+  *_signTransaction(parsedPath: ValidBIP32Path, chainId: HexString, tx: Transaction) {
       const version = yield* getVersion()
-      return yield* signTransaction(version, parsedPath, tx)
+      return yield* signTransaction(version, parsedPath, chainId, tx)
   }
 
 
@@ -296,8 +298,9 @@ export type GetVersionResponse = {
  */
    export type SignTransactionRequest = {
     /** Paths to public keys which should be derived by the device */
-    path: BIP32Path
-    tx: Transaction
+    path: BIP32Path,
+    chainId: String,
+    tx: Transaction,
   }
   
   /**

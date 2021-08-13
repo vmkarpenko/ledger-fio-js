@@ -1,11 +1,16 @@
-import { ValidBIP32Path } from "types/internal"
+import { HexString, ValidBIP32Path } from "types/internal"
 import { Version, Transaction, SignedTransactionData, HARDENED } from "../types/public"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
 import { ensureLedgerAppVersionCompatible } from "./getVersion"
-import {uint64_to_buf, buf_to_hex} from "../utils/serialize"
+import { uint64_to_buf, buf_to_hex, hex_to_buf, path_to_buf } from "../utils/serialize"
+import { chunkBy } from "../utils/ioHelpers"
 
-
+const enum P1 {
+  STAGE_INIT = 0x01,
+  STAGE_FEE = 0x02,
+  STAGE_WITNESSES = 0x03,
+}
 
 const send = (params: {
   p1: number,
@@ -15,23 +20,39 @@ const send = (params: {
 }): SendParams => ({ ins: INS.SIGN_TX, ...params })
 
 
-export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, tx: Transaction): Interaction<SignedTransactionData> {
+
+export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, chainId: HexString, tx: Transaction): Interaction<SignedTransactionData> {
     ensureLedgerAppVersionCompatible(version)
-
-    const createHash = require('create-hash')
-    console.log(createHash('sha256').update(uint64_to_buf(tx.fee)).digest(null))
-
-    const P1_UNUSED = 0x00
+     
+    //Initialize
+    {
+      const P2_UNUSED = 0x00
+      const response = yield send({
+          p1: P1.STAGE_INIT,
+          p2: P2_UNUSED,
+          data: Buffer.from(chainId),
+          expectedResponseLength: 0,
+      })
+    }
+    //Send chainId
+    {
+        const P2_UNUSED = 0x00
+        const response = yield send({
+            p1: P1.STAGE_FEE,
+            p2: P2_UNUSED,
+            data: uint64_to_buf(tx.fee),
+            expectedResponseLength: 0,
+        })
+    }
+    //Send witnesses
     const P2_UNUSED = 0x00
     const response = yield send({
-        p1: P1_UNUSED,
+        p1: P1.STAGE_WITNESSES,
         p2: P2_UNUSED,
-        data: uint64_to_buf(tx.fee),
-        expectedResponseLength: 32,
+        data: Buffer.concat([path_to_buf(parsedPath),]),
+        expectedResponseLength: 75+32,
     })
- 
-    console.log(response) 
 
-    //    const serial = utils.buf_to_hex(response) TODO
-    return { txHashHex: buf_to_hex(response), witness: {path: [44 + HARDENED, 235 + HARDENED, 0+ HARDENED, 0, 0], witnessSignatureHex: ""}}
+    const [witnessSignature, hash] = chunkBy(response, [75, 32])
+    return { txHashHex: buf_to_hex(hash), witness: {path: [44 + HARDENED, 235 + HARDENED, 0+ HARDENED, 0, 0], witnessSignatureHex: buf_to_hex(witnessSignature)}}
 }

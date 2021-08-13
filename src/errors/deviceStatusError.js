@@ -43,7 +43,7 @@ var DeviceStatusMessages = (_a = {},
     _a[exports.DeviceStatusCodes.ERR_CLA_NOT_SUPPORTED] = "Wrong Ledger app",
     _a[exports.DeviceStatusCodes.ERR_UNSUPPORTED_ADDRESS_TYPE] = "Unsupported address type",
     _a);
-var GH_DEVICE_ERRORS_LINK = "https://github.com/cardano-foundation/ledger-app-cardano/blob/master/src/errors.h";
+var GH_DEVICE_ERRORS_LINK = "https://github.com/vacuumlabs/ledger-fio/blob/master/ledgerjs-fio/src/errors/deviceStatusError.ts://github.com/cardano-foundation/ledger-app-cardano/blob/master/src/errors.h";
 var getDeviceErrorDescription = function (statusCode) {
     var _a;
     var statusCodeHex = "0x" + statusCode.toString(16);
