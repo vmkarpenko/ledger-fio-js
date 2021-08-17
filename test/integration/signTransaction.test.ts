@@ -28,21 +28,20 @@ describe("signTransaction", async () => {
         console.log(publicKey.toUncompressed().toHex())
 
         //Let us prepare a transaction (not not necesarily valid for now)
-        const tx = {fee: "12" as Uint64_str};
+        const tx = {fee: "19" as Uint64_str};
         const chainId = 'b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e' as HexString;
 
         //Lets compute its signature in using Signature.sign
-        const Signature = require('../../ecc/signature');
-//        const msg1 = Buffer.concat([Buffer.from(chainId), ])
-//        const msg3 = Buffer.concat([Buffer.allocUnsafe(32).fill(0), ])
-        const msg6 = Buffer.concat([Buffer.from(chainId), uint64_to_buf(tx.fee), Buffer.allocUnsafe(32).fill(0)])
+        const Signature = require('@fioprotocol/fiojs/dist/ecc/signature');
+        const msg = Buffer.concat([Buffer.from(chainId, "hex"), uint64_to_buf(tx.fee), Buffer.allocUnsafe(32).fill(0)])
         const crypto = require("crypto")
         console.log("Using Signature.sign")
-//        console.log({"msg": msg1.toString('hex'), "Hash": crypto.createHash('sha256').update(msg1).digest('hex'), "Signature": Signature.sign(msg1, privateKey).toHex()})
-//        console.log({"msg": msg3.toString('hex'), "Hash": crypto.createHash('sha256').update(msg3).digest('hex'), "Signature": Signature.sign(msg3, privateKey).toHex()})
-        console.log({"msg": msg6.toString('hex'), "Hash": crypto.createHash('sha256').update(msg6).digest('hex'), "Signature": Signature.sign(msg6, privateKey).toHex()})
-        
-/*        //Now lets do the same using signatureProvider.sign
+        console.log({"msg": msg.toString('hex'), 
+                     "Hash": crypto.createHash('sha256').update(msg).digest('hex'), 
+                     "SignatureHex": Signature.sign(msg, privateKey).toHex(),
+                     "SignatureString": Signature.fromHex(Signature.sign(msg, privateKey).toHex()).toString()});                     
+                     
+        //Now lets do the same using signatureProvider.sign
         const { JsSignatureProvider } = require('@fioprotocol/fiojs/dist/chain-jssig');
         const signatureProvider = new JsSignatureProvider([PrivateKey.fromHex(privateKeyDHex).toString()]);
         const requiredKeys = [publicKey.toString()];
@@ -57,11 +56,13 @@ describe("signTransaction", async () => {
         });
 
         console.log("using JsSignatureProvider.sign")
-        console.log(signedTxn)*/
+        console.log(signedTxn.signatures[0])
 
         //Lets sign the transaction with ledger
         const response = await fio.signTransaction({path, chainId, tx });
         console.log("Using ledger")
         console.log(response)
+        console.log("Using ledger toString")
+        console.log(Signature.fromHex(response.witness.witnessSignatureHex).toString())
     })
 })

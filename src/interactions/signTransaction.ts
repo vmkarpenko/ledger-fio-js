@@ -30,7 +30,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
       const response = yield send({
           p1: P1.STAGE_INIT,
           p2: P2_UNUSED,
-          data: Buffer.from(chainId),
+          data: Buffer.from(chainId, "hex"),
           expectedResponseLength: 0,
       })
     }
@@ -50,9 +50,9 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
         p1: P1.STAGE_WITNESSES,
         p2: P2_UNUSED,
         data: Buffer.concat([path_to_buf(parsedPath),]),
-        expectedResponseLength: 75+32,
+        expectedResponseLength: 65+32,
     })
 
-    const [witnessSignature, hash] = chunkBy(response, [75, 32])
+    const [witnessSignature, hash] = chunkBy(response, [65, 32])
     return { txHashHex: buf_to_hex(hash), witness: {path: [44 + HARDENED, 235 + HARDENED, 0+ HARDENED, 0, 0], witnessSignatureHex: buf_to_hex(witnessSignature)}}
 }
