@@ -17,15 +17,16 @@
 import type Transport from "@ledgerhq/hw-transport"
 import { DeviceStatusCodes, DeviceStatusError} from './errors'
 import { InvalidDataReason } from "./errors/invalidDataReason"
-import type { DeviceCompatibility, Version, Serial, BIP32Path, PublicKey, Transaction, SignedTransactionData } from './types/public'
-import type { HexString, ValidBIP32Path } from './types/internal'
+import type { DeviceCompatibility, Version, Serial, BIP32Path, PublicKey, 
+    Transaction, TransferFIOTokens, SignedTransactionData } from './types/public'
+import type { HexString, ValidBIP32Path, ParsedTransaction, ParsedAction } from './types/internal'
 import type { Interaction, SendParams } from './interactions/common/types'
 import { getVersion, getCompatibility } from "./interactions/getVersion"
 import { getSerial } from "./interactions/getSerial"
 import { getPublicKey } from "./interactions/getPublicKey"
 import { signTransaction } from "./interactions/signTransaction"
 import { runTests } from "./interactions/runTests"
-import { parseBIP32Path, validate, isValidPath } from './utils/parse'
+import { parseBIP32Path, validate, isValidPath, parseUint32_t, parseUint16_t, parseUint64_str } from './utils/parse'
 import utils from "./utils"
 import { assert } from './utils/assert'
 
@@ -234,14 +235,32 @@ export class Fio {
                                Promise<SignTransactionResponse> {
     validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
     // TODO validate chainId 
-    // TODO validate transaction
-    const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
+    // TODO validate strings and other transaction values
+    validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
+    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
 
-    return interact(this._signTransaction(parsedPath, chainId as HexString, tx), this._send)
+    const action = tx.actions[0]
+//    validate(typeof action === "TransferFIOTokens", InvalidDataReason.ACTION_NOT_SUPPORTED)    
+    const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
+    const parsedAction: ParsedAction = { payee_public_key: action.payee_public_key,
+                                         amount: parseUint64_str(action.amount, {}, InvalidDataReason.AMOUNT_INVALID),
+                                         max_fee: parseUint64_str(action.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
+                                         actor: action.actor,
+                                         tpid: action.tpid,
+                                       }
+    const parsedTx: ParsedTransaction = { expiration: tx.expiration, 
+                                          ref_block_num: parseUint32_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID), 
+                                          ref_block_prefix: parseUint16_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),
+                                          context_free_actions: [],
+                                          actions: [parsedAction],
+                                          transaction_extensions: null,
+                                        }
+
+    return interact(this._signTransaction(parsedPath, chainId as HexString, parsedTx), this._send)
   }
 
   /** @ignore */
-  *_signTransaction(parsedPath: ValidBIP32Path, chainId: HexString, tx: Transaction) {
+  *_signTransaction(parsedPath: ValidBIP32Path, chainId: HexString, tx: ParsedTransaction) {
       const version = yield* getVersion()
       return yield* signTransaction(version, parsedPath, chainId, tx)
   }

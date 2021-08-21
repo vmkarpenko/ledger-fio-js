@@ -1,4 +1,4 @@
-import { HexString, ValidBIP32Path } from "types/internal"
+import { HexString, ValidBIP32Path, ParsedTransaction } from "types/internal"
 import { Version, Transaction, SignedTransactionData, HARDENED } from "../types/public"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
@@ -21,7 +21,7 @@ const send = (params: {
 
 
 
-export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, chainId: HexString, tx: Transaction): Interaction<SignedTransactionData> {
+export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, chainId: HexString, tx: ParsedTransaction): Interaction<SignedTransactionData> {
     ensureLedgerAppVersionCompatible(version)
      
     //Initialize
@@ -40,7 +40,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
         const response = yield send({
             p1: P1.STAGE_FEE,
             p2: P2_UNUSED,
-            data: uint64_to_buf(tx.fee),
+            data: uint64_to_buf(tx.actions[0].amount),
             expectedResponseLength: 0,
         })
     }

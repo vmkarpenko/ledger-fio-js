@@ -1,5 +1,3 @@
-import { Uint64_str } from "./internal";
-
 /**
  * Type for 64-bit integers.
  * 
@@ -132,13 +130,46 @@ export type Witness = {
 };
 
 /**
+ * Represents actions in the transaction.
+ * @category Basic types
+ * @see [[Transaction]]
+ */
+ export type Action = | TransferFIOTokens
+
+/**
+ * Represents Transfer FIO Tokens trnsfiopubkey action.
+ * @category Basic types
+ * @see [[Transaction]]
+ */
+ export type TransferFIOTokens = {
+    payee_public_key: String,
+    amount: bigint_like,
+    max_fee: bigint_like,
+    tpid: String,
+    actor: String,
+    
+}
+
+
+/**
  * Represents transaction to be signed by the device.
  * Note that this represents a *superset* of what Ledger can sign due to certain hardware app/security limitations.
  * @category Basic types
  * @see [[Fio.signTransaction]]
  */
  export type Transaction = {
-    fee: Uint64_str,
+    expiration: String,
+    ref_block_num: bigint_like,
+    ref_block_prefix: bigint_like,
+    context_free_actions: Array<Action>,
+    actions: Array<Action>,
+    transaction_extensions: null
 }
+
+/*export type Transaction = {
+    fee: Uint64_str,
+}*/
+
+
 
 
