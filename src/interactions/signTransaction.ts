@@ -40,7 +40,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
         const response = yield send({
             p1: P1.STAGE_FEE,
             p2: P2_UNUSED,
-            data: uint64_to_buf(tx.actions[0].amount),
+            data: uint64_to_buf(tx.actions[0].data.amount),
             expectedResponseLength: 0,
         })
     }

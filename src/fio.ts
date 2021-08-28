@@ -18,8 +18,8 @@ import type Transport from "@ledgerhq/hw-transport"
 import { DeviceStatusCodes, DeviceStatusError} from './errors'
 import { InvalidDataReason } from "./errors/invalidDataReason"
 import type { DeviceCompatibility, Version, Serial, BIP32Path, PublicKey, 
-    Transaction, TransferFIOTokens, SignedTransactionData } from './types/public'
-import type { HexString, ValidBIP32Path, ParsedTransaction, ParsedAction } from './types/internal'
+    Transaction, Action, ActionAuthorisation, TransferFIOTokensData, SignedTransactionData } from './types/public'
+import type { HexString, ValidBIP32Path, ParsedTransaction, ParsedAction, ParsedActionAuthorisation, ParsedTransferFIOTokensData } from './types/internal'
 import type { Interaction, SendParams } from './interactions/common/types'
 import { getVersion, getCompatibility } from "./interactions/getVersion"
 import { getSerial } from "./interactions/getSerial"
@@ -238,16 +238,28 @@ export class Fio {
     // TODO validate strings and other transaction values
     validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
+    //Todo validate rest of the transaction
+    validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
 
     const action = tx.actions[0]
-//    validate(typeof action === "TransferFIOTokens", InvalidDataReason.ACTION_NOT_SUPPORTED)    
     const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
-    const parsedAction: ParsedAction = { payee_public_key: action.payee_public_key,
-                                         amount: parseUint64_str(action.amount, {}, InvalidDataReason.AMOUNT_INVALID),
-                                         max_fee: parseUint64_str(action.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
-                                         actor: action.actor,
-                                         tpid: action.tpid,
-                                       }
+    const parsedActionData: ParsedTransferFIOTokensData = { 
+        payee_public_key: action.data.payee_public_key,
+        amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.AMOUNT_INVALID),
+        max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
+        actor: action.data.actor,
+        tpid: action.data.tpid,
+    }
+    const parsedAuthorization: ParsedActionAuthorisation = {
+        actor: action.authorization[0].actor,
+        permission: 'active',
+    }
+    const parsedAction: ParsedAction = {
+        account: action.account,
+        name: action.name,
+        authorization: [parsedAuthorization],
+        data: parsedActionData,
+    }
     const parsedTx: ParsedTransaction = { expiration: tx.expiration, 
                                           ref_block_num: parseUint32_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID), 
                                           ref_block_prefix: parseUint16_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),

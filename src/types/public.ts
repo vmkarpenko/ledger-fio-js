@@ -129,19 +129,13 @@ export type Witness = {
     witness: Witness,
 };
 
-/**
- * Represents actions in the transaction.
- * @category Basic types
- * @see [[Transaction]]
- */
- export type Action = | TransferFIOTokens
 
 /**
- * Represents Transfer FIO Tokens trnsfiopubkey action.
+ * Represents Transfer FIO Tokens trnsfiopubkey data.
  * @category Basic types
- * @see [[Transaction]]
+ * @see [[Action]]
  */
- export type TransferFIOTokens = {
+ export type TransferFIOTokensData = {
     payee_public_key: String,
     amount: bigint_like,
     max_fee: bigint_like,
@@ -149,6 +143,29 @@ export type Witness = {
     actor: String,
     
 }
+
+/**
+ * Represents authorisation in transaction Actions.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type ActionAuthorisation = {
+    actor: String,
+    permission: String,
+ }
+
+
+/**
+ * Represents actions in the transaction.
+ * @category Basic types
+ * @see [[Transaction]]
+ */
+ export type Action = {
+    account: String,
+    name: String,
+    authorization: Array<ActionAuthorisation>
+    data: | TransferFIOTokensData
+ }
 
 
 /**

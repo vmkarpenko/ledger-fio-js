@@ -30,24 +30,69 @@ describe("signTransaction", async () => {
         console.log(publicKey.toUncompressed().toHex())
 
         //Let us prepare a transaction (not not necesarily valid for now)
-//        const tx = {fee: "19" as Uint64_str};
-        const tx: Transaction = { expiration: "",
-                                  ref_block_num: 0,
-                                  ref_block_prefix: 0,
-                                  context_free_actions: [],
-                                  actions: [{payee_public_key: "",
-                                             amount: "19",
-                                             max_fee: "0",
-                                             tpid: "",
-                                             actor: "",                                    
-                                  }],
-                                  transaction_extensions: null,
-                                };
+        const tx: Transaction = { 
+          expiration: "",
+          ref_block_num: 0,
+          ref_block_prefix: 0,
+          context_free_actions: [],
+          actions: [{ 
+            account: "fio.token",
+            name: "trnsfiopubky",
+            authorization: [{
+              actor: "aftyershcu22",
+              permission: "active",
+            }], 
+            data: { 
+              payee_public_key: "",
+              amount: "19",
+              max_fee: "0",
+              tpid: "",
+              actor: "aftyershcu22",                                    
+            }
+          }],
+          transaction_extensions: null,
+        };
         const chainId = 'b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e' as HexString;
+
+/*        //Lets look at the abi
+        const { TextEncoder, TextDecoder } = require('text-encoding');
+        const fetch = require('node-fetch')
+        const { base64ToBinary, arrayToHex } = require('@fioprotocol/fiojs/dist/chain-numeric');
+        var ser = require("@fioprotocol/fiojs/dist/chain-serialize");
+        
+        const textDecoder = new TextDecoder();
+        const textEncoder = new TextEncoder();
+
+        const httpEndpoint = 'http://testnet.fioprotocol.io'
+        const abiFioAddress = await (await fetch(httpEndpoint + '/v1/chain/get_abi', { body: `{"account_name": "fio.token"}`, method: 'POST' })).json();
+        const rawAbi = await (await fetch(httpEndpoint + '/v1/chain/get_raw_abi', { body: `{"account_name": "fio.token"}`, method: 'POST' })).json()
+        const abi = base64ToBinary(rawAbi.abi);
+        console.log('abi: ', abi)
+        // Get a Map of all the types from fio.address
+        var typesFioAddress = ser.getTypesFromAbi(ser.createInitialTypes(), abiFioAddress.abi);
+        console.log(typesFioAddress)
+        // Get the addaddress action type
+        const actionAddaddress = typesFioAddress.get('trnsfiopubky');
+//        const actionAddaddress = typesFioAddress.get('addaddress');
+        console.log(actionAddaddress)
+
+        // Serialize the actions[] "data" field (This example assumes a single action, though transactions may hold an array of actions.)
+        const buffer = new ser.SerialBuffer({ textEncoder, textDecoder });
+        actionAddaddress.serialize(buffer, tx.actions[0]);
+        const serializedData = arrayToHex(buffer.asUint8Array())
+
+        // Get the actions parameter from the transaction and replace the data field with the serialized data field
+        var serializedAction = tx.actions[0] as any
+        serializedAction = {
+          ...serializedAction,
+          data: serializedData
+        };
+        console.log(serializedAction)
+        return;*/
 
         //Lets compute its signature in using Signature.sign
         const Signature = require('@fioprotocol/fiojs/dist/ecc/signature');
-        const serializedTransaction = uint64_to_buf(tx.actions[0].amount as Uint64_str)
+        const serializedTransaction = uint64_to_buf(tx.actions[0].data.amount as Uint64_str)
         const msg = Buffer.concat([Buffer.from(chainId, "hex"), serializedTransaction, Buffer.allocUnsafe(32).fill(0)])
         const crypto = require("crypto")
         const signature = Signature.sign(msg, privateKey)
