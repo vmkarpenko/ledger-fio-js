@@ -1,12 +1,12 @@
 import { expect } from "chai"
-import { Uint64_str, HexString } from "types/internal"
-import { uint64_to_buf, hex_to_buf } from "../../src/utils/serialize"
-import { Transaction } from "../../src/types/public"
+import { log } from "console"
+import type { HexString,Uint64_str } from "types/internal"
 
 import type Fio from "../../src/fio"
 import { HARDENED } from "../../src/fio"
+import type { Transaction } from "../../src/types/public"
+import { hex_to_buf,uint64_to_buf } from "../../src/utils/serialize"
 import { getFio } from "../test_utils"
-import { log } from "console"
 
 
 describe("signTransaction", async () => {
@@ -22,7 +22,7 @@ describe("signTransaction", async () => {
 
     it("Should correctly get some response", async () => {
         //We prepare derivation path, public key, and private key
-        const path = [44 + HARDENED, 235 + HARDENED, 0 + HARDENED, 0, 0];
+        const path = [44 + HARDENED, 235 + HARDENED, 0 + HARDENED, 0, 0]
         const privateKeyDHex = "4d597899db76e87933e7c6841c2d661810f070bad20487ef20eb84e182695a3a" as HexString
         const PrivateKey = require('@fioprotocol/fiojs/dist/ecc/key_private')
         const privateKey = PrivateKey(hex_to_buf(privateKeyDHex))
@@ -31,30 +31,30 @@ describe("signTransaction", async () => {
 
         //Let us prepare a transaction (not not necesarily valid for now)
         const tx: Transaction = { 
-          expiration: "",
-          ref_block_num: 0,
-          ref_block_prefix: 0,
-          context_free_actions: [],
-          actions: [{ 
-            account: "fio.token",
-            name: "trnsfiopubky",
-            authorization: [{
-              actor: "aftyershcu22",
-              permission: "active",
-            }], 
-            data: { 
-              payee_public_key: "",
-              amount: "19",
-              max_fee: "0",
-              tpid: "",
-              actor: "aftyershcu22",                                    
-            }
-          }],
-          transaction_extensions: null,
-        };
-        const chainId = 'b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e' as HexString;
+            expiration: "",
+            ref_block_num: 0,
+            ref_block_prefix: 0,
+            context_free_actions: [],
+            actions: [{ 
+                account: "fio.token",
+                name: "trnsfiopubky",
+                authorization: [{
+                    actor: "aftyershcu22",
+                    permission: "active",
+                }], 
+                data: { 
+                    payee_public_key: "",
+                    amount: "19",
+                    max_fee: "0",
+                    tpid: "",
+                    actor: "aftyershcu22",                                    
+                },
+            }],
+            transaction_extensions: null,
+        }
+        const chainId = 'b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e' as HexString
 
-/*        //Lets look at the abi
+        /*        //Lets look at the abi
         const { TextEncoder, TextDecoder } = require('text-encoding');
         const fetch = require('node-fetch')
         const { base64ToBinary, arrayToHex } = require('@fioprotocol/fiojs/dist/chain-numeric');
@@ -91,35 +91,35 @@ describe("signTransaction", async () => {
         return;*/
 
         //Lets compute its signature in using Signature.sign
-        const Signature = require('@fioprotocol/fiojs/dist/ecc/signature');
+        const Signature = require('@fioprotocol/fiojs/dist/ecc/signature')
         const serializedTransaction = uint64_to_buf(tx.actions[0].data.amount as Uint64_str)
         const msg = Buffer.concat([Buffer.from(chainId, "hex"), serializedTransaction, Buffer.allocUnsafe(32).fill(0)])
         const crypto = require("crypto")
         const signature = Signature.sign(msg, privateKey)
         console.log("Using Signature.sign")
         console.log({"msg": msg.toString('hex'), 
-                     "Hash": crypto.createHash('sha256').update(msg).digest('hex'), 
-                     "SignatureHex": signature.toHex(),
-                     "SignatureString": signature.toString(),
-                     "Verification": signature.verify(msg, publicKey)
-                    });                     
+            "Hash": crypto.createHash('sha256').update(msg).digest('hex'), 
+            "SignatureHex": signature.toHex(),
+            "SignatureString": signature.toString(),
+            "Verification": signature.verify(msg, publicKey),
+        })                     
                      
         //Now lets do the same using signatureProvider.sign
-        const { JsSignatureProvider } = require('@fioprotocol/fiojs/dist/chain-jssig');
-        const signatureProvider = new JsSignatureProvider([PrivateKey.fromHex(privateKeyDHex).toString()]);
-        const requiredKeys = [publicKey.toString()];
-        const serializedContextFreeData = null;
+        const { JsSignatureProvider } = require('@fioprotocol/fiojs/dist/chain-jssig')
+        const signatureProvider = new JsSignatureProvider([PrivateKey.fromHex(privateKeyDHex).toString()])
+        const requiredKeys = [publicKey.toString()]
+        const serializedContextFreeData = null
 
         const signedTxn = await signatureProvider.sign({
-          chainId: chainId,
-          requiredKeys: requiredKeys,
-          serializedTransaction: serializedTransaction,
-          serializedContextFreeData: serializedContextFreeData
-        });
+            chainId: chainId,
+            requiredKeys: requiredKeys,
+            serializedTransaction: serializedTransaction,
+            serializedContextFreeData: serializedContextFreeData,
+        })
 
     
         //We want to sign the stuff
-/*        console.log("SIGNATUREEEEEEE START!!!!!!!!!!!!!!!!");
+        /*        console.log("SIGNATUREEEEEEE START!!!!!!!!!!!!!!!!");
         console.log("SIGNATUREEEEEEE START!!!!!!!!!!!!!!!!");
         console.log("SIGNATUREEEEEEE START!!!!!!!!!!!!!!!!");
         console.log("SIGNATUREEEEEEE START!!!!!!!!!!!!!!!!");
@@ -162,18 +162,18 @@ describe("signTransaction", async () => {
         console.log(signedTxn.signatures[0])
 
         //Lets sign the transaction with ledger
-        const response = await fio.signTransaction({path, chainId, tx });
+        const response = await fio.signTransaction({path, chainId, tx })
         const signatureLedger = Signature.fromHex(response.witness.witnessSignatureHex)
         console.log("Ledger Response")
         console.log(response)
         console.log("Using ledger toString")
         console.log({"msg": msg.toString('hex'), 
-                     "Hash": response.txHashHex, 
-                     "SignatureHex": response.witness.witnessSignatureHex,
-                     "SignatureString": signatureLedger.toString(),
-                     "Verification": signatureLedger.verify(msg, publicKey)
-                    });                     
-//        console.log(Signature.fromHex(response.witness.witnessSignatureHex).toString())
-//        console.log(Signature.fromHex(response.witness.witnessSignatureHex).toString())
+            "Hash": response.txHashHex, 
+            "SignatureHex": response.witness.witnessSignatureHex,
+            "SignatureString": signatureLedger.toString(),
+            "Verification": signatureLedger.verify(msg, publicKey),
+        })                     
+        //        console.log(Signature.fromHex(response.witness.witnessSignatureHex).toString())
+        //        console.log(Signature.fromHex(response.witness.witnessSignatureHex).toString())
     })
 })

@@ -1,4 +1,4 @@
-import type { Version, Serial } from "../types/public"
+import type { Serial,Version } from "../types/public"
 import utils from "../utils"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"

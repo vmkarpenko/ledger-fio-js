@@ -15,9 +15,7 @@ describe("getSerial", async () => {
     })
 
     it("Should correctly get the serial number of the device", async () => {
-        console.log("AAAAA")
         const response = await fio.getSerial()
-        console.log(response)
         expect(response.serial.length).to.equal(14)
     })
 })
