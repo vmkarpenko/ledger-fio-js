@@ -58,11 +58,10 @@
     "randombytes": "^2.1.0",
     "text-encoding": "^0.7.0",
     "ts-node": "^9.1.1",
-    "typedoc": "git+https://github.com/ppershing/typedoc.git#do_not_sort_properties",
+    "typedoc": "^0.21.9",
     "typescript": "^4.1.5"
   },
   "scripts": {
-    "prepare": "cd node_modules/typedoc && yarn install && yarn build",
     "prepack": "yarn build:flowtypes && yarn flow",
     "lint": "yarn eslint . --max-warnings=0",
     "clean": "rm -rf dist/",
