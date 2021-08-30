@@ -29,11 +29,11 @@ describe("signTransaction", async () => {
         const publicKey = privateKey.toPublic()
         console.log(publicKey.toUncompressed().toHex())
 
-        //Let us prepare a transaction (not not necesarily valid for now)
+        //Let us prepare a transaction
         const tx: Transaction = { 
-          expiration: "",
-          ref_block_num: 0,
-          ref_block_prefix: 0,
+          expiration: "2021-08-28T12:50:36.686",
+          ref_block_num: 0x1122,
+          ref_block_prefix: 0x33445566,
           context_free_actions: [],
           actions: [{ 
             account: "fio.token",
@@ -43,10 +43,10 @@ describe("signTransaction", async () => {
               permission: "active",
             }], 
             data: { 
-              payee_public_key: "",
+              payee_public_key: "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
               amount: "19",
-              max_fee: "0",
-              tpid: "",
+              max_fee: "1229782938247303441",
+              tpid: "rewards@wallet",
               actor: "aftyershcu22",                                    
             }
           }],
@@ -54,7 +54,7 @@ describe("signTransaction", async () => {
         };
         const chainId = 'b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e' as HexString;
 
-/*        //Lets look at the abi
+        //We serialize the transaction
         const { TextEncoder, TextDecoder } = require('text-encoding');
         const fetch = require('node-fetch')
         const { base64ToBinary, arrayToHex } = require('@fioprotocol/fiojs/dist/chain-numeric');
@@ -67,18 +67,17 @@ describe("signTransaction", async () => {
         const abiFioAddress = await (await fetch(httpEndpoint + '/v1/chain/get_abi', { body: `{"account_name": "fio.token"}`, method: 'POST' })).json();
         const rawAbi = await (await fetch(httpEndpoint + '/v1/chain/get_raw_abi', { body: `{"account_name": "fio.token"}`, method: 'POST' })).json()
         const abi = base64ToBinary(rawAbi.abi);
-        console.log('abi: ', abi)
+//        console.log('abi: ', abi)
         // Get a Map of all the types from fio.address
         var typesFioAddress = ser.getTypesFromAbi(ser.createInitialTypes(), abiFioAddress.abi);
-        console.log(typesFioAddress)
+//        console.log(typesFioAddress)
         // Get the addaddress action type
         const actionAddaddress = typesFioAddress.get('trnsfiopubky');
-//        const actionAddaddress = typesFioAddress.get('addaddress');
         console.log(actionAddaddress)
 
         // Serialize the actions[] "data" field (This example assumes a single action, though transactions may hold an array of actions.)
         const buffer = new ser.SerialBuffer({ textEncoder, textDecoder });
-        actionAddaddress.serialize(buffer, tx.actions[0]);
+        actionAddaddress.serialize(buffer, tx.actions[0].data);
         const serializedData = arrayToHex(buffer.asUint8Array())
 
         // Get the actions parameter from the transaction and replace the data field with the serialized data field
@@ -88,12 +87,45 @@ describe("signTransaction", async () => {
           data: serializedData
         };
         console.log(serializedAction)
-        return;*/
+
+        const rawTransaction = {
+          ...tx,
+          max_net_usage_words: 0x00,
+          max_cpu_usage_ms: 0x00,
+          delay_sec: 0x00,
+          context_free_actions: [],
+          actions: [serializedAction],     //Actions have to be an array
+          transaction_extensions: [],
+        }
+        console.log(rawTransaction)
+
+        const abiMsig = await (await fetch(httpEndpoint + '/v1/chain/get_abi', { body: `{"account_name": "eosio.msig"}`, method: 'POST' })).json()
+        var typesTransaction = ser.getTypesFromAbi(ser.createInitialTypes(), abiMsig.abi)      
+//        console.log(typesTransaction)
+        // Get the transaction action type
+        const txnaction = typesTransaction.get('transaction');
+        console.log(txnaction)
+        console.log(typesTransaction.get('transaction_header'));
+        console.log(typesTransaction.get("action"))
+        console.log(typesTransaction.get("permission_level"))
+//        .getContract(account)
+      
+        // Serialize the transaction
+        const buffer2 = new ser.SerialBuffer({ textEncoder, textDecoder });
+        txnaction.serialize(buffer2, rawTransaction);
+        const serializedTransaction = buffer2.asUint8Array()
+        console.log(serializedTransaction)
+        console.log(Buffer.from(serializedTransaction).toString("hex"))
+
+
+        const serTx: Uint8Array = Buffer.from("1d312a6122116655443300000000"/*"010000980ad20ca85be0e1d195ba85e7cd012084460d5fe5f33200000000a8ed32325d3546494f385052653457525a4a6a356d6b656d367156474b79764e466750734e6e6a4e4e366b50686836456143707a4356696e354a6a130000000000000011111111111111112084460d5fe5f3320e726577617264734077616c6c657400"*/, "hex")
+        console.log(Buffer.from(serTx).toString("hex"))
 
         //Lets compute its signature in using Signature.sign
         const Signature = require('@fioprotocol/fiojs/dist/ecc/signature');
-        const serializedTransaction = uint64_to_buf(tx.actions[0].data.amount as Uint64_str)
-        const msg = Buffer.concat([Buffer.from(chainId, "hex"), serializedTransaction, Buffer.allocUnsafe(32).fill(0)])
+//        const serializedTransaction = uint64_to_buf(tx.actions[0].data.amount as Uint64_str)
+        const msg = Buffer.concat([Buffer.from(chainId, "hex"), serTx, Buffer.allocUnsafe(32).fill(0)])
+
         const crypto = require("crypto")
         const signature = Signature.sign(msg, privateKey)
         console.log("Using Signature.sign")

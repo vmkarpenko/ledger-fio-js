@@ -75,3 +75,9 @@ export function path_to_buf(path: Array<number>): Buffer {
     }
     return data
 }
+
+export function date_to_buf(date: string): Buffer {
+    const parsedDate: number = Date.parse(date + 'Z')
+    assert(!Number.isNaN(parsedDate), "Invalid timepoint")
+    return uint32_to_buf(Math.round(parsedDate/1000) as Uint32_t)
+}

@@ -136,11 +136,11 @@ export type Witness = {
  * @see [[Action]]
  */
  export type TransferFIOTokensData = {
-    payee_public_key: String,
+    payee_public_key: string,
     amount: bigint_like,
     max_fee: bigint_like,
-    tpid: String,
-    actor: String,
+    tpid: string,
+    actor: string,
     
 }
 
@@ -150,8 +150,8 @@ export type Witness = {
  * @see [[Action]]
  */
  export type ActionAuthorisation = {
-    actor: String,
-    permission: String,
+    actor: string,
+    permission: string,
  }
 
 
@@ -161,8 +161,8 @@ export type Witness = {
  * @see [[Transaction]]
  */
  export type Action = {
-    account: String,
-    name: String,
+    account: string,
+    name: string,
     authorization: Array<ActionAuthorisation>
     data: | TransferFIOTokensData
  }
@@ -175,17 +175,13 @@ export type Witness = {
  * @see [[Fio.signTransaction]]
  */
  export type Transaction = {
-    expiration: String,
+    expiration: string,
     ref_block_num: bigint_like,
     ref_block_prefix: bigint_like,
     context_free_actions: Array<Action>,
     actions: Array<Action>,
     transaction_extensions: null
 }
-
-/*export type Transaction = {
-    fee: Uint64_str,
-}*/
 
 
 

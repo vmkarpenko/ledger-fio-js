@@ -3,7 +3,7 @@ import { Version, Transaction, SignedTransactionData, HARDENED } from "../types/
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
 import { ensureLedgerAppVersionCompatible } from "./getVersion"
-import { uint64_to_buf, buf_to_hex, hex_to_buf, path_to_buf } from "../utils/serialize"
+import { date_to_buf, uint16_to_buf, uint32_to_buf, buf_to_hex, hex_to_buf, path_to_buf } from "../utils/serialize"
 import { chunkBy } from "../utils/ioHelpers"
 
 const enum P1 {
@@ -40,7 +40,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
         const response = yield send({
             p1: P1.STAGE_FEE,
             p2: P2_UNUSED,
-            data: uint64_to_buf(tx.actions[0].data.amount),
+            data: Buffer.concat([date_to_buf(tx.expiration), uint16_to_buf(tx.ref_block_num), uint32_to_buf(tx.ref_block_prefix)]),
             expectedResponseLength: 0,
         })
     }

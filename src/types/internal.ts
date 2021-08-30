@@ -18,28 +18,28 @@ export const PUBLIC_KEY_LENGTH = 65
 
 
 export type ParsedTransferFIOTokensData = {
-    payee_public_key: String,
+    payee_public_key: string,
     amount: Uint64_str,
     max_fee: Uint64_str,
-    tpid: String,
-    actor: String,
+    tpid: string,
+    actor: string,
 }
  export type ParsedActionAuthorisation = {
-    actor: String,
-    permission: String,
+    actor: string,
+    permission: string,
  }
 
  export type ParsedAction = {
-    account: String,
-    name: String,
+    account: string,
+    name: string,
     authorization: Array<ParsedActionAuthorisation>
     data: | ParsedTransferFIOTokensData
  }
 
 export type ParsedTransaction = {
-    expiration: String,
-    ref_block_num: Uint32_t,
-    ref_block_prefix: Uint16_t,
+    expiration: string,
+    ref_block_num: Uint16_t,
+    ref_block_prefix: Uint32_t,
     context_free_actions: Array<ParsedAction>,
     actions: Array<ParsedAction>,
     transaction_extensions: null

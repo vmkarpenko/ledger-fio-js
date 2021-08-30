@@ -261,8 +261,8 @@ export class Fio {
         data: parsedActionData,
     }
     const parsedTx: ParsedTransaction = { expiration: tx.expiration, 
-                                          ref_block_num: parseUint32_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID), 
-                                          ref_block_prefix: parseUint16_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),
+                                          ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID), 
+                                          ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),
                                           context_free_actions: [],
                                           actions: [parsedAction],
                                           transaction_extensions: null,
