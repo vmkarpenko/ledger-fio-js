@@ -14,7 +14,8 @@ export enum InvalidDataReason {
   REF_BLOCK_NUM_INVALID = "ref block num invalid",
   REF_BLOCK_PREFIX_INVALID = "ref block prefix invalid",
   MULTIPLE_AUTHORIZATION_NOT_SUPPORTED = "multiple authorization not supported",
- 
+  ACTION_AUTHORIZATION_INVALID = "action authorization invalid",
+
   NETWORK_INVALID_PROTOCOL_MAGIC = "invalid protocol magic",
   NETWORK_INVALID_NETWORK_ID = "invalid network id",
 }

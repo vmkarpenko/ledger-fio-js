@@ -1,6 +1,7 @@
+import { ActionAuthorisation } from "types/public"
 import { InvalidData } from "../errors"
 import type { InvalidDataReason } from "../errors/index"
-import type { _Uint64_bigint, _Uint64_num, FixlenHexString, HexString, Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString } from "../types/internal"
+import type { _Uint64_bigint, _Uint64_num, FixlenHexString, HexString, Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, NameString, ParsedActionAuthorisation } from "../types/internal"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 
@@ -64,6 +65,15 @@ export const isUintStr = (data: unknown, constraints: { min?: string, max?: stri
     )
 }
 
+export const MAX_NAME_STRING_LENGTH = 12;
+
+export const isNameString = (data: unknown): data is NameString => {
+    return isString(data) 
+        && data.length > 0
+        && data.length <= MAX_NAME_STRING_LENGTH
+        && /([1-5]|[a-z]|\.)+/.test(data)
+}
+
 export function validate(cond: boolean, errMsg: InvalidDataReason): asserts cond {
     if (!cond) throw new InvalidData(errMsg)
 }
@@ -125,7 +135,6 @@ export function parseBIP32Path(value: unknown, errMsg: InvalidDataReason): Valid
     return value
 }
 
-
 export function parseIntFromStr(str: string, errMsg: InvalidDataReason): number {
     validate(isString(str), errMsg)
     const i = parseInt(str)
@@ -136,4 +145,46 @@ export function parseIntFromStr(str: string, errMsg: InvalidDataReason): number 
     // Could still be float
     validate(isInteger(i), errMsg)
     return i
+}
+
+export function parseContractAccountName(chainId: string, account: string, name: string, errMsg: InvalidDataReason): HexString {
+    if ( chainId == "b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e" &&
+            account == "fio.token" || name == "trnsfiopubky") {
+        return "0000980ad20ca85be0e1d195ba85e7cd" as HexString;
+    }
+    validate(false, errMsg)
+}
+
+export function parseNameString(name: string, errMsg: InvalidDataReason): NameString {
+    validate(isNameString(name), errMsg)
+
+    //from fiojs/src/chain-serialize.ts pushName
+    function charToSymbol(c: number) {
+        if (c >= 'a'.charCodeAt(0) && c <= 'z'.charCodeAt(0)) {
+            return (c - 'a'.charCodeAt(0)) + 6;
+        }
+        if (c >= '1'.charCodeAt(0) && c <= '5'.charCodeAt(0)) {
+            return (c - '1'.charCodeAt(0)) + 1;
+        }
+        return 0;
+    }
+    const a = new Uint8Array(8);
+    let bit = 63;
+    for (let i = 0; i < name.length; ++i) {
+        let c = charToSymbol(name.charCodeAt(i));
+        if (bit < 5) {
+            c = c << 1;
+        }
+        for (let j = 4; j >= 0; --j) {
+            if (bit >= 0) {
+                a[Math.floor(bit / 8)] |= ((c >> j) & 1) << (bit % 8);
+                --bit;
+            }
+        }
+    }
+    return Buffer.from(a).toString('hex') as NameString
+}
+
+export function parseAuthorization(authorization: ActionAuthorisation, errMsg: InvalidDataReason): ParsedActionAuthorisation {
+   return {actor: "2084460d5fe5f332" as HexString, permission: "00000000a8ed3232" as HexString}    //TODO
 }

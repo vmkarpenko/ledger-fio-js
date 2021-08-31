@@ -29,7 +29,7 @@ import type { Action, ActionAuthorisation, BIP32Path, DeviceCompatibility, Publi
     Serial, SignedTransactionData,    Transaction, TransferFIOTokensData, Version } from './types/public'
 import utils from "./utils"
 import { assert } from './utils/assert'
-import { isValidPath, parseBIP32Path, parseUint16_t, parseUint32_t, parseUint64_str,validate } from './utils/parse'
+import { isValidPath, parseBIP32Path, parseUint16_t, parseUint32_t, parseUint64_str,validate, parseContractAccountName, parseAuthorization } from './utils/parse'
 
 export * from './errors'
 export * from './types/public'
@@ -247,14 +247,10 @@ export class Fio {
           actor: action.data.actor,
           tpid: action.data.tpid,
       }
-      const parsedAuthorization: ParsedActionAuthorisation = {
-          actor: action.authorization[0].actor,
-          permission: 'active',
-      }
       const parsedAction: ParsedAction = {
-          account: action.account,
-          name: action.name,
-          authorization: [parsedAuthorization],
+          contractAccountName: parseContractAccountName(chainId, action.account, action.name, 
+                  InvalidDataReason.ACTION_NOT_SUPPORTED),
+          authorization: [parseAuthorization(action.authorization[0], InvalidDataReason.ACTION_AUTHORIZATION_INVALID)],
           data: parsedActionData,
       }
       const parsedTx: ParsedTransaction = { expiration: tx.expiration, 
@@ -329,7 +325,7 @@ export type GetPublicKeyResponse = PublicKey
  */
 export type SignTransactionRequest = {
   path: BIP32Path,
-  chainId: String,
+  chainId: string,
   tx: Transaction,
 }
 

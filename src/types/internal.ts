@@ -1,6 +1,7 @@
 // Basic primitives
 export type VarlenAsciiString = string & { __type: 'ascii' }
 export type FixlenHexString<N> = string & { __type: 'hex', __length: N }
+export type NameString = FixlenHexString<8>
 export type HexString = string & { __type: 'hex' }
 
 export type _Uint64_num = number & { __type: 'uint64_t' }
@@ -23,13 +24,12 @@ export type ParsedTransferFIOTokensData = {
     actor: string,
 }
  export type ParsedActionAuthorisation = {
-    actor: string,
-    permission: string,
+    actor: HexString,
+    permission: HexString,
  }
 
  export type ParsedAction = {
-    account: string,
-    name: string,
+    contractAccountName: HexString,
     authorization: Array<ParsedActionAuthorisation>
     data: | ParsedTransferFIOTokensData
  }

@@ -66,11 +66,8 @@ describe("signTransaction", async () => {
         const httpEndpoint = 'http://testnet.fioprotocol.io'
         const abiFioAddress = await (await fetch(httpEndpoint + '/v1/chain/get_abi', { body: `{"account_name": "fio.token"}`, method: 'POST' })).json();
         const rawAbi = await (await fetch(httpEndpoint + '/v1/chain/get_raw_abi', { body: `{"account_name": "fio.token"}`, method: 'POST' })).json()
-        const abi = base64ToBinary(rawAbi.abi);
-//        console.log('abi: ', abi)
         // Get a Map of all the types from fio.address
         var typesFioAddress = ser.getTypesFromAbi(ser.createInitialTypes(), abiFioAddress.abi);
-//        console.log(typesFioAddress)
         // Get the addaddress action type
         const actionAddaddress = typesFioAddress.get('trnsfiopubky');
         console.log(actionAddaddress)
@@ -108,7 +105,6 @@ describe("signTransaction", async () => {
         console.log(typesTransaction.get('transaction_header'));
         console.log(typesTransaction.get("action"))
         console.log(typesTransaction.get("permission_level"))
-//        .getContract(account)
       
         // Serialize the transaction
         const buffer2 = new ser.SerialBuffer({ textEncoder, textDecoder });
@@ -118,8 +114,14 @@ describe("signTransaction", async () => {
         console.log(Buffer.from(serializedTransaction).toString("hex"))
 
 
-        const serTx: Uint8Array = Buffer.from("1d312a6122116655443300000000"/*"010000980ad20ca85be0e1d195ba85e7cd012084460d5fe5f33200000000a8ed32325d3546494f385052653457525a4a6a356d6b656d367156474b79764e466750734e6e6a4e4e366b50686836456143707a4356696e354a6a130000000000000011111111111111112084460d5fe5f3320e726577617264734077616c6c657400"*/, "hex")
+        const serTx: Uint8Array = Buffer.from("1d312a6122116655443300000000010000980ad20ca85be0e1d195ba85e7cd"/*"012084460d5fe5f33200000000a8ed32325d3546494f385052653457525a4a6a356d6b656d367156474b79764e466750734e6e6a4e4e366b50686836456143707a4356696e354a6a130000000000000011111111111111112084460d5fe5f3320e726577617264734077616c6c657400"*/, "hex")
         console.log(Buffer.from(serTx).toString("hex"))
+
+/*        //Lets play with contracts
+        const account = "fio.token"
+        .getContract(account)*/
+
+
 
         //Lets compute its signature in using Signature.sign
         const Signature = require('@fioprotocol/fiojs/dist/ecc/signature');
