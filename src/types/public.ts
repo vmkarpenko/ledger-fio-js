@@ -30,7 +30,7 @@ export const HARDENED = 0x80000000
  * @category Basic types
  * @see [[Version]]
  */
- export type Flags = {
+export type Flags = {
     isDebug: boolean,
 };
 
@@ -64,7 +64,7 @@ export type Version = {
  * Response to [[Fio.getSerial]] call
  * @category Basic types
  */
- export type Serial = {
+export type Serial = {
     /**
      * Serial is a Ledger device identifier.
      * It is 7 bytes long, which is represented here as 14-character hex string
@@ -84,19 +84,19 @@ export type Version = {
  * @see [[HARDENED]]
  * @category Basic types
  */
- export type BIP32Path = Array<number>;
+export type BIP32Path = Array<number>;
 
- /**
+/**
   * Derived  public key
   * @category Basic types
   * @see [[Fio.getPublicKey]]
   */
-  export type PublicKey = {
+export type PublicKey = {
      publicKeyHex: string,
   }
  
   
- /**
+/**
  * Transaction witness.
  * @see [[SignedTransactionData]]
  * @category Basic types
@@ -118,7 +118,7 @@ export type Witness = {
  * @category Basic types
  * @see [[Fio.signTransaction]]
  */
- export type SignedTransactionData = {
+export type SignedTransactionData = {
     /**
      * Hash of signed transaction. Callers should check that they serialize tx the same way
      */

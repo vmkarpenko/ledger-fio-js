@@ -15,8 +15,6 @@ export type Uint8_t = number & { __type: 'uint8_t' }
 // Our types
 export const PUBLIC_KEY_LENGTH = 65
 
-
-
 export type ParsedTransferFIOTokensData = {
     payee_public_key: string,
     amount: Uint64_str,
@@ -44,5 +42,4 @@ export type ParsedTransaction = {
     actions: Array<ParsedAction>,
     transaction_extensions: null
 }
-
 

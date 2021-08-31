@@ -1,10 +1,12 @@
-import { HexString, ValidBIP32Path, ParsedTransaction } from "types/internal"
-import { Version, Transaction, SignedTransactionData, HARDENED } from "../types/public"
+import type { HexString, ParsedTransaction, ValidBIP32Path } from "types/internal"
+
+import type {SignedTransactionData, Version } from "../types/public"
+import { HARDENED, Transaction } from "../types/public"
+import { chunkBy } from "../utils/ioHelpers"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
 import { ensureLedgerAppVersionCompatible } from "./getVersion"
 import { date_to_buf, uint16_to_buf, uint32_to_buf, buf_to_hex, hex_to_buf, path_to_buf } from "../utils/serialize"
-import { chunkBy } from "../utils/ioHelpers"
 
 const enum P1 {
   STAGE_INIT = 0x01,
@@ -26,13 +28,13 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
      
     //Initialize
     {
-      const P2_UNUSED = 0x00
-      const response = yield send({
-          p1: P1.STAGE_INIT,
-          p2: P2_UNUSED,
-          data: Buffer.from(chainId, "hex"),
-          expectedResponseLength: 0,
-      })
+        const P2_UNUSED = 0x00
+        const response = yield send({
+            p1: P1.STAGE_INIT,
+            p2: P2_UNUSED,
+            data: Buffer.from(chainId, "hex"),
+            expectedResponseLength: 0,
+        })
     }
     //Send chainId
     {
@@ -49,7 +51,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
     const response = yield send({
         p1: P1.STAGE_WITNESSES,
         p2: P2_UNUSED,
-        data: Buffer.concat([path_to_buf(parsedPath),]),
+        data: Buffer.concat([path_to_buf(parsedPath)]),
         expectedResponseLength: 65+32,
     })
 

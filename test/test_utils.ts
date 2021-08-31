@@ -14,28 +14,3 @@ export async function getFio() {
     (fio as any).t = transport
     return Promise.resolve(fio)
 }
-
-const ProtocolMagics = {
-    MAINNET: 764824073,
-    TESTNET: 42,
-}
-
-const NetworkIds = {
-    TESTNET: 0x00,
-    MAINNET: 0x01,
-}
-
-export const Networks = {
-    Mainnet: {
-        networkId: NetworkIds.MAINNET,
-        protocolMagic: ProtocolMagics.MAINNET,
-    },
-    Testnet: {
-        networkId: NetworkIds.TESTNET,
-        protocolMagic: ProtocolMagics.TESTNET,
-    },
-    Fake: {
-        networkId: 0x03,
-        protocolMagic: 47,
-    },
-}

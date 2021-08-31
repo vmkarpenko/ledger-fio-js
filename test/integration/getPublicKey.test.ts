@@ -39,8 +39,6 @@ describe("getPublicKey", async () => {
     describe("Should reject invalid paths", () => {
         it('path shorter than 5 indexes', async () => {
             const promise = fio.getPublicKey({ path: str_to_path("44'/235'/0'/0") })
-//            await expect(promise).to.be.rejected
-
             await expect(promise).to.be.rejectedWith(DeviceStatusError, "Action rejected by Ledger's security policy")
         })
 

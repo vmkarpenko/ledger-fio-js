@@ -1,5 +1,5 @@
-import type { Version, DeviceCompatibility } from "../types/public"
 import { DeviceVersionUnsupported } from "../errors"
+import type { DeviceCompatibility,Version } from "../types/public"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
 

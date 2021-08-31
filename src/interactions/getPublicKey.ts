@@ -48,13 +48,13 @@ export function* getPublicKey(
       expectedResponseLength: PUBLIC_KEY_LENGTH,
   })
 
-  const [publicKey, rest] = chunkBy(response, [65,])
+  const [publicKey, rest] = chunkBy(response, [65])
   assert(rest.length === 0, "invalid response length")
 
   result.push()
 
 
   return {
-    publicKeyHex: publicKey.toString("hex")
+      publicKeyHex: publicKey.toString("hex"),
   }
 }
