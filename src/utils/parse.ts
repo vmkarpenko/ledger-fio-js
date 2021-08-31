@@ -158,7 +158,7 @@ export function parseContractAccountName(chainId: string, account: string, name:
 export function parseNameString(name: string, errMsg: InvalidDataReason): NameString {
     validate(isNameString(name), errMsg)
 
-    //from fiojs/src/chain-serialize.ts pushName
+    //from fiojs/src/chain-serialize.ts SerialBuffer.pushName
     function charToSymbol(c: number) {
         if (c >= 'a'.charCodeAt(0) && c <= 'z'.charCodeAt(0)) {
             return (c - 'a'.charCodeAt(0)) + 6;
@@ -185,6 +185,7 @@ export function parseNameString(name: string, errMsg: InvalidDataReason): NameSt
     return Buffer.from(a).toString('hex') as NameString
 }
 
-export function parseAuthorization(authorization: ActionAuthorisation, errMsg: InvalidDataReason): ParsedActionAuthorisation {
-   return {actor: "2084460d5fe5f332" as HexString, permission: "00000000a8ed3232" as HexString}    //TODO
+export function parseAuthorization(authorization: ActionAuthorisation, errMsg: InvalidDataReason): ParsedActionAuthorisation {    
+    return {actor: parseNameString(authorization.actor, errMsg), 
+            permission: parseNameString(authorization.permission, errMsg)}
 }

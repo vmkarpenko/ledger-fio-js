@@ -12,7 +12,8 @@ const enum P1 {
   STAGE_INIT = 0x01,
   STAGE_HEADER = 0x02,
   STAGE_ACTION_HEADER = 0x03,
-  STAGE_ACTION_DATA = 0x04,
+  STAGE_ACTION_AUTHORIZATION = 0x04,
+  STAGE_ACTION_DATA = 0x05,
   STAGE_WITNESSES = 0x10,
 }
 
@@ -51,8 +52,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
     //Send action account, name, acount, permission level
     {
         const P2_UNUSED = 0x00
-
-        const contractAccountName : Buffer = Buffer.from("0000980ad20ca85be0e1d195ba85e7cd", "hex")
+        const contractAccountName : Buffer = Buffer.from(tx.actions[0].contractAccountName, "hex")
         const response = yield send({
             p1: P1.STAGE_ACTION_HEADER,
             p2: P2_UNUSED,
@@ -60,7 +60,18 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
             expectedResponseLength: 0,
       })
     }
-    //Send witnesses
+    //Send action authorization
+    {
+      const P2_UNUSED = 0x00
+      const response = yield send({
+          p1: P1.STAGE_ACTION_AUTHORIZATION,
+          p2: P2_UNUSED,
+          data: Buffer.concat([Buffer.from(tx.actions[0].authorization[0].actor, "hex"),
+                               Buffer.from(tx.actions[0].authorization[0].permission, "hex")]),
+          expectedResponseLength: 0,
+    })
+  }
+  //Send witnesses
     const P2_UNUSED = 0x00
     const response = yield send({
         p1: P1.STAGE_WITNESSES,
