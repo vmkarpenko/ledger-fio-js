@@ -44,7 +44,7 @@ describe("signTransaction", async () => {
               }], 
               data: { 
                 payee_public_key: "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
-                amount: "19",
+                amount: "20",
                 max_fee: "1229782938247303441",
                 tpid: "rewards@wallet",
                 actor: "aftyershcu22",                                    
