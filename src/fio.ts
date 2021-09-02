@@ -29,7 +29,7 @@ import type { Action, ActionAuthorisation, BIP32Path, DeviceCompatibility, Publi
     Serial, SignedTransactionData,    Transaction, TransferFIOTokensData, Version } from './types/public'
 import utils from "./utils"
 import { assert } from './utils/assert'
-import { isValidPath, parseBIP32Path, parseUint16_t, parseUint32_t, parseUint64_str,validate, parseContractAccountName, parseAuthorization } from './utils/parse'
+import { isValidPath, parseBIP32Path, parseUint16_t, parseUint32_t, parseUint64_str,validate, parseContractAccountName, parseAuthorization, parseNameString } from './utils/parse'
 
 export * from './errors'
 export * from './types/public'
@@ -235,8 +235,11 @@ export class Fio {
       // TODO validate strings and other transaction values
       validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
       validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
-      //Todo validate rest of the transaction
+      //TODO validate rest of the transaction
       validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
+      validate(tx.actions[0].data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
+      validate(tx.actions[0].data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
+      //TODO validate rest of txactions[0].data
 
       const action = tx.actions[0]
       const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
@@ -244,7 +247,7 @@ export class Fio {
           payee_public_key: action.data.payee_public_key,
           amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.AMOUNT_INVALID),
           max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
-          actor: action.data.actor,
+          actor: parseNameString(action.data.actor, InvalidDataReason.INVALID_ACTOR),
           tpid: action.data.tpid,
       }
       const parsedAction: ParsedAction = {

@@ -21,7 +21,7 @@ export type ParsedTransferFIOTokensData = {
     amount: Uint64_str,
     max_fee: Uint64_str,
     tpid: string,
-    actor: string,
+    actor: NameString,
 }
  export type ParsedActionAuthorisation = {
     actor: NameString,

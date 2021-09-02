@@ -15,7 +15,8 @@ export enum InvalidDataReason {
   REF_BLOCK_PREFIX_INVALID = "ref block prefix invalid",
   MULTIPLE_AUTHORIZATION_NOT_SUPPORTED = "multiple authorization not supported",
   ACTION_AUTHORIZATION_INVALID = "action authorization invalid",
-
-  NETWORK_INVALID_PROTOCOL_MAGIC = "invalid protocol magic",
-  NETWORK_INVALID_NETWORK_ID = "invalid network id",
+  INVALID_PAYEE_PUBKEY = "invalid payee pubkey",
+  INVALID_TPID = "invalid tpid",
+  INVALID_ACTOR = "invalid actor",
+  ACTION_DATA_TOO_LONG = "action data too long",
 }
