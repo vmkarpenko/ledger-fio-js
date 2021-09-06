@@ -1,5 +1,5 @@
 import type Fio from "../../src/fio"
-import { getFio } from "../test_utils"
+import {getFio} from "../test_utils"
 
 describe("runTestsDevice", async () => {
     let fio: Fio = {} as Fio
