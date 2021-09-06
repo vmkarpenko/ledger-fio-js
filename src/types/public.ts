@@ -1,6 +1,6 @@
 /**
  * Type for 64-bit integers.
- * 
+ *
  * We accept either
  * - `Number` (if it is less than Number.MAX_SAFE_INTEGER)
  * - `String` (representing 64-bit number)
@@ -13,12 +13,12 @@ export type bigint_like = number | bigint | string
 
 /**
  * Hardened derivation
- * 
+ *
  * @example
  * ```
  * const accountId = 0 + HARDENED
  * ```
- * 
+ *
  * @see [[BIP32Path]]
  */
 export const HARDENED = 0x80000000
@@ -31,8 +31,8 @@ export const HARDENED = 0x80000000
  * @see [[Version]]
  */
 export type Flags = {
-    isDebug: boolean,
-};
+    isDebug: boolean
+}
 
 export type DeviceCompatibility = {
     /** Overall compatibility.
@@ -47,17 +47,18 @@ export type DeviceCompatibility = {
      */
     recommendedVersion: string | null
 }
-/** 
+
+/**
  * Device app version
  * @category Basic types
  * @see [[Fio.getVersion]]
  * @see [[DeviceCompatibility]]
  */
 export type Version = {
-    major: number,
-    minor: number,
-    patch: number,
-    flags: Flags,
+    major: number
+    minor: number
+    patch: number
+    flags: Flags
 };
 
 /**
@@ -69,33 +70,33 @@ export type Serial = {
      * Serial is a Ledger device identifier.
      * It is 7 bytes long, which is represented here as 14-character hex string
      */
-    serial: string,
+    serial: string
 };
 
 /**
  * Represents BIP 32 path.
- * 
+ *
  * @example
  * ```
  *  const HD = HARDENED
  *  const Address = [44 + HD, 1815 + HD, 0 + HD, 0, 0];
  * ```
- * 
+ *
  * @see [[HARDENED]]
  * @category Basic types
  */
-export type BIP32Path = Array<number>;
+export type BIP32Path = Array<number>
 
 /**
-  * Derived  public key
-  * @category Basic types
-  * @see [[Fio.getPublicKey]]
-  */
+ * Derived  public key
+ * @category Basic types
+ * @see [[Fio.getPublicKey]]
+ */
 export type PublicKey = {
-     publicKeyHex: string,
-  }
- 
-  
+    publicKeyHex: string
+}
+
+
 /**
  * Transaction witness.
  * @see [[SignedTransactionData]]
@@ -105,12 +106,12 @@ export type Witness = {
     /**
      * Witnessed path
      */
-    path: BIP32Path,
-    /** 
+    path: BIP32Path
+    /**
      * Note: this is *only* a signature.
      * You need to add proper extended public key to form a full witness
      */
-    witnessSignatureHex: string,
+    witnessSignatureHex: string
 };
 
 /**
@@ -122,11 +123,11 @@ export type SignedTransactionData = {
     /**
      * Hash of signed transaction. Callers should check that they serialize tx the same way
      */
-    txHashHex: string,
+    txHashHex: string
     /**
      * List of witnesses. Caller should assemble full transaction to be submitted to the network.
      */
-    witness: Witness,
+    witness: Witness
 };
 
 
@@ -135,13 +136,13 @@ export type SignedTransactionData = {
  * @category Basic types
  * @see [[Action]]
  */
- export type TransferFIOTokensData = {
-    payee_public_key: string,
-    amount: bigint_like,
-    max_fee: bigint_like,
-    tpid: string,
-    actor: string,
-    
+export type TransferFIOTokensData = {
+    payee_public_key: string
+    amount: bigint_like
+    max_fee: bigint_like
+    tpid: string
+    actor: string
+
 }
 
 /**
@@ -149,10 +150,10 @@ export type SignedTransactionData = {
  * @category Basic types
  * @see [[Action]]
  */
- export type ActionAuthorisation = {
-    actor: string,
-    permission: string,
- }
+export type ActionAuthorisation = {
+    actor: string
+    permission: string
+}
 
 
 /**
@@ -160,12 +161,12 @@ export type SignedTransactionData = {
  * @category Basic types
  * @see [[Transaction]]
  */
- export type Action = {
-    account: string,
-    name: string,
+export type Action = {
+    account: string
+    name: string
     authorization: Array<ActionAuthorisation>
     data: | TransferFIOTokensData
- }
+}
 
 
 /**
@@ -174,15 +175,11 @@ export type SignedTransactionData = {
  * @category Basic types
  * @see [[Fio.signTransaction]]
  */
- export type Transaction = {
-    expiration: string,
-    ref_block_num: bigint_like,
-    ref_block_prefix: bigint_like,
-    context_free_actions: Array<Action>,
-    actions: Array<Action>,
+export type Transaction = {
+    expiration: string
+    ref_block_num: bigint_like
+    ref_block_prefix: bigint_like
+    context_free_actions: Array<Action>
+    actions: Array<Action>
     transaction_extensions: null
 }
-
-
-
-

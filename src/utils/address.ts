@@ -1,10 +1,10 @@
 import basex from "base-x"
 import bech32 from "bech32"
 
-import { InvalidDataReason } from "../errors"
-import { HARDENED } from "../types/public"
-import { assert } from "../utils/assert"
-import { isBuffer, isString, parseIntFromStr, validate } from "./parse"
+import {InvalidDataReason} from "../errors"
+import {HARDENED} from "../types/public"
+import {assert} from "../utils/assert"
+import {isBuffer, isString, parseIntFromStr, validate} from "./parse"
 
 const BASE58_ALPHABET =
     "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -35,7 +35,6 @@ export function str_to_path(data: string): Array<number> {
 }
 
 
-
 export function base58_encode(data: Buffer): string {
     assert(isBuffer(data), "invalid buffer")
 
@@ -50,4 +49,3 @@ export function base58_decode(data: string): Buffer {
 
     return bs58.decode(data)
 }
-

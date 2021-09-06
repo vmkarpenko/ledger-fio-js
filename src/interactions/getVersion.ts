@@ -1,14 +1,14 @@
-import { DeviceVersionUnsupported } from "../errors"
-import type { DeviceCompatibility,Version } from "../types/public"
-import { INS } from "./common/ins"
-import type { Interaction, SendParams } from "./common/types"
+import {DeviceVersionUnsupported} from "../errors"
+import type {DeviceCompatibility, Version} from "../types/public"
+import {INS} from "./common/ins"
+import type {Interaction, SendParams} from "./common/types"
 
 const send = (params: {
-  p1: number,
-  p2: number,
-  data: Buffer,
-  expectedResponseLength?: number
-}): SendParams => ({ ins: INS.GET_VERSION, ...params })
+    p1: number,
+    p2: number,
+    data: Buffer,
+    expectedResponseLength?: number
+}): SendParams => ({ins: INS.GET_VERSION, ...params})
 
 
 export function* getVersion(): Interaction<Version> {
@@ -32,12 +32,13 @@ export function* getVersion(): Interaction<Version> {
     const flags = {
         isDebug: (flags_value & FLAG_IS_DEBUG) === FLAG_IS_DEBUG,
     }
-    return { major, minor, patch, flags }
+    return {major, minor, patch, flags}
 }
 
 export function getCompatibility(version: Version): DeviceCompatibility {
     // We restrict forward compatibility only to backward-compatible semver changes
-    const v0_0 = isLedgerAppVersionAtLeast(version, 0, 0) && isLedgerAppVersionAtMost(version, 0, Infinity)
+    const v0_0 = isLedgerAppVersionAtLeast(version, 0, 0) &&
+                 isLedgerAppVersionAtMost(version, 0, Infinity)
 
     return {
         isCompatible: v0_0,
@@ -50,7 +51,7 @@ export function isLedgerAppVersionAtLeast(
     minMajor: number,
     minMinor: number
 ): boolean {
-    const { major, minor } = version
+    const {major, minor} = version
 
     return major > minMajor || (major === minMajor && minor >= minMinor)
 }
@@ -60,7 +61,7 @@ export function isLedgerAppVersionAtMost(
     maxMajor: number,
     maxMinor: number
 ): boolean {
-    const { major, minor } = version
+    const {major, minor} = version
 
     return major < maxMajor || (major === maxMajor && minor <= maxMinor)
 }
@@ -68,7 +69,7 @@ export function isLedgerAppVersionAtMost(
 export function ensureLedgerAppVersionCompatible(
     version: Version,
 ): void {
-    const { isCompatible, recommendedVersion } = getCompatibility(version)
+    const {isCompatible, recommendedVersion} = getCompatibility(version)
 
     if (!isCompatible) {
         throw new DeviceVersionUnsupported(`Device app version unsupported. Please upgrade to ${recommendedVersion}.`)

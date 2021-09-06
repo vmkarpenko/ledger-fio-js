@@ -16,20 +16,38 @@
  ********************************************************************************/
 import type Transport from "@ledgerhq/hw-transport"
 
-import { DeviceStatusCodes, DeviceStatusError} from './errors'
-import { InvalidDataReason } from "./errors/invalidDataReason"
-import type { Interaction, SendParams } from './interactions/common/types'
-import { getPublicKey } from "./interactions/getPublicKey"
-import { getSerial } from "./interactions/getSerial"
-import { getCompatibility,getVersion } from "./interactions/getVersion"
-import { runTests } from "./interactions/runTests"
-import { signTransaction } from "./interactions/signTransaction"
-import type { HexString, ParsedAction, ParsedActionAuthorisation, ParsedTransaction, ParsedTransferFIOTokensData,ValidBIP32Path } from './types/internal'
-import type { Action, ActionAuthorisation, BIP32Path, DeviceCompatibility, PublicKey, 
-    Serial, SignedTransactionData,    Transaction, TransferFIOTokensData, Version } from './types/public'
+import {DeviceStatusCodes, DeviceStatusError} from './errors'
+import {InvalidDataReason} from "./errors"
+import type {Interaction, SendParams} from './interactions/common/types'
+import {getPublicKey} from "./interactions/getPublicKey"
+import {getSerial} from "./interactions/getSerial"
+import {getCompatibility, getVersion} from "./interactions/getVersion"
+import {runTests} from "./interactions/runTests"
+import {signTransaction} from "./interactions/signTransaction"
+import type {
+    HexString,
+    ParsedAction,
+    ParsedActionAuthorisation,
+    ParsedTransaction,
+    ParsedTransferFIOTokensData,
+    ValidBIP32Path,
+} from './types/internal'
+import type {
+    Action, ActionAuthorisation, BIP32Path, DeviceCompatibility, PublicKey,
+    Serial, SignedTransactionData, Transaction, TransferFIOTokensData, Version,
+} from './types/public'
 import utils from "./utils"
-import { assert } from './utils/assert'
-import { isValidPath, parseBIP32Path, parseUint16_t, parseUint32_t, parseUint64_str,validate, parseContractAccountName, parseAuthorization, parseNameString } from './utils/parse'
+import {assert} from './utils/assert'
+import {
+    isValidPath,
+    parseAuthorization,
+    parseBIP32Path,
+    parseContractAccountName,
+    parseNameString,
+    parseUint16_t,
+    parseUint32_t,
+    parseUint64_str,
+    validate} from './utils/parse'
 
 export * from './errors'
 export * from './types/public'
@@ -77,8 +95,8 @@ function wrapRetryStillInCall<T extends Function>(fn: T): T {
         } catch (e: any) {
             if (
                 e &&
-        e.statusCode &&
-        e.statusCode === DeviceStatusCodes.ERR_STILL_IN_CALL
+                e.statusCode &&
+                e.statusCode === DeviceStatusCodes.ERR_STILL_IN_CALL
             ) {
                 // Do the retry
                 return await fn(...args)
@@ -111,181 +129,181 @@ async function interact<T>(
  * @category Main
  */
 export class Fio {
-  /** @ignore */
-  transport: Transport<string>;
-  /** @ignore */
-  _send: SendFn;
+    /** @ignore */
+    transport: Transport<string>;
+    /** @ignore */
+    _send: SendFn;
 
-  constructor(transport: Transport<string>, scrambleKey: string = "FIO") {
-      this.transport = transport
-      // Note: this is list of methods that should "lock" the transport to avoid concurrent use
-      const methods = [
-          "getVersion",
-          "getSerial",
-          "getPublicKey",
-          "signTransaction",
-      ]
-      this.transport.decorateAppAPIMethods(this, methods, scrambleKey)
-      this._send = async (params: SendParams): Promise<Buffer> => {
-          let response = await wrapConvertDeviceStatusError(this.transport.send)(
-              CLA,
-              params.ins,
-              params.p1,
-              params.p2,
-              params.data
-          )
-          response = utils.stripRetcodeFromResponse(response)
+    constructor(transport: Transport<string>, scrambleKey: string = "FIO") {
+        this.transport = transport
+        // Note: this is list of methods that should "lock" the transport to avoid concurrent use
+        const methods = [
+            "getVersion",
+            "getSerial",
+            "getPublicKey",
+            "signTransaction",
+        ]
+        this.transport.decorateAppAPIMethods(this, methods, scrambleKey)
+        this._send = async (params: SendParams): Promise<Buffer> => {
+            let response = await wrapConvertDeviceStatusError(this.transport.send)(
+                CLA,
+                params.ins,
+                params.p1,
+                params.p2,
+                params.data,
+            )
+            response = utils.stripRetcodeFromResponse(response)
 
-          if (params.expectedResponseLength != null) {
-              assert(
-                  response.length === params.expectedResponseLength,
-                  `unexpected response length: ${response.length} instead of ${params.expectedResponseLength}`
-              )
-          }
+            if (params.expectedResponseLength != null) {
+                assert(
+                    response.length === params.expectedResponseLength,
+                    `unexpected response length: ${response.length} instead of ${params.expectedResponseLength}`,
+                )
+            }
 
-          return response
-      }
-  }
+            return response
+        }
+    }
 
-  /**
-   * Returns an object containing the app version.
-   *
-   * @returns Result object containing the application version number.
-   *
-   * @example
-   * const { major, minor, patch, flags } = await fio.getVersion();
-   * console.log(`App version ${major}.${minor}.${patch}`);
-   *
-   */
-  async getVersion(): Promise<GetVersionResponse> {
-      const version = await interact(this._getVersion(), this._send)
-      return { version, compatibility: getCompatibility(version) }
-  }
+    /**
+     * Returns an object containing the app version.
+     *
+     * @returns Result object containing the application version number.
+     *
+     * @example
+     * const { major, minor, patch, flags } = await fio.getVersion();
+     * console.log(`App version ${major}.${minor}.${patch}`);
+     *
+     */
+    async getVersion(): Promise<GetVersionResponse> {
+        const version = await interact(this._getVersion(), this._send)
+        return {version, compatibility: getCompatibility(version)}
+    }
 
-  /** @ignore */
-  *_getVersion(): Interaction<Version> {
-      return yield* getVersion()
-  }
+    /** @ignore */
+    * _getVersion(): Interaction<Version> {
+        return yield* getVersion()
+    }
 
-  /**
-   * Returns an object containing the device serial number.
-   *
-   * @returns Result object containing the device serial number.
-   *
-   * @example
-   * const { serial } = await fio.getSerial();
-   * console.log(`Serial number ${serial}`);
-   *
-   */
-  async getSerial(): Promise<GetSerialResponse> {
-      return interact(this._getSerial(), this._send)
-  }
-  
-  /** @ignore */
-  *_getSerial(): Interaction<GetSerialResponse> {
-      const version = yield* getVersion()
-      return yield* getSerial(version)
-  }
-  
-  /**
-   * Get public key for the specified BIP 32 path.
-   *
-   * @param path The path. A path must begin with `44'/235'/0'/0/i`.
-   * @returns The public key (i.e. with chaincode).
-   *
-   * @example
-   * ```
-   * const publicKey = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]);
-   * console.log(publicKey);
-   * ```
-   */
-  async getPublicKey(
-      { path }: GetPublicKeyRequest
-  ): Promise<GetPublicKeyResponse> {
-      // validate the input
-      validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
-      const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
+    /**
+     * Returns an object containing the device serial number.
+     *
+     * @returns Result object containing the device serial number.
+     *
+     * @example
+     * const { serial } = await fio.getSerial();
+     * console.log(`Serial number ${serial}`);
+     *
+     */
+    async getSerial(): Promise<GetSerialResponse> {
+        return interact(this._getSerial(), this._send)
+    }
 
-      return interact(this._getPublicKey(parsedPath), this._send)
-  }
+    /** @ignore */
+    * _getSerial(): Interaction<GetSerialResponse> {
+        const version = yield* getVersion()
+        return yield* getSerial(version)
+    }
 
-  /** @ignore */
-  *_getPublicKey(path: ValidBIP32Path) {
-      const version = yield* getVersion()
-      return yield* getPublicKey(version, path)
-  }
+    /**
+     * Get public key for the specified BIP 32 path.
+     *
+     * @param path The path. A path must begin with `44'/235'/0'/0/i`.
+     * @returns The public key (i.e. with chaincode).
+     *
+     * @example
+     * ```
+     * const publicKey = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]);
+     * console.log(publicKey);
+     * ```
+     */
+    async getPublicKey(
+        {path}: GetPublicKeyRequest
+    ): Promise<GetPublicKeyResponse> {
+        // validate the input
+        validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+        const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
 
-  /**
-   * Sign transaction.
-   *
-   * @param path The path. A path must begin with `44'/235'/0'/0/i`.
-   * @returns The public key (i.e. with chaincode).
-   *
-   * @example
-   * ```
-   * TODO
-   * const  = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]); TODO
-   * console.log(sign);
-   * ```
-   */
-  async signTransaction({path, chainId, tx}: SignTransactionRequest): 
-                               Promise<SignTransactionResponse> {
-      validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
-      // TODO validate chainId 
-      // TODO validate strings and other transaction values
-      validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
-      validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
-      //TODO validate rest of the transaction
-      validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
-      validate(tx.actions[0].data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
-      validate(tx.actions[0].data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
-      //TODO validate rest of txactions[0].data
+        return interact(this._getPublicKey(parsedPath), this._send)
+    }
 
-      const action = tx.actions[0]
-      const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
-      const parsedActionData: ParsedTransferFIOTokensData = { 
-          payee_public_key: action.data.payee_public_key,
-          amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.AMOUNT_INVALID),
-          max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
-          actor: parseNameString(action.data.actor, InvalidDataReason.INVALID_ACTOR),
-          tpid: action.data.tpid,
-      }
-      const parsedAction: ParsedAction = {
-          contractAccountName: parseContractAccountName(chainId, action.account, action.name, 
-                  InvalidDataReason.ACTION_NOT_SUPPORTED),
-          authorization: [parseAuthorization(action.authorization[0], InvalidDataReason.ACTION_AUTHORIZATION_INVALID)],
-          data: parsedActionData,
-      }
-      const parsedTx: ParsedTransaction = { expiration: tx.expiration, 
-          ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID), 
-          ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),
-          context_free_actions: [],
-          actions: [parsedAction],
-          transaction_extensions: null,
-      }
+    /** @ignore */
+    * _getPublicKey(path: ValidBIP32Path) {
+        const version = yield* getVersion()
+        return yield* getPublicKey(version, path)
+    }
 
-      return interact(this._signTransaction(parsedPath, chainId as HexString, parsedTx), this._send)
-  }
+    /**
+     * Sign transaction.
+     *
+     * @param path The path. A path must begin with `44'/235'/0'/0/i`.
+     * @returns The public key (i.e. with chaincode).
+     *
+     * @example
+     * ```
+     * TODO
+     * const  = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]); TODO
+     * console.log(sign);
+     * ```
+     */
+    async signTransaction({path, chainId, tx}: SignTransactionRequest):
+        Promise<SignTransactionResponse> {
+        validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+        // TODO validate chainId
+        // TODO validate strings and other transaction values
+        validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
+        validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
+        //TODO validate rest of the transaction
+        validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
+        validate(tx.actions[0].data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
+        validate(tx.actions[0].data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
+        //TODO validate rest of txactions[0].data
 
-  /** @ignore */
-  *_signTransaction(parsedPath: ValidBIP32Path, chainId: HexString, tx: ParsedTransaction) {
-      const version = yield* getVersion()
-      return yield* signTransaction(version, parsedPath, chainId, tx)
-  }
+        const action = tx.actions[0]
+        const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
+        const parsedActionData: ParsedTransferFIOTokensData = {
+            payee_public_key: action.data.payee_public_key,
+            amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.AMOUNT_INVALID),
+            max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
+            actor: parseNameString(action.data.actor, InvalidDataReason.INVALID_ACTOR),
+            tpid: action.data.tpid,
+        }
+        const parsedAction: ParsedAction = {
+            contractAccountName: parseContractAccountName(chainId, action.account, action.name,
+                InvalidDataReason.ACTION_NOT_SUPPORTED),
+            authorization: [parseAuthorization(action.authorization[0], InvalidDataReason.ACTION_AUTHORIZATION_INVALID)],
+            data: parsedActionData,
+        }
+        const parsedTx: ParsedTransaction = {
+            expiration: tx.expiration,
+            ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID),
+            ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),
+            context_free_actions: [],
+            actions: [parsedAction],
+            transaction_extensions: null,
+        }
 
+        return interact(this._signTransaction(parsedPath, chainId as HexString, parsedTx), this._send)
+    }
 
-  /**
-   * Runs unit tests on the device (DEVEL app build only)
-   */
-  async runTests(): Promise<void> {
-      return interact(this._runTests(), this._send)
-  }
+    /** @ignore */
+    * _signTransaction(parsedPath: ValidBIP32Path, chainId: HexString, tx: ParsedTransaction) {
+        const version = yield* getVersion()
+        return yield* signTransaction(version, parsedPath, chainId, tx)
+    }
 
-  /** @ignore */
-  *_runTests(): Interaction<void> {
-      const version = yield* getVersion()
-      return yield* runTests(version)
-  }
+    /**
+     * Runs unit tests on the device (DEVEL app build only)
+     */
+    async runTests(): Promise<void> {
+        return interact(this._runTests(), this._send)
+    }
+
+    /** @ignore */
+    * _runTests(): Interaction<void> {
+        const version = yield* getVersion()
+        return yield* runTests(version)
+    }
 
 }
 
@@ -303,15 +321,15 @@ export type GetVersionResponse = {
  * @category Main
  */
 export type GetSerialResponse = Serial
-    
+
 /**
  * Get public key ([[Fio.getPublicKey]]) request data
  * @category Main
  * @see [[GetPublicKeyResponse]]
  */
 export type GetPublicKeyRequest = {
-  /** Paths to public keys which should be derived by the device */
-  path: BIP32Path
+    /** Paths to public keys which should be derived by the device */
+    path: BIP32Path
 }
 
 /**
@@ -320,16 +338,16 @@ export type GetPublicKeyRequest = {
  * @see [[GetPublicKeyRequest]]
  */
 export type GetPublicKeyResponse = PublicKey
-  
+
 /**
  * Sign transaction ([[Fio.signTransaction]]) request data
  * @category Main
  * @see [[SignTransactionResponse]]
  */
 export type SignTransactionRequest = {
-  path: BIP32Path,
-  chainId: string,
-  tx: Transaction,
+    path: BIP32Path,
+    chainId: string,
+    tx: Transaction,
 }
 
 /**

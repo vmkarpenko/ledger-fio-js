@@ -1,10 +1,10 @@
 export const enum INS {
-  GET_VERSION = 0x00,
-  GET_SERIAL = 0x01,
+    GET_VERSION = 0x00,
+    GET_SERIAL = 0x01,
 
-  GET_EXT_PUBLIC_KEY = 0x10,
+    GET_EXT_PUBLIC_KEY = 0x10,
 
-  SIGN_TX = 0x20,
+    SIGN_TX = 0x20,
 
-  RUN_TESTS = 0xf0,
+    RUN_TESTS = 0xf0,
 }

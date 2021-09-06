@@ -1,6 +1,6 @@
-import { assert } from "./assert"
-import { isArray, isBuffer, isInteger } from "./parse"
-import { buf_to_uint16 } from "./serialize"
+import {assert} from "./assert"
+import {isArray, isBuffer, isInteger} from "./parse"
+import {buf_to_uint16} from "./serialize"
 
 const sum = (arr: Array<number>) => arr.reduce((x, y) => x + y, 0)
 

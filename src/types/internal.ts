@@ -17,29 +17,29 @@ export type Uint8_t = number & { __type: 'uint8_t' }
 export const PUBLIC_KEY_LENGTH = 65
 
 export type ParsedTransferFIOTokensData = {
-    payee_public_key: string,
-    amount: Uint64_str,
-    max_fee: Uint64_str,
-    tpid: string,
-    actor: NameString,
+    payee_public_key: string
+    amount: Uint64_str
+    max_fee: Uint64_str
+    tpid: string
+    actor: NameString
 }
- export type ParsedActionAuthorisation = {
-    actor: NameString,
-    permission: NameString,
- }
 
- export type ParsedAction = {
-    contractAccountName: HexString,
+export type ParsedActionAuthorisation = {
+    actor: NameString
+    permission: NameString
+}
+
+export type ParsedAction = {
+    contractAccountName: HexString
     authorization: Array<ParsedActionAuthorisation>
     data: | ParsedTransferFIOTokensData
- }
-
-export type ParsedTransaction = {
-    expiration: string,
-    ref_block_num: Uint16_t,
-    ref_block_prefix: Uint32_t,
-    context_free_actions: Array<ParsedAction>,
-    actions: Array<ParsedAction>,
-    transaction_extensions: null
 }
 
+export type ParsedTransaction = {
+    expiration: string
+    ref_block_num: Uint16_t
+    ref_block_prefix: Uint32_t
+    context_free_actions: Array<ParsedAction>
+    actions: Array<ParsedAction>
+    transaction_extensions: null
+}

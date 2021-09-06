@@ -1,14 +1,13 @@
 import basex from "base-x"
-import bech32 from "bech32"
 
-import { InvalidDataReason } from "./errors"
-import { HARDENED } from "./types/public"
-import { assert } from "./utils/assert"
-import { isArray, isBuffer, isInteger, isString, parseIntFromStr, validate } from "./utils/parse"
-import { buf_to_hex, buf_to_uint16, hex_to_buf, path_to_buf, uint32_to_buf } from './utils/serialize'
+import {InvalidDataReason} from "./errors"
+import {HARDENED} from "./types/public"
+import {assert} from "./utils/assert"
+import {isArray, isBuffer, isInteger, isString, parseIntFromStr, validate} from "./utils/parse"
+import {buf_to_hex, buf_to_uint16, hex_to_buf, path_to_buf, uint32_to_buf} from './utils/serialize'
 
 const BASE58_ALPHABET =
-  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 const bs58 = basex(BASE58_ALPHABET)
 
 const TESTNET_NETWORK_ID = 0x00

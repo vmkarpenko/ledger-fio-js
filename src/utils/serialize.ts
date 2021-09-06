@@ -1,9 +1,8 @@
-
 import basex from "base-x"
 
-import type { FixlenHexString, HexString, Uint8_t, Uint16_t, Uint32_t, Uint64_str } from "../types/internal"
-import { assert } from './assert'
-import { isHexString, isUint8, isUint16, isUint32, isUint64str, isValidPath } from "./parse"
+import type {FixlenHexString, HexString, Uint8_t, Uint16_t, Uint32_t, Uint64_str} from "../types/internal"
+import {assert} from './assert'
+import {isHexString, isUint8, isUint16, isUint32, isUint64str, isValidPath} from "./parse"
 
 // We use bs10 as an easy way to parse/encode amount strings
 const bs10 = basex("0123456789")
@@ -79,5 +78,5 @@ export function path_to_buf(path: Array<number>): Buffer {
 export function date_to_buf(date: string): Buffer {
     const parsedDate: number = Date.parse(date + 'Z')
     assert(!Number.isNaN(parsedDate), "Invalid timepoint")
-    return uint32_to_buf(Math.round(parsedDate/1000) as Uint32_t)
+    return uint32_to_buf(Math.round(parsedDate / 1000) as Uint32_t)
 }

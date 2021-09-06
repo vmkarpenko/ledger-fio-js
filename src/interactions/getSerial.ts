@@ -1,15 +1,15 @@
-import type { Serial,Version } from "../types/public"
+import type {Serial, Version} from "../types/public"
 import utils from "../utils"
-import { INS } from "./common/ins"
-import type { Interaction, SendParams } from "./common/types"
-import { ensureLedgerAppVersionCompatible } from "./getVersion"
+import {INS} from "./common/ins"
+import type {Interaction, SendParams} from "./common/types"
+import {ensureLedgerAppVersionCompatible} from "./getVersion"
 
 const send = (params: {
-  p1: number,
-  p2: number,
-  data: Buffer,
-  expectedResponseLength?: number
-}): SendParams => ({ ins: INS.GET_SERIAL, ...params })
+    p1: number,
+    p2: number,
+    data: Buffer,
+    expectedResponseLength?: number
+}): SendParams => ({ins: INS.GET_SERIAL, ...params})
 
 
 export function* getSerial(version: Version): Interaction<Serial> {
@@ -25,5 +25,5 @@ export function* getSerial(version: Version): Interaction<Serial> {
     })
 
     const serial = utils.buf_to_hex(response)
-    return { serial }
+    return {serial}
 }

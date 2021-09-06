@@ -1,13 +1,13 @@
-import type { Version } from "../types/public"
-import { INS } from "./common/ins"
-import type { Interaction, SendParams } from "./common/types"
+import type {Version} from "../types/public"
+import {INS} from "./common/ins"
+import type {Interaction, SendParams} from "./common/types"
 
 const send = (params: {
-  p1: number,
-  p2: number,
-  data: Buffer,
-  expectedResponseLength?: number
-}): SendParams => ({ ins: INS.RUN_TESTS, ...params })
+    p1: number,
+    p2: number,
+    data: Buffer,
+    expectedResponseLength?: number
+}): SendParams => ({ins: INS.RUN_TESTS, ...params})
 
 
 export function* runTests(_version: Version): Interaction<void> {

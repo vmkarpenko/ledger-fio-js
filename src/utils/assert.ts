@@ -1,4 +1,4 @@
-import { ErrorBase } from "../errors/errorBase"
+import {ErrorBase} from "../errors"
 
 export function assert(cond: boolean, errMsg: string): asserts cond {
     if (!cond) throw new ErrorBase('Assertion failed' + errMsg ? ': ' + errMsg : '')
