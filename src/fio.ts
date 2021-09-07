@@ -43,11 +43,12 @@ import {
     parseAuthorization,
     parseBIP32Path,
     parseContractAccountName,
-    parseNameString,
+    parseNameString, parseTransaction,
     parseUint16_t,
     parseUint32_t,
     parseUint64_str,
-    validate} from './utils/parse'
+    validate,
+} from './utils/parse'
 
 export * from './errors'
 export * from './types/public'
@@ -246,42 +247,11 @@ export class Fio {
      * console.log(sign);
      * ```
      */
-    async signTransaction({path, chainId, tx}: SignTransactionRequest):
-        Promise<SignTransactionResponse> {
-        validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+    async signTransaction({path, chainId, tx}: SignTransactionRequest): Promise<SignTransactionResponse> {
         // TODO validate chainId
-        // TODO validate strings and other transaction values
-        validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
-        validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
-        //TODO validate rest of the transaction
-        validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
-        validate(tx.actions[0].data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
-        validate(tx.actions[0].data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
-        //TODO validate rest of txactions[0].data
 
-        const action = tx.actions[0]
         const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
-        const parsedActionData: ParsedTransferFIOTokensData = {
-            payee_public_key: action.data.payee_public_key,
-            amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.AMOUNT_INVALID),
-            max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
-            actor: parseNameString(action.data.actor, InvalidDataReason.INVALID_ACTOR),
-            tpid: action.data.tpid,
-        }
-        const parsedAction: ParsedAction = {
-            contractAccountName: parseContractAccountName(chainId, action.account, action.name,
-                InvalidDataReason.ACTION_NOT_SUPPORTED),
-            authorization: [parseAuthorization(action.authorization[0], InvalidDataReason.ACTION_AUTHORIZATION_INVALID)],
-            data: parsedActionData,
-        }
-        const parsedTx: ParsedTransaction = {
-            expiration: tx.expiration,
-            ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID),
-            ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),
-            context_free_actions: [],
-            actions: [parsedAction],
-            transaction_extensions: null,
-        }
+        const parsedTx = parseTransaction(chainId, tx)
 
         return interact(this._signTransaction(parsedPath, chainId as HexString, parsedTx), this._send)
     }

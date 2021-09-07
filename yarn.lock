@@ -79,10 +79,33 @@
     "rxjs" "6"
     "semver" "^7.3.5"
 
+"@ledgerhq/devices@^6.3.0":
+  "integrity" "sha512-DmVxqMAf3FhkpKjkbBCFVJ5DmesfplujeCLzFwO/zF5VGuwY7xxPqeSxlpusXJkqhEq+DbFzIDRWJYDf7rtXqg=="
+  "resolved" "https://registry.npmjs.org/@ledgerhq/devices/-/devices-6.3.0.tgz"
+  "version" "6.3.0"
+  dependencies:
+    "@ledgerhq/errors" "^6.2.0"
+    "@ledgerhq/logs" "^6.2.0"
+    "rxjs" "6"
+    "semver" "^7.3.5"
+
 "@ledgerhq/errors@^5.50.0":
   "integrity" "sha512-gu6aJ/BHuRlpU7kgVpy2vcYk6atjB4iauP2ymF7Gk0ez0Y/6VSMVSJvubeEQN+IV60+OBK0JgeIZG7OiHaw8ow=="
   "resolved" "https://registry.npmjs.org/@ledgerhq/errors/-/errors-5.50.0.tgz"
   "version" "5.50.0"
+
+"@ledgerhq/errors@^6.2.0":
+  "integrity" "sha512-eO03x8HJmG60WtlrMuahigW/rwywFdcGzCnihta/MjkM8BD9A660cKVkyIuheCcpaB7UV/r+QsRl9abHbjjaag=="
+  "resolved" "https://registry.npmjs.org/@ledgerhq/errors/-/errors-6.2.0.tgz"
+  "version" "6.2.0"
+
+"@ledgerhq/hw-transport-mocker@^6.3.0":
+  "integrity" "sha512-7Rank5BOMihFguHrFKGQiBNBa02YnVdEgqTk+Qfj06Obyo39Wg9WpOnTNc4I37MOQqz5B6lKdvTJXLgbYE/Avg=="
+  "resolved" "https://registry.npmjs.org/@ledgerhq/hw-transport-mocker/-/hw-transport-mocker-6.3.0.tgz"
+  "version" "6.3.0"
+  dependencies:
+    "@ledgerhq/hw-transport" "^6.3.0"
+    "@ledgerhq/logs" "^6.2.0"
 
 "@ledgerhq/hw-transport-node-hid-noevents@^5.51.1":
   "integrity" "sha512-9wFf1L8ZQplF7XOY2sQGEeOhpmBRzrn+4X43kghZ7FBDoltrcK+s/D7S+7ffg3j2OySyP6vIIIgloXylao5Scg=="
@@ -118,10 +141,24 @@
     "@ledgerhq/errors" "^5.50.0"
     "events" "^3.3.0"
 
+"@ledgerhq/hw-transport@^6.3.0":
+  "integrity" "sha512-kdnVrgmxrFtKaRdkoaQBEa02RXgLzEBiooYbxA65BGSJig3PGWDS9LrqNpzLTZM1RQlivd9NLBmfwU2ze4chWA=="
+  "resolved" "https://registry.npmjs.org/@ledgerhq/hw-transport/-/hw-transport-6.3.0.tgz"
+  "version" "6.3.0"
+  dependencies:
+    "@ledgerhq/devices" "^6.3.0"
+    "@ledgerhq/errors" "^6.2.0"
+    "events" "^3.3.0"
+
 "@ledgerhq/logs@^5.50.0":
   "integrity" "sha512-swKHYCOZUGyVt4ge0u8a7AwNcA//h4nx5wIi0sruGye1IJ5Cva0GyK9L2/WdX+kWVTKp92ZiEo1df31lrWGPgA=="
   "resolved" "https://registry.npmjs.org/@ledgerhq/logs/-/logs-5.50.0.tgz"
   "version" "5.50.0"
+
+"@ledgerhq/logs@^6.2.0":
+  "integrity" "sha512-SLyFyD7ElMhgKWPYedFGCT/ilcbGPgL5hXXYHxOM79Fs5fWi0zaUpt5oGqGMsOAAFaMa9/rbun0pokzPhEFz8A=="
+  "resolved" "https://registry.npmjs.org/@ledgerhq/logs/-/logs-6.2.0.tgz"
+  "version" "6.2.0"
 
 "@nodelib/fs.scandir@2.1.5":
   "integrity" "sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g=="

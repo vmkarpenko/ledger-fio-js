@@ -1,6 +1,6 @@
-import type {ActionAuthorisation} from "types/public"
+import type {ActionAuthorisation, Transaction} from "types/public"
 
-import type {InvalidDataReason} from "../errors"
+import {InvalidDataReason} from "../errors"
 import {InvalidData} from "../errors"
 import type {
     _Uint64_bigint,
@@ -14,8 +14,9 @@ import type {
     Uint32_t,
     Uint64_str,
     ValidBIP32Path,
-    VarlenAsciiString,
+    VarlenAsciiString, ParsedTransaction,
 } from "../types/internal"
+import {ParsedAction, ParsedTransferFIOTokensData} from "../types/internal"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 
@@ -203,5 +204,42 @@ export function parseAuthorization(authorization: ActionAuthorisation, errMsg: I
     return {
         actor: parseNameString(authorization.actor, errMsg),
         permission: parseNameString(authorization.permission, errMsg),
+    }
+}
+
+export function parseTransaction(chainId: string, tx: Transaction): ParsedTransaction {
+    // TODO validate strings and other transaction values
+    validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
+    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
+    //TODO validate rest of the transaction
+    validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
+    validate(tx.actions[0].data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
+    validate(tx.actions[0].data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
+    //TODO validate rest of tx.actions[0].data
+
+    const action = tx.actions[0]
+
+    const parsedActionData: ParsedTransferFIOTokensData = {
+        payee_public_key: action.data.payee_public_key,
+        amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.AMOUNT_INVALID),
+        max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
+        actor: parseNameString(action.data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: action.data.tpid,
+    }
+
+    const parsedAction: ParsedAction = {
+        contractAccountName: parseContractAccountName(chainId, action.account, action.name,
+            InvalidDataReason.ACTION_NOT_SUPPORTED),
+        authorization: [parseAuthorization(action.authorization[0], InvalidDataReason.ACTION_AUTHORIZATION_INVALID)],
+        data: parsedActionData,
+    }
+
+    return {
+        expiration: tx.expiration,
+        ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID),
+        ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),
+        context_free_actions: [],
+        actions: [parsedAction],
+        transaction_extensions: null,
     }
 }
