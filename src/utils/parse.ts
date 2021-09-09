@@ -224,8 +224,16 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
     const action = tx.actions[0]
 
+    // validate action
+    validate(isString(action.account), InvalidDataReason.INVALID_ACCOUNT)
+    validate(isString(action.name), InvalidDataReason.INVALID_NAME)
+
     validate(action.authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
     const authorization = action.authorization[0]
+
+    // validate authorization
+    validate(isString(authorization.actor), InvalidDataReason.INVALID_ACTOR)
+    validate(isString(authorization.permission), InvalidDataReason.INVALID_PERMISSION)
 
     // validate action.data (TransferFIOTokenData)
     validate(isString(action.data.payee_public_key), InvalidDataReason.INVALID_PAYEE_PUBKEY)
