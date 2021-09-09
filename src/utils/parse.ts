@@ -210,8 +210,8 @@ export function parseAuthorization(authorization: ActionAuthorisation, errMsg: I
 export function parseTransaction(chainId: string, tx: Transaction): ParsedTransaction {
     // validate tx (Transaction)
     validate(isString(tx.expiration), InvalidDataReason.INVALID_EXPIRATION)
-    validate(isInteger(tx.ref_block_num), InvalidDataReason.REF_BLOCK_NUM_INVALID)
-    validate(isInteger(tx.ref_block_prefix), InvalidDataReason.REF_BLOCK_PREFIX_INVALID)
+    validate(isInteger(tx.ref_block_num), InvalidDataReason.INVALID_REF_BLOCK_NUM)
+    validate(isInteger(tx.ref_block_prefix), InvalidDataReason.INVALID_REF_BLOCK_PREFIX)
     validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
 
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
@@ -223,16 +223,16 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     // validate action.data (TransferFIOTokenData)
     validate(isString(action.data.payee_public_key), InvalidDataReason.INVALID_PAYEE_PUBKEY)
     validate(action.data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
-    validate(isInteger(action.data.amount), InvalidDataReason.AMOUNT_INVALID)
-    validate(isInteger(action.data.max_fee), InvalidDataReason.MAX_FEE_INVALID)
+    validate(isInteger(action.data.amount), InvalidDataReason.INVALID_AMOUNT)
+    validate(isInteger(action.data.max_fee), InvalidDataReason.INVALID_MAX_FEE)
     validate(isString(action.data.tpid), InvalidDataReason.INVALID_TPID)
     validate(action.data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
     validate(isString(action.data.actor), InvalidDataReason.INVALID_ACTOR)
 
     const parsedActionData: ParsedTransferFIOTokensData = {
         payee_public_key: action.data.payee_public_key,
-        amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.AMOUNT_INVALID),
-        max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.MAX_FEE_INVALID),
+        amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.INVALID_AMOUNT),
+        max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseNameString(action.data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: action.data.tpid,
     }
@@ -240,14 +240,14 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     const parsedAction: ParsedAction = {
         contractAccountName: parseContractAccountName(chainId, action.account, action.name,
             InvalidDataReason.ACTION_NOT_SUPPORTED),
-        authorization: [parseAuthorization(authorization, InvalidDataReason.ACTION_AUTHORIZATION_INVALID)],
+        authorization: [parseAuthorization(authorization, InvalidDataReason.INVALID_ACTION_AUTHORIZATION)],
         data: parsedActionData,
     }
 
     return {
         expiration: tx.expiration,
-        ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.REF_BLOCK_NUM_INVALID),
-        ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.REF_BLOCK_PREFIX_INVALID),
+        ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.INVALID_REF_BLOCK_NUM),
+        ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.INVALID_REF_BLOCK_PREFIX),
         context_free_actions: [],
         actions: [parsedAction],
         transaction_extensions: null,
