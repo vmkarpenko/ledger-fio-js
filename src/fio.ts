@@ -39,6 +39,7 @@ import type {
 import utils from "./utils"
 import {assert} from './utils/assert'
 import {
+    isHexString,
     isValidPath,
     parseAuthorization,
     parseBIP32Path,
@@ -248,7 +249,7 @@ export class Fio {
      * ```
      */
     async signTransaction({path, chainId, tx}: SignTransactionRequest): Promise<SignTransactionResponse> {
-        // TODO validate chainId
+        validate(isHexString(chainId), InvalidDataReason.INVALID_CHAIN_ID)
 
         const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
         const parsedTx = parseTransaction(chainId, tx)

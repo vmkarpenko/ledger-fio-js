@@ -1,7 +1,6 @@
 import type {ActionAuthorisation, Transaction} from "types/public"
 
-import {InvalidDataReason} from "../errors"
-import {InvalidData} from "../errors"
+import {InvalidData, InvalidDataReason} from "../errors"
 import type {
     _Uint64_bigint,
     _Uint64_num,
@@ -9,12 +8,13 @@ import type {
     HexString,
     NameString,
     ParsedActionAuthorisation,
-    Uint8_t,
+    ParsedTransaction,
     Uint16_t,
     Uint32_t,
     Uint64_str,
+    Uint8_t,
     ValidBIP32Path,
-    VarlenAsciiString, ParsedTransaction,
+    VarlenAsciiString,
 } from "../types/internal"
 import {ParsedAction, ParsedTransferFIOTokensData} from "../types/internal"
 
@@ -208,16 +208,26 @@ export function parseAuthorization(authorization: ActionAuthorisation, errMsg: I
 }
 
 export function parseTransaction(chainId: string, tx: Transaction): ParsedTransaction {
-    // TODO validate strings and other transaction values
+    // validate tx (Transaction)
+    validate(isString(tx.expiration), InvalidDataReason.INVALID_EXPIRATION)
+    validate(isInteger(tx.ref_block_num), InvalidDataReason.REF_BLOCK_NUM_INVALID)
+    validate(isInteger(tx.ref_block_prefix), InvalidDataReason.REF_BLOCK_PREFIX_INVALID)
     validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
-    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
-    //TODO validate rest of the transaction
-    validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
-    validate(tx.actions[0].data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
-    validate(tx.actions[0].data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
-    //TODO validate rest of tx.actions[0].data
 
+    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
     const action = tx.actions[0]
+
+    validate(action.authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED)
+    const authorization = action.authorization[0]
+
+    // validate action.data (TransferFIOTokenData)
+    validate(isString(action.data.payee_public_key), InvalidDataReason.INVALID_PAYEE_PUBKEY)
+    validate(action.data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
+    validate(isInteger(action.data.amount), InvalidDataReason.AMOUNT_INVALID)
+    validate(isInteger(action.data.max_fee), InvalidDataReason.MAX_FEE_INVALID)
+    validate(isString(action.data.tpid), InvalidDataReason.INVALID_TPID)
+    validate(action.data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
+    validate(isString(action.data.actor), InvalidDataReason.INVALID_ACTOR)
 
     const parsedActionData: ParsedTransferFIOTokensData = {
         payee_public_key: action.data.payee_public_key,
@@ -230,7 +240,7 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     const parsedAction: ParsedAction = {
         contractAccountName: parseContractAccountName(chainId, action.account, action.name,
             InvalidDataReason.ACTION_NOT_SUPPORTED),
-        authorization: [parseAuthorization(action.authorization[0], InvalidDataReason.ACTION_AUTHORIZATION_INVALID)],
+        authorization: [parseAuthorization(authorization, InvalidDataReason.ACTION_AUTHORIZATION_INVALID)],
         data: parsedActionData,
     }
 
