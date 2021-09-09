@@ -1,4 +1,4 @@
-import type {ActionAuthorisation, Transaction} from "types/public"
+import type {ActionAuthorisation, bigint_like, Transaction} from "types/public"
 
 import {InvalidData, InvalidDataReason} from "../errors"
 import type {
@@ -25,6 +25,13 @@ export const isString = (data: unknown): data is string =>
 
 export const isInteger = (data: unknown): data is number =>
     Number.isInteger(data)
+
+export const isBigIntLike = (data: unknown): data is bigint_like => {
+    if (typeof data === "number") return true
+    if (typeof data == "bigint") return true
+    if (typeof data == "string" && !isNaN(parseInt(data))) return true
+    return false
+}
 
 export const isArray = (data: unknown): data is Array<unknown> =>
     Array.isArray(data)
@@ -210,8 +217,8 @@ export function parseAuthorization(authorization: ActionAuthorisation, errMsg: I
 export function parseTransaction(chainId: string, tx: Transaction): ParsedTransaction {
     // validate tx (Transaction)
     validate(isString(tx.expiration), InvalidDataReason.INVALID_EXPIRATION)
-    validate(isInteger(tx.ref_block_num), InvalidDataReason.INVALID_REF_BLOCK_NUM)
-    validate(isInteger(tx.ref_block_prefix), InvalidDataReason.INVALID_REF_BLOCK_PREFIX)
+    validate(isBigIntLike(tx.ref_block_num), InvalidDataReason.INVALID_REF_BLOCK_NUM)
+    validate(isBigIntLike(tx.ref_block_prefix), InvalidDataReason.INVALID_REF_BLOCK_PREFIX)
     validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED)
 
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED)
@@ -223,8 +230,8 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     // validate action.data (TransferFIOTokenData)
     validate(isString(action.data.payee_public_key), InvalidDataReason.INVALID_PAYEE_PUBKEY)
     validate(action.data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
-    validate(isInteger(action.data.amount), InvalidDataReason.INVALID_AMOUNT)
-    validate(isInteger(action.data.max_fee), InvalidDataReason.INVALID_MAX_FEE)
+    validate(isBigIntLike(action.data.amount), InvalidDataReason.INVALID_AMOUNT)
+    validate(isBigIntLike(action.data.max_fee), InvalidDataReason.INVALID_MAX_FEE)
     validate(isString(action.data.tpid), InvalidDataReason.INVALID_TPID)
     validate(action.data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
     validate(isString(action.data.actor), InvalidDataReason.INVALID_ACTOR)
