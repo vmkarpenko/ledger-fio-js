@@ -12,5 +12,5 @@ export async function getFio() {
 
     const fio = new Fio(transport);
     (fio as any).t = transport
-    return Promise.resolve(fio)
+    return fio
 }
