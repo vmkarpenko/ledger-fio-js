@@ -17,6 +17,11 @@ const PrivateKey = require('@fioprotocol/fiojs/dist/ecc/key_private')
 const privateKey = PrivateKey(hex_to_buf(privateKeyDHex))
 const publicKey = privateKey.toPublic()
 
+const otherPath = [44 + HARDENED, 235 + HARDENED, 0 + HARDENED, 0, 1]
+const otherPrivateKeyDHex = "90835ae980cd10e9ca7df05d0e3b3c22e0aed0e75527511337f7c53a9d0c6c69" as HexString
+const otherPrivateKey = PrivateKey(hex_to_buf(otherPrivateKeyDHex))
+const otherPublicKey = otherPrivateKey.toPublic()
+
 const {TextEncoder, TextDecoder} = require('text-encoding')
 const fetch = require('node-fetch')
 const {base64ToBinary, arrayToHex} = require('@fioprotocol/fiojs/dist/chain-numeric')
@@ -34,7 +39,7 @@ var networkInfo: any
 
 
 // Serializes and signs transaction using fiojs
-async function buildTxAndSignatureFioJs(network: string, tx: Transaction) {
+async function buildTxAndSignatureFioJs(network: string, tx: Transaction, pubkey: any) {
     // We serialize the transaction
     // Get the addaddress action type
     const actionAddaddress = networkInfo[network].typesFioAddress.get('trnsfiopubky')
@@ -74,8 +79,9 @@ async function buildTxAndSignatureFioJs(network: string, tx: Transaction) {
     const hash = crypto.createHash('sha256').update(msg).digest('hex')
 
     //Now using signatureProvider.sign
-    const signatureProvider = new JsSignatureProvider([PrivateKey.fromHex(privateKeyDHex).toString()])
-    const requiredKeys = [publicKey.toString()]
+    const signatureProvider = new JsSignatureProvider([PrivateKey.fromHex(privateKeyDHex).toString(),
+                                                       PrivateKey.fromHex(otherPrivateKeyDHex).toString()])
+    const requiredKeys = [pubkey.toString()]
     const serializedContextFreeData = null
 
     const signedTxn = await signatureProvider.sign({
@@ -173,7 +179,7 @@ describe("signTransaction", async () => {
         const tx = basicTx
 
         // Lets sign the transaction with fiojs
-        const {serializedTx, fullMsg, hash, signature} = await buildTxAndSignatureFioJs(network, tx)
+        const {serializedTx, fullMsg, hash, signature} = await buildTxAndSignatureFioJs(network, tx, publicKey)
 
         // Lets sign the transaction with ledger
         const chainId = networkInfo[network].chainId
@@ -181,7 +187,8 @@ describe("signTransaction", async () => {
         const signatureLedger = Signature.fromHex(ledgerResponse.witness.witnessSignatureHex)
 
         expect(ledgerResponse.txHashHex).to.be.equal(hash)
-        expect(signatureLedger.verify(fullMsg, publicKey))
+        expect(signatureLedger.verify(fullMsg, publicKey)).to.be.true
+        expect(signatureLedger.verify(fullMsg, otherPublicKey)).to.be.false
     })
 
     it("Sign mainnet transaction", async () => {
@@ -189,15 +196,16 @@ describe("signTransaction", async () => {
         const tx = basicTx
 
         // Lets sign the transaction with fiojs
-        const {serializedTx, fullMsg, hash, signature} = await buildTxAndSignatureFioJs(network, tx)
+        const {serializedTx, fullMsg, hash, signature} = await buildTxAndSignatureFioJs(network, tx, otherPublicKey)
 
         // Lets sign the transaction with ledger
         const chainId = networkInfo[network].chainId
-        const ledgerResponse = await fio.signTransaction({path, chainId, tx})
+        const ledgerResponse = await fio.signTransaction({path: otherPath, chainId, tx})
         const signatureLedger = Signature.fromHex(ledgerResponse.witness.witnessSignatureHex)
 
         expect(ledgerResponse.txHashHex).to.be.equal(hash)
-        expect(signatureLedger.verify(fullMsg, publicKey))
+        expect(signatureLedger.verify(fullMsg, otherPublicKey)).to.be.true
+        expect(signatureLedger.verify(fullMsg, publicKey)).to.be.false
     })
 
     it("Invalid transaction: actor dont match", async () => {
