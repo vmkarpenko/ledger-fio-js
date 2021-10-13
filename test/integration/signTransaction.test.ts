@@ -82,6 +82,8 @@ async function buildTxAndSignatureFioJs(network: string, tx: Transaction, pubkey
     const signatureProvider = new JsSignatureProvider([PrivateKey.fromHex(privateKeyDHex).toString(),
                                                        PrivateKey.fromHex(otherPrivateKeyDHex).toString()])
     const requiredKeys = [pubkey.toString()]
+    console.log(pubkey.toString())
+    console.log(pubkey)
     const serializedContextFreeData = null
 
     const signedTxn = await signatureProvider.sign({
