@@ -19,12 +19,14 @@ const send = (params: {
 
 export function* getPublicKey(
     version: Version,
-    path: ValidBIP32Path
+    path: ValidBIP32Path,
+    show_or_not: boolean
 ): Interaction<PublicKey> {
     ensureLedgerAppVersionCompatible(version)
 
     const enum P1 {
-        UNUSED = 0x00,
+        SHOW = 0x01,
+        DO_NOT_SHOW = 0x02,
     }
 
     const enum P2 {
@@ -44,7 +46,7 @@ export function* getPublicKey(
     const remainingKeysData = Buffer.from([])
 
     response = yield send({
-        p1: P1.UNUSED,
+        p1: show_or_not ? P1.SHOW : P1.DO_NOT_SHOW,
         p2: P2.UNUSED,
         data: Buffer.concat([pathData, remainingKeysData]),
         expectedResponseLength: PUBLIC_KEY_LENGTH,

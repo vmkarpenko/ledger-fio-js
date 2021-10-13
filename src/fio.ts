@@ -220,19 +220,19 @@ export class Fio {
      * ```
      */
     async getPublicKey(
-        {path}: GetPublicKeyRequest
+        {path, show_or_not}: GetPublicKeyRequest
     ): Promise<GetPublicKeyResponse> {
         // validate the input
         validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
         const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
 
-        return interact(this._getPublicKey(parsedPath), this._send)
+        return interact(this._getPublicKey(parsedPath, show_or_not), this._send)
     }
 
     /** @ignore */
-    * _getPublicKey(path: ValidBIP32Path) {
+    * _getPublicKey(path: ValidBIP32Path, show_or_not: boolean) {
         const version = yield* getVersion()
-        return yield* getPublicKey(version, path)
+        return yield* getPublicKey(version, path, show_or_not)
     }
 
     /**
@@ -300,6 +300,7 @@ export type GetSerialResponse = Serial
  */
 export type GetPublicKeyRequest = {
     /** Paths to public keys which should be derived by the device */
+    show_or_not: boolean, 
     path: BIP32Path
 }
 

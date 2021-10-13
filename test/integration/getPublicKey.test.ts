@@ -25,7 +25,23 @@ describe("getPublicKey", async () => {
         const test = async (tests: TestCase[]) => {
             for (const {path, expected} of tests) {
                 const response = await fio.getPublicKey(
-                    {path: str_to_path(path)}
+                    {path: str_to_path(path), show_or_not: false}
+                )
+
+                expect(response.publicKeyHex).to.equal(expected.publicKey)
+            }
+        }
+
+        it('fio', async () => {
+            await test(testsPublicKey)
+        })
+    })
+
+    describe("Should successfully show a single extended public key", async () => {
+        const test = async (tests: TestCase[]) => {
+            for (const {path, expected} of tests) {
+                const response = await fio.getPublicKey(
+                    {path: str_to_path(path), show_or_not: true}
                 )
 
                 expect(response.publicKeyHex).to.equal(expected.publicKey)
@@ -39,27 +55,27 @@ describe("getPublicKey", async () => {
 
     describe("Should reject invalid paths", () => {
         it('path shorter than 5 indexes', async () => {
-            const promise = fio.getPublicKey({path: str_to_path("44'/235'/0'/0")})
+            const promise = fio.getPublicKey({path: str_to_path("44'/235'/0'/0"), show_or_not: false})
             await expect(promise).to.be.rejectedWith(DeviceStatusError, "Action rejected by Ledger's security policy")
         })
 
         it('path contains non-zero address', async () => {
-            const promise = fio.getPublicKey({path: str_to_path("44'/235'/1'/0/0")})
+            const promise = fio.getPublicKey({path: str_to_path("44'/235'/1'/0/0"), show_or_not: false})
             await expect(promise).to.be.rejected
         })
 
         it('path contains non-hardened address', async () => {
-            const promise = fio.getPublicKey({path: str_to_path("44'/235'/0/0/0")})
+            const promise = fio.getPublicKey({path: str_to_path("44'/235'/0/0/0"), show_or_not: false})
             await expect(promise).to.be.rejected
         })
 
         it('path contains non-zero chain', async () => {
-            const promise = fio.getPublicKey({path: str_to_path("44'/235'/0'/1/0")})
+            const promise = fio.getPublicKey({path: str_to_path("44'/235'/0'/1/0"), show_or_not: false})
             await expect(promise).to.be.rejected
         })
 
         it('path too long', async () => {
-            const promise = fio.getPublicKey({path: str_to_path("44'/235'/0'/0/0/0")})
+            const promise = fio.getPublicKey({path: str_to_path("44'/235'/0'/0/0/0"), show_or_not: false})
             await expect(promise).to.be.rejected
         })
     })

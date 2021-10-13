@@ -29,7 +29,7 @@ async function example() {
   wait()
   console.log("\n".repeat(3));
 
-  const getPublicKeyRequest1: GetPublicKeyRequest = {path: [44 + HARDENED, 235 + HARDENED, 0 + HARDENED, 0, 0]};
+  const getPublicKeyRequest1: GetPublicKeyRequest = {path: [44 + HARDENED, 235 + HARDENED, 0 + HARDENED, 0, 0], show_or_not: false};
   console.log("Input: getPublicKey");
   console.log(getPublicKeyRequest1);
   wait()
@@ -38,7 +38,7 @@ async function example() {
   wait()
   console.log("\n".repeat(3));
 
-  const getPublicKeyRequest2: GetPublicKeyRequest = {path: [44 + HARDENED, 235 + HARDENED, 0 + HARDENED, 0, 2000]};
+  const getPublicKeyRequest2: GetPublicKeyRequest = {path: [44 + HARDENED, 235 + HARDENED, 0 + HARDENED, 0, 2000], show_or_not: false};
   console.log("Input: getPublicKey");
   console.log(getPublicKeyRequest2);
   wait()
