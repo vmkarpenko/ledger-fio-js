@@ -87,15 +87,6 @@ export type Serial = {
  */
 export type BIP32Path = Array<number>
 
-/**
- * Derived  public key
- * @category Basic types
- * @see [[Fio.getPublicKey]]
- */
-export type PublicKey = {
-    publicKeyHex: string
-}
-
 
 /**
  * Transaction witness.

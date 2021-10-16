@@ -33,7 +33,7 @@ import type {
     ValidBIP32Path,
 } from './types/internal'
 import type {
-    Action, ActionAuthorisation, BIP32Path, DeviceCompatibility, PublicKey,
+    Action, ActionAuthorisation, BIP32Path, DeviceCompatibility,
     Serial, SignedTransactionData, Transaction, TransferFIOTokensData, Version,
 } from './types/public'
 import utils from "./utils"
@@ -309,7 +309,10 @@ export type GetPublicKeyRequest = {
  * @category Main
  * @see [[GetPublicKeyRequest]]
  */
-export type GetPublicKeyResponse = PublicKey
+export type GetPublicKeyResponse = {
+    publicKeyHex: string,
+    publicKeyWIF: string
+}
 
 /**
  * Sign transaction ([[Fio.signTransaction]]) request data

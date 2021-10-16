@@ -15,6 +15,7 @@ export type Uint8_t = number & { __type: 'uint8_t' }
 
 // Our types
 export const PUBLIC_KEY_LENGTH = 65
+export const WIF_PUBLIC_KEY_LENGTH = 53
 
 export type ParsedTransferFIOTokensData = {
     payee_public_key: string
