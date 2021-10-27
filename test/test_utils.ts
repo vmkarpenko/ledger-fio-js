@@ -8,7 +8,7 @@ export async function getTransport() {
 }
 
 export async function getFio() {
-    const transport = await TransportNodeHid.create(1000)
+    const transport = await getTransport()
 
     const fio = new Fio(transport);
     (fio as any).t = transport

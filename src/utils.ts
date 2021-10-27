@@ -1,16 +1,8 @@
-import basex from "base-x"
-
 import {InvalidDataReason} from "./errors"
 import {HARDENED} from "./types/public"
 import {assert} from "./utils/assert"
 import {isArray, isBuffer, isInteger, isString, parseIntFromStr, validate} from "./utils/parse"
 import {buf_to_hex, buf_to_uint16, hex_to_buf, path_to_buf, uint32_to_buf} from './utils/serialize'
-
-const BASE58_ALPHABET =
-    "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-const bs58 = basex(BASE58_ALPHABET)
-
-const TESTNET_NETWORK_ID = 0x00
 
 function parseBIP32Index(str: string, errMsg: InvalidDataReason): number {
     let base = 0
@@ -69,23 +61,6 @@ export function stripRetcodeFromResponse(response: Buffer): Buffer {
     return response.slice(0, L)
 }
 
-
-export function base58_encode(data: Buffer): string {
-    assert(isBuffer(data), "invalid buffer")
-
-    return bs58.encode(data)
-}
-
-const isValidBase58 = (data: unknown): data is string =>
-    isString(data) && [...data].every(c => BASE58_ALPHABET.includes(c))
-
-export function base58_decode(data: string): Buffer {
-    assert(isValidBase58(data), "invalid base58 string")
-
-    return bs58.decode(data)
-}
-
-
 export default {
     // reexporting for tests
     // FIXME: following is workaround for cyclic import runtime resolve issues
@@ -97,9 +72,6 @@ export default {
     assert,
 
     str_to_path,
-
-    base58_encode,
-    base58_decode,
 
     chunkBy,
     stripRetcodeFromResponse,

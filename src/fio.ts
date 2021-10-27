@@ -16,40 +16,18 @@
  ********************************************************************************/
 import type Transport from "@ledgerhq/hw-transport"
 
-import {DeviceStatusCodes, DeviceStatusError} from './errors'
-import {InvalidDataReason} from "./errors"
+import {DeviceStatusCodes, DeviceStatusError, InvalidDataReason} from './errors'
 import type {Interaction, SendParams} from './interactions/common/types'
 import {getPublicKey} from "./interactions/getPublicKey"
 import {getSerial} from "./interactions/getSerial"
 import {getCompatibility, getVersion} from "./interactions/getVersion"
 import {runTests} from "./interactions/runTests"
 import {signTransaction} from "./interactions/signTransaction"
-import type {
-    HexString,
-    ParsedAction,
-    ParsedActionAuthorisation,
-    ParsedTransaction,
-    ParsedTransferFIOTokensData,
-    ValidBIP32Path,
-} from './types/internal'
-import type {
-    Action, ActionAuthorisation, BIP32Path, DeviceCompatibility,
-    Serial, SignedTransactionData, Transaction, TransferFIOTokensData, Version,
-} from './types/public'
-import utils from "./utils"
+import type {HexString, ParsedTransaction, ValidBIP32Path} from './types/internal'
+import type {BIP32Path, DeviceCompatibility, Serial, SignedTransactionData, Transaction, Version} from './types/public'
+import {stripRetcodeFromResponse} from "./utils"
 import {assert} from './utils/assert'
-import {
-    isHexString,
-    isValidPath,
-    parseAuthorization,
-    parseBIP32Path,
-    parseContractAccountName,
-    parseNameString, parseTransaction,
-    parseUint16_t,
-    parseUint32_t,
-    parseUint64_str,
-    validate,
-} from './utils/parse'
+import {isArray, isHexString, parseHexString, parseBIP32Path, parseTransaction, validate} from './utils/parse'
 
 export * from './errors'
 export * from './types/public'
@@ -154,7 +132,7 @@ export class Fio {
                 params.p2,
                 params.data,
             )
-            response = utils.stripRetcodeFromResponse(response)
+            response = stripRetcodeFromResponse(response)
 
             if (params.expectedResponseLength != null) {
                 assert(
@@ -210,20 +188,20 @@ export class Fio {
     /**
      * Get public key for the specified BIP 32 path.
      *
-     * @param path The path. A path must begin with `44'/235'/0'/0/i`.
-     * @returns The public key (i.e. with chaincode).
+     * @returns The public key.
      *
      * @example
      * ```
      * const publicKey = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]);
      * console.log(publicKey);
      * ```
+     * @see [[GetPublicKeyRequest]]
      */
     async getPublicKey(
         {path, show_or_not}: GetPublicKeyRequest
     ): Promise<GetPublicKeyResponse> {
         // validate the input
-        validate(isValidPath(path), InvalidDataReason.GET_EXT_PUB_KEY_PATHS_NOT_ARRAY)
+        validate(isArray(path), InvalidDataReason.GET_PUB_KEY_PATH_IS_NOT_ARRAY)
         const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
 
         return interact(this._getPublicKey(parsedPath, show_or_not), this._send)
@@ -238,23 +216,21 @@ export class Fio {
     /**
      * Sign transaction.
      *
-     * @param path The path. A path must begin with `44'/235'/0'/0/i`.
-     * @returns The public key (i.e. with chaincode).
+     * @returns Hash and a list of Witnesses
      *
      * @example
      * ```
-     * TODO
-     * const  = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ]); TODO
+     * const sign = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ], chainId, tx);
      * console.log(sign);
-     * ```
+     * @see [[SignTransactionRequest]]
+     * @see [[SignTransactionResponse]]
+ * ```
      */
     async signTransaction({path, chainId, tx}: SignTransactionRequest): Promise<SignTransactionResponse> {
-        validate(isHexString(chainId), InvalidDataReason.INVALID_CHAIN_ID)
-
+        const parsedChainId = parseHexString(chainId, InvalidDataReason.INVALID_CHAIN_ID)
         const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
-        const parsedTx = parseTransaction(chainId, tx)
-
-        return interact(this._signTransaction(parsedPath, chainId as HexString, parsedTx), this._send)
+        const parsedTx = parseTransaction(parsedChainId, tx)
+        return interact(this._signTransaction(parsedPath, parsedChainId, parsedTx), this._send)
     }
 
     /** @ignore */
@@ -281,6 +257,7 @@ export class Fio {
 /**
  * Get FIO app version [[Fio.getVersion]] response data
  * @category Main
+ * @see [[DeviceCompatibility]
  */
 export type GetVersionResponse = {
     version: Version
@@ -290,6 +267,7 @@ export type GetVersionResponse = {
 /**
  * Get device serial number ([[Fio.getSerial]]) response data
  * @category Main
+ * @see [[Serial]]
  */
 export type GetSerialResponse = Serial
 
@@ -299,9 +277,10 @@ export type GetSerialResponse = Serial
  * @see [[GetPublicKeyResponse]]
  */
 export type GetPublicKeyRequest = {
-    /** Paths to public keys which should be derived by the device */
-    show_or_not: boolean, 
+    /** Path to public key which should be derived by the device */
     path: BIP32Path
+    /** Show pubkey on the device or not */
+    show_or_not: boolean, 
 }
 
 /**
@@ -318,10 +297,14 @@ export type GetPublicKeyResponse = {
  * Sign transaction ([[Fio.signTransaction]]) request data
  * @category Main
  * @see [[SignTransactionResponse]]
+ * @see [[Transaction]]
  */
 export type SignTransactionRequest = {
+    /** Path to public key used to sign the transaction */
     path: BIP32Path,
+    /** ChainId in hex format */
     chainId: string,
+    /** Transaction to sign */
     tx: Transaction,
 }
 
@@ -329,6 +312,7 @@ export type SignTransactionRequest = {
  * Sign transaction ([[Fio.signTransaction]]) response data
  * @category Main
  * @see [[SignTransactionRequest]]
+ * @see [[SignedTransactionData]]
  */
 export type SignTransactionResponse = SignedTransactionData
 

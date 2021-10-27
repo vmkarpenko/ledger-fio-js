@@ -3,7 +3,7 @@
  * @category Errors
  */
 export enum InvalidDataReason {
-    GET_EXT_PUB_KEY_PATHS_NOT_ARRAY = "ext pub key paths not an array",
+    GET_PUB_KEY_PATH_IS_NOT_ARRAY = "ext pub key path is not an array",
     INVALID_CHAIN_ID = "invalid chain id",
     INVALID_PATH = "invalid path",
     CONTEXT_FREE_ACTIONS_NOT_SUPPORTED = "context free actions not supported",

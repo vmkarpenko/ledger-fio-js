@@ -1,16 +1,6 @@
-import basex from "base-x"
-import bech32 from "bech32"
-
 import {InvalidDataReason} from "../errors"
 import {HARDENED} from "../types/public"
-import {assert} from "../utils/assert"
-import {isBuffer, isString, parseIntFromStr, validate} from "./parse"
-
-const BASE58_ALPHABET =
-    "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-const bs58 = basex(BASE58_ALPHABET)
-
-const TESTNET_NETWORK_ID = 0x00
+import {isString, parseIntFromStr, validate} from "./parse"
 
 function parseBIP32Index(str: string, errMsg: InvalidDataReason): number {
     let base = 0
@@ -32,20 +22,4 @@ export function str_to_path(data: string): Array<number> {
     return data.split("/").map(function (x: string): number {
         return parseBIP32Index(x, errMsg)
     })
-}
-
-
-export function base58_encode(data: Buffer): string {
-    assert(isBuffer(data), "invalid buffer")
-
-    return bs58.encode(data)
-}
-
-const isValidBase58 = (data: unknown): data is string =>
-    isString(data) && [...data].every(c => BASE58_ALPHABET.includes(c))
-
-export function base58_decode(data: string): Buffer {
-    assert(isValidBase58(data), "invalid base58 string")
-
-    return bs58.decode(data)
 }

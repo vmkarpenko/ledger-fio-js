@@ -1,4 +1,3 @@
-import { PublicKey } from "../../dist/src/fio"
 import {ValidBIP32Path, WIF_PUBLIC_KEY_LENGTH} from "../types/internal"
 import {PUBLIC_KEY_LENGTH} from "../types/internal"
 import type {Version} from "../types/public"
@@ -18,6 +17,15 @@ const send = (params: {
 }): SendParams => ({ins: INS.GET_EXT_PUBLIC_KEY, ...params})
 
 
+const enum P1 {
+    SHOW = 0x01,
+    DO_NOT_SHOW = 0x02,
+}
+
+const enum P2 {
+    UNUSED = 0x00,
+}
+
 export function* getPublicKey(
     version: Version,
     path: ValidBIP32Path,
@@ -25,29 +33,12 @@ export function* getPublicKey(
 ): Interaction<GetPublicKeyResponse> {
     ensureLedgerAppVersionCompatible(version)
 
-    const enum P1 {
-        SHOW = 0x01,
-        DO_NOT_SHOW = 0x02,
-    }
+    const pathData = path_to_buf(path)
 
-    const enum P2 {
-        UNUSED = 0x00,
-    }
-
-    const pathData = Buffer.concat([
-        path_to_buf(path),
-    ])
-
-    let response: Buffer
-
-    // passing empty Buffer for backwards compatibility
-    // of single key export on Ledger app version 2.0.4
-    const remainingKeysData = Buffer.from([])
-
-    response = yield send({
+    const response = yield send({
         p1: show_or_not ? P1.SHOW : P1.DO_NOT_SHOW,
         p2: P2.UNUSED,
-        data: Buffer.concat([pathData, remainingKeysData]),
+        data: pathData,
         expectedResponseLength: PUBLIC_KEY_LENGTH + WIF_PUBLIC_KEY_LENGTH,
     })
 

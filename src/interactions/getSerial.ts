@@ -1,5 +1,5 @@
 import type {Serial, Version} from "../types/public"
-import utils from "../utils"
+import { buf_to_hex } from "../utils/serialize"
 import {INS} from "./common/ins"
 import type {Interaction, SendParams} from "./common/types"
 import {ensureLedgerAppVersionCompatible} from "./getVersion"
@@ -24,6 +24,6 @@ export function* getSerial(version: Version): Interaction<Serial> {
         expectedResponseLength: 7,
     })
 
-    const serial = utils.buf_to_hex(response)
+    const serial = buf_to_hex(response)
     return {serial}
 }

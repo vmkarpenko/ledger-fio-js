@@ -1,7 +1,6 @@
 import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
 import { Fio, HARDENED, GetPublicKeyRequest, SignTransactionRequest, Transaction } from "../src/fio";
 const fetch = require('node-fetch')
-const readline = require('readline');
 
 const wait = () => {
   const inputReader = require('wait-console-input')

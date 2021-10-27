@@ -10,8 +10,7 @@ import {testsPublicKey} from "./__fixtures__/getPublicKey"
 
 chai.use(chaiAsPromised)
 
-const PublicKey = require('@fioprotocol/fiojs/dist/ecc/key_public')
-
+import {Ecc} from '@fioprotocol/fiojs'
 
 describe("getPublicKey", async () => {
     let fio: Fio = {} as Fio
@@ -32,7 +31,7 @@ describe("getPublicKey", async () => {
                 )
 
                 expect(response.publicKeyHex).to.equal(expected.publicKey)
-                expect(PublicKey(response.publicKeyWIF).toUncompressed().toBuffer().toString('hex')).to.equal(expected.publicKey)
+                expect(Ecc.PublicKey(response.publicKeyWIF).toUncompressed().toBuffer().toString('hex')).to.equal(expected.publicKey)
             }
         }
 

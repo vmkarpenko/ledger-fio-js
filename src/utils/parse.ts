@@ -168,9 +168,8 @@ export function parseIntFromStr(str: string, errMsg: InvalidDataReason): number 
     return i
 }
 
-export function parseContractAccountName(chainId: string, account: string, name: string, errMsg: InvalidDataReason): HexString {
-    if (chainId == "b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e" &&
-        account == "fio.token" || name == "trnsfiopubky") {
+export function parseContractAccountName(account: string, name: string, errMsg: InvalidDataReason): HexString {
+    if (account == "fio.token" && name == "trnsfiopubky") {
         return "0000980ad20ca85be0e1d195ba85e7cd" as HexString
     }
     validate(false, errMsg)
@@ -237,11 +236,11 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
 
     // validate action.data (TransferFIOTokenData)
     validate(isString(action.data.payee_public_key), InvalidDataReason.INVALID_PAYEE_PUBKEY)
-    validate(action.data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) //TODO refine including internal parsed types
+    validate(action.data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) 
     validate(isBigIntLike(action.data.amount), InvalidDataReason.INVALID_AMOUNT)
     validate(isBigIntLike(action.data.max_fee), InvalidDataReason.INVALID_MAX_FEE)
     validate(isString(action.data.tpid), InvalidDataReason.INVALID_TPID)
-    validate(action.data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) //TODO refine including internal parsed types
+    validate(action.data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) 
     validate(isString(action.data.actor), InvalidDataReason.INVALID_ACTOR)
 
     const parsedActionData: ParsedTransferFIOTokensData = {
@@ -253,7 +252,7 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     }
 
     const parsedAction: ParsedAction = {
-        contractAccountName: parseContractAccountName(chainId, action.account, action.name,
+        contractAccountName: parseContractAccountName(action.account, action.name,
             InvalidDataReason.ACTION_NOT_SUPPORTED),
         authorization: [parseAuthorization(authorization, InvalidDataReason.INVALID_ACTION_AUTHORIZATION)],
         data: parsedActionData,

@@ -34,6 +34,11 @@ export type Flags = {
     isDebug: boolean
 }
 
+/**
+ * Describes compatibility of device with current SDK
+ * @category Basic types
+ * @see [[Fio.getVersion]]
+ */
 export type DeviceCompatibility = {
     /** Overall compatibility.
      * - true if SDK supports the device with given firmware version (to the

@@ -27,8 +27,7 @@ export function* getVersion(): Interaction<Version> {
     const [major, minor, patch, flags_value] = response
 
     const FLAG_IS_DEBUG = 1
-    //const FLAG_IS_HEADLESS = 2;
-
+    
     const flags = {
         isDebug: (flags_value & FLAG_IS_DEBUG) === FLAG_IS_DEBUG,
     }
