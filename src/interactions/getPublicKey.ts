@@ -1,4 +1,6 @@
-import {ValidBIP32Path, WIF_PUBLIC_KEY_LENGTH} from "../types/internal"
+import type {GetPublicKeyResponse} from "../fio"
+import type {ValidBIP32Path} from "../types/internal"
+import {WIF_PUBLIC_KEY_LENGTH} from "../types/internal"
 import {PUBLIC_KEY_LENGTH} from "../types/internal"
 import type {Version} from "../types/public"
 import {assert} from "../utils/assert"
@@ -7,7 +9,6 @@ import {path_to_buf} from "../utils/serialize"
 import {INS} from "./common/ins"
 import type {Interaction, SendParams} from "./common/types"
 import {ensureLedgerAppVersionCompatible} from "./getVersion"
-import {GetPublicKeyResponse} from "../fio"
 
 const send = (params: {
     p1: number,
@@ -47,6 +48,6 @@ export function* getPublicKey(
 
     return {
         publicKeyHex: publicKey.toString("hex"),
-        publicKeyWIF: publicKeyWIF.toString()
+        publicKeyWIF: publicKeyWIF.toString(),
     }
 }

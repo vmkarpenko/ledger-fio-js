@@ -1,12 +1,12 @@
-import type {HexString, ParsedTransaction, ParsedTransferFIOTokensData, Uint8_t, ValidBIP32Path} from "types/internal"
+import type {HexString, ParsedTransaction, ParsedTransferFIOTokensData, Uint8_t, ValidBIP32Path} from "../types/internal"
 
 import {InvalidDataReason} from "../errors"
 import type {SignedTransactionData, Version} from "../types/public"
 import {HARDENED} from "../types/public"
+import {assert} from "../utils/assert"
 import {chunkBy} from "../utils/ioHelpers"
 import {validate} from "../utils/parse"
-import {uint8_to_buf, buf_to_hex, date_to_buf, path_to_buf, uint16_to_buf, uint32_to_buf, uint64_to_buf} from "../utils/serialize"
-import {assert} from "../utils/assert"
+import {buf_to_hex, date_to_buf, path_to_buf, uint8_to_buf, uint16_to_buf, uint32_to_buf, uint64_to_buf} from "../utils/serialize"
 import {INS} from "./common/ins"
 import type {Interaction, SendParams} from "./common/types"
 import {ensureLedgerAppVersionCompatible} from "./getVersion"
@@ -34,7 +34,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
     //Initialize and send chainId
     {
         const P2_UNUSED = 0x00
-        const response = yield send({
+        yield send({
             p1: P1.STAGE_INIT,
             p2: P2_UNUSED,
             data: Buffer.from(chainId, "hex"),
@@ -44,7 +44,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
     //Send expiration, ref block num, ref block prefix
     {
         const P2_UNUSED = 0x00
-        const response = yield send({
+        yield send({
             p1: P1.STAGE_HEADER,
             p2: P2_UNUSED,
             data: Buffer.concat([date_to_buf(tx.expiration), uint16_to_buf(tx.ref_block_num), uint32_to_buf(tx.ref_block_prefix)]),
@@ -69,7 +69,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
             p2: P2_UNUSED,
             data: Buffer.concat([
                 Buffer.from(tx.actions[0].authorization[0].actor, "hex"),
-                Buffer.from(tx.actions[0].authorization[0].permission, "hex")
+                Buffer.from(tx.actions[0].authorization[0].permission, "hex"),
             ]),
             expectedResponseLength: 0,
         })
@@ -90,7 +90,7 @@ export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, c
     //Send action data
     {
         const P2_UNUSED = 0x00
-        const response = yield send({
+        yield send({
             p1: P1.STAGE_ACTION_DATA,
             p2: P2_UNUSED,
             data: Buffer.concat([

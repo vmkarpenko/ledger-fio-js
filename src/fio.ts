@@ -27,7 +27,7 @@ import type {HexString, ParsedTransaction, ValidBIP32Path} from './types/interna
 import type {BIP32Path, DeviceCompatibility, Serial, SignedTransactionData, Transaction, Version} from './types/public'
 import {stripRetcodeFromResponse} from "./utils"
 import {assert} from './utils/assert'
-import {isArray, isHexString, parseHexString, parseBIP32Path, parseTransaction, validate} from './utils/parse'
+import {isArray, parseBIP32Path, parseHexString, parseTransaction, validate} from './utils/parse'
 
 export * from './errors'
 export * from './types/public'

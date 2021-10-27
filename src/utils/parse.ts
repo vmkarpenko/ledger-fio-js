@@ -1,6 +1,4 @@
-import type {ActionAuthorisation, bigint_like, Transaction} from "types/public"
-
-import {InvalidData, InvalidDataReason} from "../errors"
+import  {InvalidData, InvalidDataReason} from "../errors"
 import type {
     _Uint64_bigint,
     _Uint64_num,
@@ -9,14 +7,15 @@ import type {
     NameString,
     ParsedActionAuthorisation,
     ParsedTransaction,
+    Uint8_t,
     Uint16_t,
     Uint32_t,
     Uint64_str,
-    Uint8_t,
     ValidBIP32Path,
     VarlenAsciiString,
 } from "../types/internal"
-import {ParsedAction, ParsedTransferFIOTokensData} from "../types/internal"
+import type {ParsedAction, ParsedTransferFIOTokensData} from "../types/internal"
+import type {ActionAuthorisation, bigint_like, Transaction} from "../types/public"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 

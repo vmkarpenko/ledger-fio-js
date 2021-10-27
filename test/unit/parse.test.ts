@@ -1,7 +1,8 @@
 import {expect} from "chai"
-import {parseTransaction} from "../../src/utils/parse"
-import {Transaction} from "../../src/types/public"
+
 import {InvalidDataReason} from "../../src/errors"
+import type {Transaction} from "../../src/types/public"
+import {parseTransaction} from "../../src/utils/parse"
 
 const chainId = "" //XXX
 
