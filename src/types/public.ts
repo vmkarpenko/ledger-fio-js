@@ -177,5 +177,5 @@ export type Transaction = {
     ref_block_prefix: bigint_like
     context_free_actions: Array<Action>
     actions: Array<Action>
-    transaction_extensions: null
+    transaction_extensions: Array<any>
 }

@@ -119,7 +119,7 @@ const basicTx: Transaction = {
             actor: "aftyershcu22",
         },
     }],
-    transaction_extensions: null,
+    transaction_extensions: [],
 }
 
 describe("signTransaction", async () => {

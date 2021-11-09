@@ -66,7 +66,7 @@ async function example() {
             actor: "aftyershcu22",
         },
     }],
-    transaction_extensions: null,
+    transaction_extensions: [],
   }
   const infoTestnet = await (await fetch('http://testnet.fioprotocol.io/v1/chain/get_info')).json()
   const signTransactionRequest: SignTransactionRequest = {
