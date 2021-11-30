@@ -28,7 +28,7 @@ const DeviceStatusMessages: Record<number, string> = {
 }
 
 const GH_DEVICE_ERRORS_LINK =
-    "https://github.com/vacuumlabs/ledger-fio/blob/master/ledger-app-fio/src/errors.h"
+    "https://github.com/LedgerHQ/ledger-fio/blob/master/src/errors.h"
 
 const getDeviceErrorDescription = (statusCode: number) => {
     const statusCodeHex = `0x${statusCode.toString(16)}`
