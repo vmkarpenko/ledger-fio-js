@@ -23,4 +23,5 @@ export enum InvalidDataReason {
     INVALID_ACTOR = "invalid actor",
     INVALID_PERMISSION = "invalid permission",
     ACTION_DATA_TOO_LONG = "action data too long",
+    UNEXPECTED_ERROR = "Unexpected error",
 }

@@ -36,6 +36,22 @@ export function uint32_to_buf(value: Uint32_t | Uint16_t | Uint8_t): Buffer {
     return data
 }
 
+// This is thhe only LE function here
+export function varuint32_to_buf(value: number) {
+    assert(isUint32(value), 'invalid uint32');
+    let buffer = Buffer.from("");
+    while (true) {
+        if (value >>> 7) {
+            buffer = Buffer.concat([buffer, uint8_to_buf((0x80 | (value & 0x7f)) as Uint8_t)]);
+            value = value >>> 7;
+        } else {
+            buffer = Buffer.concat([buffer, uint8_to_buf(value as Uint8_t)]);
+            break;
+        }
+    }
+    return buffer;
+}
+
 export function buf_to_uint32(data: Buffer): Uint32_t {
     assert(data.length === 4, "invalid uint32 buffer")
 
@@ -60,8 +76,6 @@ export function hex_to_buf(data: HexString | FixlenHexString<any>): Buffer {
 export function buf_to_hex(data: Buffer): string {
     return data.toString("hex")
 }
-
-// no buf_to_uint8
 
 export function path_to_buf(path: Array<number>): Buffer {
     assert(isValidPath(path), "invalid bip32 path")
