@@ -123,7 +123,7 @@ export function templete_trnsfiopubky(chainId: HexString, tx: ParsedTransaction,
             //chainId
             ...defaultCommand,
             command: COMMAND.INIT, 
-            varData: Buffer.from(chainId, "hex"),
+            varData: Buffer.concat([Buffer.from(chainId, "hex"), path_to_buf(parsedPath)]),
         },
         {
             //expiration, ref_block_num, ref_block_prefix
@@ -215,7 +215,6 @@ export function templete_trnsfiopubky(chainId: HexString, tx: ParsedTransaction,
         {
             ...defaultCommand,
             command: COMMAND.FINISH, 
-            varData: path_to_buf(parsedPath),
             expectedResponseLength: 65 + 32,
             dataAction: (b, s) => {
                 const [witnessSignature, hash, rest] = chunkBy(b, [65, 32])
