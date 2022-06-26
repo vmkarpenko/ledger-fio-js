@@ -40,7 +40,7 @@
 
 "@fioprotocol/fiojs@^1.0.1":
   version "1.0.1"
-  resolved "https://registry.npmjs.org/@fioprotocol/fiojs/-/fiojs-1.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/@fioprotocol/fiojs/-/fiojs-1.0.1.tgz#81779437603741bc4ca1c76d119b64c4157a3874"
   integrity sha512-+rxJ/ynUkox/DO3ihHPpAc//DDI+DQvrphLqwRKufw0atC3GKluGR2qMTeO45O0UjorvOIw6esuuG7NpbVUm8Q==
   dependencies:
     ajv "^6.10.2"

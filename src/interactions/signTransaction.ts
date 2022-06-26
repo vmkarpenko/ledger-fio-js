@@ -9,7 +9,8 @@ import {buf_to_hex, date_to_buf, path_to_buf, uint8_to_buf, uint16_to_buf, uint3
 import {INS} from "./common/ins"
 import type {Interaction, SendParams} from "./common/types"
 import {ensureLedgerAppVersionCompatible} from "./getVersion"
-import {templete_trnsfiopubky} from "./transactionTemplates/template_trnsfiopubky"
+import { templete_all } from "./transactionTemplates/template_all"
+import { Console } from "console"
 
 const send = (params: {
     p1: number,
@@ -22,9 +23,10 @@ const send = (params: {
 export function* signTransaction(version: Version, parsedPath: ValidBIP32Path, chainId: HexString, tx: ParsedTransaction): Interaction<SignedTransactionData> {
     ensureLedgerAppVersionCompatible(version)
 
-    const commands = templete_trnsfiopubky(chainId, tx, parsedPath);
+    const commands = templete_all(chainId, tx, parsedPath);
+    validate(commands.length != 0, InvalidDataReason.ACTION_NOT_SUPPORTED);
 
-    let result: SignedTransactionData = {txHashHex: "", witness: {path: parsedPath, witnessSignatureHex: ""}};
+    let result: SignedTransactionData = {dhEncryptedData: "", txHashHex: "", witness: {path: parsedPath, witnessSignatureHex: ""}};
 
     for(const command of commands) {
         validate(command.constData.length + command.varData.length +2 <= 255, InvalidDataReason.UNEXPECTED_ERROR);

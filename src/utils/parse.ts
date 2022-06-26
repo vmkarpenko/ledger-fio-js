@@ -13,9 +13,13 @@ import type {
     Uint64_str,
     ValidBIP32Path,
     VarlenAsciiString,
+    ParsedAction, 
+    ParsedTransferFIOTokensData,
+    ParsedRequestFundsData,
 } from "../types/internal"
-import type {ParsedAction, ParsedTransferFIOTokensData} from "../types/internal"
-import type {ActionAuthorisation, bigint_like, Transaction} from "../types/public"
+import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData} from "../types/public"
+import { CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ } from "../interactions/transactionTemplates/template_newfundsreq"
+import { CONTRACT_ACCOUNT_NAME_TRNSFIOPUBKEY } from "../interactions/transactionTemplates/template_trnsfiopubky"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 
@@ -167,13 +171,6 @@ export function parseIntFromStr(str: string, errMsg: InvalidDataReason): number 
     return i
 }
 
-export function parseContractAccountName(account: string, name: string, errMsg: InvalidDataReason): HexString {
-    if (account == "fio.token" && name == "trnsfiopubky") {
-        return "0000980ad20ca85be0e1d195ba85e7cd" as HexString
-    }
-    validate(false, errMsg)
-}
-
 export function parseNameString(name: string, errMsg: InvalidDataReason): NameString {
     validate(isNameString(name), errMsg)
 
@@ -233,36 +230,100 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     validate(isString(authorization.actor), InvalidDataReason.INVALID_ACTOR)
     validate(isString(authorization.permission), InvalidDataReason.INVALID_PERMISSION)
 
-    // validate action.data (TransferFIOTokenData)
-    validate(isString(action.data.payee_public_key), InvalidDataReason.INVALID_PAYEE_PUBKEY)
-    validate(action.data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) 
-    validate(isBigIntLike(action.data.amount), InvalidDataReason.INVALID_AMOUNT)
-    validate(isBigIntLike(action.data.max_fee), InvalidDataReason.INVALID_MAX_FEE)
-    validate(isString(action.data.tpid), InvalidDataReason.INVALID_TPID)
-    validate(action.data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) 
-    validate(isString(action.data.actor), InvalidDataReason.INVALID_ACTOR)
 
-    const parsedActionData: ParsedTransferFIOTokensData = {
-        payee_public_key: action.data.payee_public_key,
-        amount: parseUint64_str(action.data.amount, {}, InvalidDataReason.INVALID_AMOUNT),
-        max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
-        actor: parseNameString(action.data.actor, InvalidDataReason.INVALID_ACTOR),
-        tpid: action.data.tpid,
+    if (action.account == "fio.token" && action.name == "trnsfiopubky") {
+        const data: TransferFIOTokensData = action.data;
+
+        // validate action.data (TransferFIOTokenData)
+        validate(isString(data.payee_public_key), InvalidDataReason.INVALID_PAYEE_PUBKEY)
+        validate(data.payee_public_key.length <= 64, InvalidDataReason.INVALID_PAYEE_PUBKEY) 
+        validate(isBigIntLike(data.amount), InvalidDataReason.INVALID_AMOUNT)
+        validate(isBigIntLike(data.max_fee), InvalidDataReason.INVALID_MAX_FEE)
+        validate(isString(data.tpid), InvalidDataReason.INVALID_TPID)
+        validate(data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) 
+        validate(isString(data.actor), InvalidDataReason.INVALID_ACTOR)
+
+        const parsedActionData: ParsedTransferFIOTokensData = {
+            payee_public_key: data.payee_public_key,
+            amount: parseUint64_str(data.amount, {}, InvalidDataReason.INVALID_AMOUNT),
+            max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+            actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+            tpid: data.tpid,
+        }
+    
+        const parsedAction: ParsedAction = {
+            contractAccountName:  CONTRACT_ACCOUNT_NAME_TRNSFIOPUBKEY as HexString,
+            authorization: [parseAuthorization(authorization, InvalidDataReason.INVALID_ACTION_AUTHORIZATION)],
+            data: parsedActionData,
+        }
+    
+        return {
+            expiration: tx.expiration,
+            ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.INVALID_REF_BLOCK_NUM),
+            ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.INVALID_REF_BLOCK_PREFIX),
+            context_free_actions: [],
+            actions: [parsedAction],
+            transaction_extensions: null,
+        }    
+    }
+    else if (action.account === "fio.reqobt" && action.name === "newfundsreq") {
+        const data: RequestFundsData = action.data as RequestFundsData;
+        validate(isString(data.tpid), InvalidDataReason.INVALID_TPID)
+        validate(data.tpid.length <= 20, InvalidDataReason.INVALID_TPID) 
+        validate(isString(data.actor), InvalidDataReason.INVALID_ACTOR)
+        validate(isString(data.payer_fio_address), InvalidDataReason.INVALID_PAYER_FIO_ADDRESS)
+        validate(isString(data.payee_fio_address), InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS)
+        validate(isString(data.payee_public_address), InvalidDataReason.INVALID_AMOUNT)
+        validate(isString(data.amount), InvalidDataReason.INVALID_AMOUNT)
+        validate(isString(data.chain_code), InvalidDataReason.INVALID_CHAIN_CODE)
+        validate(isString(data.token_code), InvalidDataReason.INVALID_TOKEN_CODE)
+        validate(isString(data.memo), InvalidDataReason.INVALID_MEMO)
+        validate(isString(data.hash), InvalidDataReason.INVALID_HASH) 
+        validate(isString(data.offline_url), InvalidDataReason.INVALID_OFFLINE_URL) 
+
+        let payee_public_key: Buffer
+        try {
+            console.log(data.payee_public_key)
+            payee_public_key = data.payee_public_key.toUncompressed().toBuffer()
+        }
+        catch {
+            validate(false, InvalidDataReason.INVALID_PUBLIC_KEY)
+        }
+        validate(payee_public_key.length == 65, InvalidDataReason.INVALID_PUBLIC_KEY) 
+
+        const parsedActionData: ParsedRequestFundsData = {
+            payer_fio_address: data.payer_fio_address,
+            payee_fio_address: data.payee_fio_address,
+            max_fee: parseUint64_str(action.data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+            actor: data.actor,
+            tpid: data.tpid,
+
+            payee_public_key: payee_public_key,
+            payee_public_address: data.payee_public_address,
+            amount: data.amount,
+            chain_code: data.chain_code,
+            token_code: data.token_code,
+            memo: data.memo,
+            hash: data.hash,
+            offline_url: data.offline_url,
+        }
+    
+        const parsedAction: ParsedAction = {
+            contractAccountName: CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ as HexString,
+            authorization: [parseAuthorization(authorization, InvalidDataReason.INVALID_ACTION_AUTHORIZATION)],
+            data: parsedActionData,
+        }
+    
+        return {
+            expiration: tx.expiration,
+            ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.INVALID_REF_BLOCK_NUM),
+            ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.INVALID_REF_BLOCK_PREFIX),
+            context_free_actions: [],
+            actions: [parsedAction],
+            transaction_extensions: null,
+        }    
     }
 
-    const parsedAction: ParsedAction = {
-        contractAccountName: parseContractAccountName(action.account, action.name,
-            InvalidDataReason.ACTION_NOT_SUPPORTED),
-        authorization: [parseAuthorization(authorization, InvalidDataReason.INVALID_ACTION_AUTHORIZATION)],
-        data: parsedActionData,
-    }
-
-    return {
-        expiration: tx.expiration,
-        ref_block_num: parseUint16_t(tx.ref_block_num, InvalidDataReason.INVALID_REF_BLOCK_NUM),
-        ref_block_prefix: parseUint32_t(tx.ref_block_prefix, InvalidDataReason.INVALID_REF_BLOCK_PREFIX),
-        context_free_actions: [],
-        actions: [parsedAction],
-        transaction_extensions: null,
-    }
+    throw new InvalidData(InvalidDataReason.ACTION_NOT_SUPPORTED)
 }
+

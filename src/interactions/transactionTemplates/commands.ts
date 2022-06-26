@@ -1,5 +1,9 @@
-import { HexString, Uint8_t } from "types/internal"
-import type {SignedTransactionData} from "../../types/public"
+import { assert } from "console";
+import { InvalidDataReason } from "errors"
+import { HexString, Uint8_t, ParsedTransaction, ValidBIP32Path } from "types/internal"
+import { buf_to_hex, path_to_buf, varuint32_to_buf } from "../../utils/serialize";
+import type { SignedTransactionData } from "../../types/public";
+import { chunkBy } from "../../utils/ioHelpers"
 
 export const enum COMMAND {
     NONE = 0x00,
@@ -10,6 +14,8 @@ export const enum COMMAND {
     START_COUNTED_SECTION = 0x05,
     END_COUNTED_SECTION = 0x06,
     STORE_VALUE = 0x07,
+    START_DH_ENCRYPTION = 0x08,
+    END_DH_ENCRYPTION = 0x09,
     FINISH= 0x10,
 };
 
@@ -41,13 +47,24 @@ export const enum VALUE_STORAGE_COMPARE {
     COMPARE_REGISTER3 = 0x30,
 }
 
+export type DataAction = (b: Buffer, s: SignedTransactionData) => SignedTransactionData
+
+export const dhDataAction: DataAction = (b, s) => {
+    return {
+        dhEncryptedData: s.dhEncryptedData + b.toString(),
+        txHashHex: s.txHashHex,
+        witness: s.witness
+    }
+}
+
 export type Command = {
     command: COMMAND,
     p2: Uint8_t,
     constData: HexString,
     varData: Buffer,
-    expectedResponseLength: number,
-    dataAction: (b: Buffer, s: SignedTransactionData) => SignedTransactionData, 
+    expectedResponseLength?: number,
+    dataAction: DataAction, 
+    txLen: number, //This is necessary to make counted sections work
 }
 
 export const defaultCommand: Command = {
@@ -55,9 +72,11 @@ export const defaultCommand: Command = {
     p2: 0 as Uint8_t,
     constData: "" as HexString,
     varData: Buffer.from(""),
-    expectedResponseLength: 0,
-    dataAction: (b, s) => s,
+    dataAction: dhDataAction, //does nothing if there is no DH
+    txLen: 0
 }
+
+export type TransactionTemplate = (chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path) => Array<Command>;
 
 export function constDataAppendData(format: VALUE_FORMAT, validation: VALUE_VALIDATION, arg1: bigint, arg2: bigint,
                                     policy: VALUE_POLICY, storage: VALUE_STORAGE_COMPARE, key: string): HexString {
@@ -90,10 +109,218 @@ export function constDataStartCountedSection(format: VALUE_FORMAT, validation: V
     return buf.toString("hex") as HexString;
 }
 
-export function getCommandVarLength(commands: Array<Command>) {
+export function getCommandVarLength(commands: Array<Command>): number {
     let len: number = 0;
-    for(const c of commands) {
-        len += c.varData.length;
+    for(let i=0; i<commands.length; i++) {
+        if (commands[i].command == COMMAND.START_DH_ENCRYPTION) {
+            let encLen: number = 48 //IV + HMAC;
+            i++;
+            while(commands[i].command != COMMAND.END_DH_ENCRYPTION) {
+                encLen += commands[i].txLen
+                i++
+            }
+            const blocks = ~~((encLen+16)/16);
+            const base16Blocks = ~~((16*blocks+2)/3)
+            len += 4*base16Blocks;
+        }
+        else {
+            len += commands[i].txLen;
+        }
     }
     return len;
 }
+
+export function templateAlternative(templates: Array<TransactionTemplate>): TransactionTemplate {
+    return (chainId, tx, path) => {
+        for (const t of templates) {
+            const commands: Array<Command> = t(chainId, tx, path);
+            if (commands.length != 0) { //template match
+                return commands;
+            }
+        }
+        return [];
+    }
+}
+
+//---------------------INSTRUCTION SPECIFIC COMMANDS---------------------------------
+
+export function COMMAND_INIT(chainId: HexString, parsedPath: ValidBIP32Path): Command {
+    const varData = Buffer.concat([Buffer.from(chainId, "hex"), path_to_buf(parsedPath)])
+    return {
+        ...defaultCommand,
+        command: COMMAND.INIT,
+        varData: varData,
+        txLen: varData.length
+    }
+}
+
+export function COMMAND_APPEND_CONST_DATA(constData: HexString): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_CONST_DATA, 
+        constData: constData,
+        txLen: Buffer.from(constData, "hex").length,
+    }
+}
+
+export function COMMAND_SHOW_MESSAGE(key: string, value: string): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.SHOW_MESSAGE, 
+        constData: constDataShowMessage(
+            key,
+            value
+        ),
+    }
+}
+
+export function COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(varData: Buffer, bufLenMin: number = 0, bufLenMax: number = 0xFFFFFFFF): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_BUFFER_SHOW_AS_HEX,
+            VALUE_VALIDATION.VALUE_VALIDATION_INBUFFER_LENGTH, BigInt(bufLenMin), BigInt(bufLenMax),
+            VALUE_POLICY.VALUE_DO_NOT_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            ""
+        ),
+        varData: varData,
+        txLen: varData.length,
+    }
+}
+
+export function COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(varData: Buffer, bufLenMin: number = 0, bufLenMax: number = 0xFFFFFFFF): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_ASCII_STRING,
+            VALUE_VALIDATION.VALUE_VALIDATION_INBUFFER_LENGTH, BigInt(bufLenMin), BigInt(bufLenMax),
+            VALUE_POLICY.VALUE_DO_NOT_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            ""
+        ),
+        varData: varData,
+        txLen: varData.length,
+    }
+}
+
+export function COMMAND_APPEND_DATA_STRING_SHOW(key: string, varData: Buffer, bufLenMin: number = 0, bufLenMax: number = 0xFFFFFFFF): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_ASCII_STRING,
+            VALUE_VALIDATION.VALUE_VALIDATION_INBUFFER_LENGTH, BigInt(bufLenMin), BigInt(bufLenMax),
+            VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            key
+        ),
+        varData: varData,
+        txLen: varData.length,
+    }  
+}
+
+export function COMMAND_APPEND_DATA_NAME_SHOW(key: string, name: HexString): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_NAME,
+            VALUE_VALIDATION.VALUE_VALIDATION_NONE, BigInt(0), BigInt(0),
+            VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            key
+        ),
+        varData: Buffer.from(name, "hex"),
+        txLen: Buffer.from(name, "hex").length,
+    }  
+}
+
+export function COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW(key: string, varData: Buffer, minAmount: number = 0, maxAmount: number = 0xFFFFFFFF): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_FIO_AMOUNT,
+            VALUE_VALIDATION.VALUE_VALIDATION_NUMBER, BigInt(minAmount), BigInt(maxAmount),
+            VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            key
+        ),
+        varData: varData,
+        txLen: varData.length,
+    }  
+}
+
+
+export function COMMANDS_COUNTED_SECTION(commands: Array<Command>, min: number = 0, max: number = 0xFFFFFFFF): Array<Command> {
+    const varData = varuint32_to_buf(getCommandVarLength(commands));
+    return [
+        {
+            ...defaultCommand,
+            command: COMMAND.START_COUNTED_SECTION, 
+            constData: constDataStartCountedSection(
+                VALUE_FORMAT.VALUE_FORMAT_VARUINT32, VALUE_VALIDATION.VALUE_VALIDATION_NUMBER, BigInt(min), BigInt(max),
+            ),
+            varData: varData,
+            txLen: varData.length
+        },
+        ...commands,
+        {
+            ...defaultCommand,
+            command: COMMAND.END_COUNTED_SECTION,
+        }
+    ]
+}
+
+export function COMMAND_STORE_VALUE(register: Uint8_t, varData: Buffer): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.STORE_VALUE, 
+        p2: register as Uint8_t, 
+        varData: varData,
+    }
+}
+
+export function COMMANDS_DH_ENCODE(other_public_key: Buffer, commands: Array<Command>): Array<Command> {
+    return [
+        {
+            ...defaultCommand,
+            command: COMMAND.START_DH_ENCRYPTION,
+            varData: other_public_key,
+            expectedResponseLength: 20, //IV 16b - base64: 1b cached, 15b->20b
+            txLen: 0, //getCommandVarLength includes the output by default
+        },
+        ...commands,
+        {
+            ...defaultCommand,
+            command: COMMAND.END_DH_ENCRYPTION,
+            txLen: 0, //getCommandVarLength includes the output by default
+        }    
+    ]
+}
+
+export function COMMAND_FINISH(parsedPath: ValidBIP32Path): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.FINISH, 
+        expectedResponseLength: 65 + 32,
+        dataAction: (b, s) => {
+            const [witnessSignature, hash, rest] = chunkBy(b, [65, 32])
+            assert(rest.length === 0, "invalid response length")
+        
+            return {
+                dhEncryptedData: s.dhEncryptedData,
+                txHashHex: buf_to_hex(hash),
+                witness: {
+                    path: parsedPath,
+                    witnessSignatureHex: buf_to_hex(witnessSignature),
+                },
+            }
+        
+        },
+    }
+}
+

@@ -25,6 +25,25 @@ export type ParsedTransferFIOTokensData = {
     actor: NameString
 }
 
+export type ParsedRequestFundsData = {
+    payer_fio_address: string
+    payee_fio_address: string
+    max_fee: Uint64_str
+    actor: string
+    tpid: string
+
+    //we need this to start DH encryption
+    payee_public_key: Buffer
+    //content
+    payee_public_address: string
+    amount: string
+    chain_code: string
+    token_code: string
+    memo: string
+    hash: string
+    offline_url: string
+}
+
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString
@@ -33,7 +52,7 @@ export type ParsedActionAuthorisation = {
 export type ParsedAction = {
     contractAccountName: HexString
     authorization: Array<ParsedActionAuthorisation>
-    data: | ParsedTransferFIOTokensData
+    data: ParsedTransferFIOTokensData | ParsedRequestFundsData
 }
 
 export type ParsedTransaction = {

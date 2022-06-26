@@ -1,3 +1,4 @@
+import fiojs from "@fioprotocol/fiojs"
 /**
  * Type for 64-bit integers.
  *
@@ -117,9 +118,13 @@ export type Witness = {
  */
 export type SignedTransactionData = {
     /**
+     * If the transaction involves DH encryption, the data is here (base64 encoding), otherwise, this string is empty
+     */
+     dhEncryptedData: string
+    /**
      * Hash of signed transaction. Callers should check that they serialize tx the same way
      */
-    txHashHex: string
+     txHashHex: string
     /**
      * List of witnesses. Caller should assemble full transaction to be submitted to the network.
      */
@@ -138,8 +143,27 @@ export type TransferFIOTokensData = {
     max_fee: bigint_like
     tpid: string
     actor: string
-
 }
+
+export type RequestFundsData = {
+    payer_fio_address: string
+    payee_fio_address: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+
+    //we need this to start DH encryption
+    payee_public_key: any
+    //content
+    payee_public_address: string
+    amount: string
+    chain_code: string
+    token_code: string
+    memo: string
+    hash: string
+    offline_url: string
+}
+
 
 /**
  * Represents authorisation in transaction Actions.
@@ -161,7 +185,7 @@ export type Action = {
     account: string
     name: string
     authorization: Array<ActionAuthorisation>
-    data: | TransferFIOTokensData
+    data: TransferFIOTokensData | RequestFundsData
 }
 
 

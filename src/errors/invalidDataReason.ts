@@ -24,4 +24,12 @@ export enum InvalidDataReason {
     INVALID_PERMISSION = "invalid permission",
     ACTION_DATA_TOO_LONG = "action data too long",
     UNEXPECTED_ERROR = "Unexpected error",
+    INVALID_PAYER_FIO_ADDRESS =  "invalid payer fio address",
+    INVALID_PAYEE_FIO_ADDRESS =  "invalid payer fio address",
+    INVALID_CHAIN_CODE = "invalid chain code",
+    INVALID_TOKEN_CODE = "invalid token code",
+    INVALID_PUBLIC_KEY = "invalid public key",
+    INVALID_MEMO = "invalid memo",
+    INVALID_HASH = "invalid hash",
+    INVALID_OFFLINE_URL = "invalid offline url",
 }
