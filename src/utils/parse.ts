@@ -277,9 +277,6 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
         validate(isString(data.amount), InvalidDataReason.INVALID_AMOUNT)
         validate(isString(data.chain_code), InvalidDataReason.INVALID_CHAIN_CODE)
         validate(isString(data.token_code), InvalidDataReason.INVALID_TOKEN_CODE)
-        validate(isString(data.memo), InvalidDataReason.INVALID_MEMO)
-        validate(isString(data.hash), InvalidDataReason.INVALID_HASH) 
-        validate(isString(data.offline_url), InvalidDataReason.INVALID_OFFLINE_URL) 
 
         let payee_public_key: Buffer
         try {
@@ -303,9 +300,9 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
             amount: data.amount,
             chain_code: data.chain_code,
             token_code: data.token_code,
-            memo: data.memo,
-            hash: data.hash,
-            offline_url: data.offline_url,
+            ...data.memo ? {memo: data.memo}:{},
+            ...data.hash ? {hash: data.hash}:{},
+            ...data.offline_url ? {offline_url: data.offline_url}:{},
         }
     
         const parsedAction: ParsedAction = {

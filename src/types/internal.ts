@@ -39,9 +39,9 @@ export type ParsedRequestFundsData = {
     amount: string
     chain_code: string
     token_code: string
-    memo: string
-    hash: string
-    offline_url: string
+    memo?: string
+    hash?: string
+    offline_url?: string
 }
 
 export type ParsedActionAuthorisation = {

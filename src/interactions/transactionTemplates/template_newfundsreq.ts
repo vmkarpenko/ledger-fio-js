@@ -15,18 +15,18 @@ function template_newfundsreq_memo(chainId: HexString, tx: ParsedTransaction, pa
     const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
 
     //Matching template
-    if (actionData.memo.length == 0) {
+    if (!actionData.memo) {
         return []
     }
-    validate(actionData.hash.length == 0, InvalidDataReason.INVALID_HASH)
-    validate(actionData.offline_url.length == 0, InvalidDataReason.INVALID_HASH)
+    validate(!actionData.hash, InvalidDataReason.INVALID_HASH)
+    validate(!actionData.offline_url, InvalidDataReason.INVALID_OFFLINE_URL)
     
     return [
         COMMAND_APPEND_CONST_DATA("01" as HexString),
         ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Memo", Buffer.from(actionData.memo)),
+            COMMAND_APPEND_DATA_STRING_SHOW("Memo", Buffer.from(actionData.memo as string)),
         ]),
-        COMMAND_APPEND_CONST_DATA("01000100" as HexString),
+        COMMAND_APPEND_CONST_DATA("0000" as HexString),
     ]
 }
 
@@ -37,13 +37,13 @@ function template_newfundsreq_hash(chainId: HexString, tx: ParsedTransaction, pa
     const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
 
     //Matching template
-    if (actionData.hash.length == 0) {
+    if (!actionData.hash || !actionData.offline_url) {
         return []
     }
-    validate(actionData.memo.length == 0, InvalidDataReason.INVALID_MEMO)
+    validate(!actionData.memo, InvalidDataReason.INVALID_MEMO)
 
     return [
-        COMMAND_APPEND_CONST_DATA("010001" as HexString),
+        COMMAND_APPEND_CONST_DATA("0001" as HexString),
         ...COMMANDS_COUNTED_SECTION([
             COMMAND_APPEND_DATA_STRING_SHOW("Hash", Buffer.from(actionData.hash)),
         ], 0, 0xFFFFFFFFFFFF),
