@@ -145,7 +145,12 @@ export type TransferFIOTokensData = {
     actor: string
 }
 
-export type RequestFundsData = {
+/**
+ * Represents Request Funds newfundsreq data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RequestFundsData = {
     payer_fio_address: string
     payee_fio_address: string
     max_fee: bigint_like
@@ -159,9 +164,37 @@ export type RequestFundsData = {
     amount: string
     chain_code: string
     token_code: string
-    memo: string
-    hash: string
-    offline_url: string
+    memo?: string
+    hash?: string
+    offline_url?: string
+}
+
+/**
+ * Represents Record Other Blockchain Transaction Metadata recordobt data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RecordOtherBlockchainTransactionMetadata = {
+    fio_request_id: string
+    payer_fio_address: string
+    payee_fio_address: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+
+    //we need this to start DH encryption
+    payee_public_key: any
+    //content
+    payee_public_address: string
+    payer_public_address: string
+    amount: string
+    chain_code: string
+    token_code: string
+    status: string
+    obt_id: string
+    memo?: string
+    hash?: string
+    offline_url?: string
 }
 
 

@@ -44,6 +44,30 @@ export type ParsedRequestFundsData = {
     offline_url?: VarlenAsciiString
 }
 
+export type ParsedRecordOtherBlockchainTransactionMetadata = {
+    fio_request_id: VarlenAsciiString
+    payer_fio_address: VarlenAsciiString
+    payee_fio_address: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: VarlenAsciiString
+    tpid: VarlenAsciiString
+
+    //we need this to start DH encryption
+    payee_public_key: any
+    //content
+    payee_public_address: VarlenAsciiString
+    payer_public_address: VarlenAsciiString
+    amount: VarlenAsciiString
+    chain_code: VarlenAsciiString
+    token_code: VarlenAsciiString
+    status: VarlenAsciiString
+    obt_id: VarlenAsciiString
+    memo?: VarlenAsciiString
+    hash?: VarlenAsciiString
+    offline_url?: VarlenAsciiString
+}
+
+
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString

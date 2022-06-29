@@ -1,4 +1,4 @@
-import type {HexString, ParsedTransaction, ParsedRequestFundsData, ValidBIP32Path, ParsedActionAuthorisation} from "../../types/internal"
+import type {HexString, ParsedTransaction, ParsedRequestFundsData, ValidBIP32Path, ParsedActionAuthorisation, ParsedRecordOtherBlockchainTransactionMetadata} from "../../types/internal"
 import { Command, templateAlternative, COMMANDS_COUNTED_SECTION, COMMAND_APPEND_DATA_STRING_SHOW, COMMAND_APPEND_CONST_DATA, 
         COMMAND_SHOW_MESSAGE, COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMAND_APPEND_DATA_NAME_SHOW, COMMANDS_DH_ENCODE, 
         COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW } from "./commands"
@@ -6,11 +6,11 @@ import { uint64_to_buf } from "../../utils/serialize"
 import { validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
 
-export const CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ = "00403ed4aa0ba85b00acba384dbdb89a"
+export const CONTRACT_ACCOUNT_NAME_RECORDOBT = "00403ed4aa0ba85b0000c887a64b91ba"
 
-function template_newfundsreq_memo(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
+function template_recordopt_memo(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-    validate(tx.actions[0].contractAccountName === CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ, InvalidDataReason. ACTION_NOT_SUPPORTED);
+    validate(tx.actions[0].contractAccountName === CONTRACT_ACCOUNT_NAME_RECORDOBT, InvalidDataReason. ACTION_NOT_SUPPORTED);
 
     const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
 
@@ -30,9 +30,9 @@ function template_newfundsreq_memo(chainId: HexString, tx: ParsedTransaction, pa
     ]
 }
 
-function template_newfundsreq_hash(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
+function template_recordopt_hash(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-    validate(tx.actions[0].contractAccountName === CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ, InvalidDataReason. ACTION_NOT_SUPPORTED);
+    validate(tx.actions[0].contractAccountName === CONTRACT_ACCOUNT_NAME_RECORDOBT, InvalidDataReason. ACTION_NOT_SUPPORTED);
 
     const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
 
@@ -54,28 +54,31 @@ function template_newfundsreq_hash(chainId: HexString, tx: ParsedTransaction, pa
     ]
 }
 
-export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
+export function template_recordopt(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     // Validate template expectations
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
     validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED);    
 
     // Template matching
-    if (tx.actions[0].contractAccountName !== CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ) {
+    if (tx.actions[0].contractAccountName !== CONTRACT_ACCOUNT_NAME_RECORDOBT) {
         return [];
     }
 
-    const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
+    const actionData: ParsedRecordOtherBlockchainTransactionMetadata = tx.actions[0].data as ParsedRecordOtherBlockchainTransactionMetadata;
     const authorization: ParsedActionAuthorisation = tx.actions[0].authorization[0];
 
-    const memoAndHash: Array<Command> = templateAlternative([template_newfundsreq_memo, template_newfundsreq_hash])(chainId, tx, parsedPath)
+    const memoAndHash: Array<Command> = templateAlternative([template_recordopt_memo, template_recordopt_hash])(chainId, tx, parsedPath)
     validate(memoAndHash.length !== 0, InvalidDataReason.INVALID_MEMO)
 
     return [
-        COMMAND_APPEND_CONST_DATA(CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ+"01" as HexString),
-        COMMAND_SHOW_MESSAGE("Action", "Request Funds"),
+        COMMAND_APPEND_CONST_DATA(CONTRACT_ACCOUNT_NAME_RECORDOBT+"01" as HexString),
+        COMMAND_SHOW_MESSAGE("Action", "Record other blockchain transaction metadata"),
         COMMAND_APPEND_DATA_NAME_SHOW("Authorization actor", authorization.actor), 
         COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.permission, "hex"), 8, 8),
         ...COMMANDS_COUNTED_SECTION([
+            ...COMMANDS_COUNTED_SECTION([
+                COMMAND_APPEND_DATA_STRING_SHOW("Fio Request ID", Buffer.from(actionData.fio_request_id))
+            ]), 
             ...COMMANDS_COUNTED_SECTION([
                 COMMAND_APPEND_DATA_STRING_SHOW("Payer FIO Address", Buffer.from(actionData.payer_fio_address), 3, 64)
             ]), 
@@ -84,6 +87,9 @@ export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, 
             ]), 
             ...COMMANDS_COUNTED_SECTION([
                 ...COMMANDS_DH_ENCODE(actionData.payee_public_key, [
+                    ...COMMANDS_COUNTED_SECTION([
+                        COMMAND_APPEND_DATA_STRING_SHOW("Payer Public Addr.", Buffer.from(actionData.payer_public_address)),
+                    ]),
                     ...COMMANDS_COUNTED_SECTION([
                         COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.payee_public_address)),
                     ]),
@@ -96,9 +102,15 @@ export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, 
                     ...COMMANDS_COUNTED_SECTION([
                         COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.token_code), 1, 10),
                     ]),
+                    ...COMMANDS_COUNTED_SECTION([
+                        COMMAND_APPEND_DATA_STRING_SHOW("Status", Buffer.from(actionData.status)),
+                    ]),
+                    ...COMMANDS_COUNTED_SECTION([
+                        COMMAND_APPEND_DATA_STRING_SHOW("Obt ID", Buffer.from(actionData.obt_id)),
+                    ]),
                     ...memoAndHash,
                 ])
-            ], 64, 296),
+            ], 64, 432),
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()),
             ...COMMANDS_COUNTED_SECTION([
                 COMMAND_APPEND_DATA_STRING_SHOW("Actor", Buffer.from(actionData.actor))

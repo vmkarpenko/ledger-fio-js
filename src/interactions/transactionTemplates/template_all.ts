@@ -5,6 +5,7 @@ import { validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
 import { template_trnsfiopubky } from "./template_trnsfiopubky";
 import { template_newfundsreq } from "./template_newfundsreq";
+import { template_recordopt } from "./template_recordobt";
 
 export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -12,7 +13,11 @@ export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPa
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
 
     //Match action
-    const actionCommands:Array<Command> = templateAlternative([template_trnsfiopubky, template_newfundsreq])(chainId, tx, parsedPath)
+    const actionCommands:Array<Command> = templateAlternative([
+        template_trnsfiopubky, 
+        template_newfundsreq,
+        template_recordopt,
+    ])(chainId, tx, parsedPath)
     if (actionCommands.length == 0) return [];
 
     return [

@@ -26,10 +26,15 @@ export enum InvalidDataReason {
     UNEXPECTED_ERROR = "Unexpected error",
     INVALID_PAYER_FIO_ADDRESS =  "invalid payer fio address",
     INVALID_PAYEE_FIO_ADDRESS =  "invalid payer fio address",
+    INVALID_PAYER_PUBLIC_ADDRESS =  "invalid payer public address",
+    INVALID_PAYEE_PUBLIC_ADDRESS =  "invalid payer public address",
     INVALID_CHAIN_CODE = "invalid chain code",
     INVALID_TOKEN_CODE = "invalid token code",
     INVALID_PUBLIC_KEY = "invalid public key",
     INVALID_MEMO = "invalid memo",
     INVALID_HASH = "invalid hash",
     INVALID_OFFLINE_URL = "invalid offline url",
+    INVALID_FIO_REQUEST_ID = "invalid fio request id",
+    INVALID_STATUS = "invalid status",
+    INVALID_OBT_ID = "invalid opt id"
 }

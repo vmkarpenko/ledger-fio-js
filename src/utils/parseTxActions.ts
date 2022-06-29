@@ -1,5 +1,5 @@
-import { TransferFIOTokensData, RequestFundsData } from "fio";
-import  {InvalidData, InvalidDataReason} from "../errors"
+import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata } from "fio";
+import  {InvalidDataReason} from "../errors"
 import type {
     _Uint64_bigint,
     _Uint64_num,
@@ -7,6 +7,7 @@ import type {
     ParsedAction, 
     ParsedTransferFIOTokensData,
     ParsedRequestFundsData,
+    ParsedRecordOtherBlockchainTransactionMetadata,
 } from "../types/internal"
 import { parseAscii, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -33,8 +34,8 @@ export function parseActionDataRequestFunds(data: RequestFundsData): ParsedReque
     validate(payee_public_key.length == 65, InvalidDataReason.INVALID_PUBLIC_KEY) 
     
     return {
-        payer_fio_address: parseAscii(data.payer_fio_address, InvalidDataReason.INVALID_PAYER_FIO_ADDRESS),
-        payee_fio_address: parseAscii(data.payee_fio_address, InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS),
+        payer_fio_address: parseAscii(data.payer_fio_address, InvalidDataReason.INVALID_PAYER_FIO_ADDRESS, 3, 64),
+        payee_fio_address: parseAscii(data.payee_fio_address, InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS, 3, 64),
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
@@ -42,12 +43,43 @@ export function parseActionDataRequestFunds(data: RequestFundsData): ParsedReque
         payee_public_key: payee_public_key,
         payee_public_address: parseAscii(data.payee_public_address, InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS),
         amount: parseAscii(data.amount, InvalidDataReason.INVALID_AMOUNT),
-        chain_code: parseAscii(data.chain_code, InvalidDataReason.INVALID_CHAIN_CODE),
-        token_code: parseAscii(data.token_code, InvalidDataReason.INVALID_TOKEN_CODE),
+        chain_code: parseAscii(data.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
+        token_code: parseAscii(data.token_code, InvalidDataReason.INVALID_TOKEN_CODE, 1, 10),
         ...data.memo ? {memo: parseAscii(data.memo, InvalidDataReason.INVALID_MEMO)}:{},
         ...data.hash ? {hash: parseAscii(data.hash, InvalidDataReason.INVALID_HASH)}:{},
         ...data.offline_url ? {offline_url: parseAscii(data.offline_url, InvalidDataReason.INVALID_OFFLINE_URL)}:{},
     }
 }
 
+export function parseActionDataRecordOtherBlockchainTransactionMetadata(data: RecordOtherBlockchainTransactionMetadata): ParsedRecordOtherBlockchainTransactionMetadata {
+    let payee_public_key: Buffer
+    try {
+        payee_public_key = data.payee_public_key.toUncompressed().toBuffer()
+    }
+    catch {
+        validate(false, InvalidDataReason.INVALID_PUBLIC_KEY)
+    }
+    validate(payee_public_key.length == 65, InvalidDataReason.INVALID_PUBLIC_KEY) 
+    
+    return {
+        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
+        payer_fio_address: parseAscii(data.payer_fio_address, InvalidDataReason.INVALID_PAYER_FIO_ADDRESS, 3, 64),
+        payee_fio_address: parseAscii(data.payee_fio_address, InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS, 3, 64),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+
+        payee_public_key: payee_public_key,
+        payer_public_address: parseAscii(data.payer_public_address, InvalidDataReason.INVALID_PAYER_PUBLIC_ADDRESS),
+        payee_public_address: parseAscii(data.payee_public_address, InvalidDataReason.INVALID_PAYEE_PUBLIC_ADDRESS),
+        amount: parseAscii(data.amount, InvalidDataReason.INVALID_AMOUNT),
+        chain_code: parseAscii(data.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
+        token_code: parseAscii(data.token_code, InvalidDataReason.INVALID_TOKEN_CODE, 1, 10),
+        status: parseAscii(data.status, InvalidDataReason.INVALID_STATUS),
+        obt_id: parseAscii(data.obt_id, InvalidDataReason.INVALID_OBT_ID),
+        ...data.memo ? {memo: parseAscii(data.memo, InvalidDataReason.INVALID_MEMO)}:{},
+        ...data.hash ? {hash: parseAscii(data.hash, InvalidDataReason.INVALID_HASH)}:{},
+        ...data.offline_url ? {offline_url: parseAscii(data.offline_url, InvalidDataReason.INVALID_OFFLINE_URL)}:{},
+    }
+}
 
