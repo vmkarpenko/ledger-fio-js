@@ -280,7 +280,6 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
 
         let payee_public_key: Buffer
         try {
-            console.log(data.payee_public_key)
             payee_public_key = data.payee_public_key.toUncompressed().toBuffer()
         }
         catch {
