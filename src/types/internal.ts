@@ -18,30 +18,30 @@ export const PUBLIC_KEY_LENGTH = 65
 export const WIF_PUBLIC_KEY_LENGTH = 53
 
 export type ParsedTransferFIOTokensData = {
-    payee_public_key: string
+    payee_public_key: VarlenAsciiString
     amount: Uint64_str
     max_fee: Uint64_str
-    tpid: string
+    tpid: VarlenAsciiString
     actor: NameString
 }
 
 export type ParsedRequestFundsData = {
-    payer_fio_address: string
-    payee_fio_address: string
+    payer_fio_address: VarlenAsciiString
+    payee_fio_address: VarlenAsciiString
     max_fee: Uint64_str
-    actor: string
-    tpid: string
+    actor: VarlenAsciiString
+    tpid: VarlenAsciiString
 
-    //we need this to start DH encryption
-    payee_public_key: Buffer
+    //we need this to start DH encryption - 
+    payee_public_key: Buffer  //fiojs PublicKey .toUncompressed().toBuffer()
     //content
-    payee_public_address: string
-    amount: string
-    chain_code: string
-    token_code: string
-    memo?: string
-    hash?: string
-    offline_url?: string
+    payee_public_address: VarlenAsciiString
+    amount: VarlenAsciiString
+    chain_code: VarlenAsciiString
+    token_code: VarlenAsciiString
+    memo?: VarlenAsciiString
+    hash?: VarlenAsciiString
+    offline_url?: VarlenAsciiString
 }
 
 export type ParsedActionAuthorisation = {
@@ -49,10 +49,12 @@ export type ParsedActionAuthorisation = {
     permission: NameString
 }
 
+export type ParsedActionData = ParsedTransferFIOTokensData | ParsedRequestFundsData
+
 export type ParsedAction = {
     contractAccountName: HexString
     authorization: Array<ParsedActionAuthorisation>
-    data: ParsedTransferFIOTokensData | ParsedRequestFundsData
+    data: ParsedActionData
 }
 
 export type ParsedTransaction = {
