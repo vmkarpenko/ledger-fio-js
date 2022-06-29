@@ -84,7 +84,7 @@ export function path_to_buf(path: Array<number>): Buffer {
     data.writeUInt8(path.length, 0)
 
     for (let i = 0; i < path.length; i++) {
-        data.writeUInt32BE(path[i], 1 + i * 4)
+        data.writeUInt32LE(path[i], 1 + i * 4)
     }
     return data
 }

@@ -1,16 +1,13 @@
-import type {HexString, ParsedTransaction, ParsedTransferFIOTokensData, Uint8_t, ValidBIP32Path} from "../types/internal"
+import type {HexString, ParsedTransaction, Uint8_t, ValidBIP32Path} from "../types/internal"
 
 import {InvalidDataReason} from "../errors"
 import type {SignedTransactionData, Version} from "../types/public"
-import {assert} from "../utils/assert"
-import {chunkBy} from "../utils/ioHelpers"
 import {validate} from "../utils/parse"
-import {buf_to_hex, date_to_buf, path_to_buf, uint8_to_buf, uint16_to_buf, uint32_to_buf, uint64_to_buf} from "../utils/serialize"
+import {uint8_to_buf} from "../utils/serialize"
 import {INS} from "./common/ins"
 import type {Interaction, SendParams} from "./common/types"
 import {ensureLedgerAppVersionCompatible} from "./getVersion"
 import { templete_all } from "./transactionTemplates/template_all"
-import { Console } from "console"
 
 const send = (params: {
     p1: number,
