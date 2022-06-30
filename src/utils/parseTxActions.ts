@@ -60,7 +60,7 @@ export function parseActionDataRecordOtherBlockchainTransactionMetadata(data: Re
         validate(false, InvalidDataReason.INVALID_PUBLIC_KEY)
     }
     validate(payee_public_key.length == 65, InvalidDataReason.INVALID_PUBLIC_KEY) 
-    
+
     return {
         fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
         payer_fio_address: parseAscii(data.payer_fio_address, InvalidDataReason.INVALID_PAYER_FIO_ADDRESS, 3, 64),

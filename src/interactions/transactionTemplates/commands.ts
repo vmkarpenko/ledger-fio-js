@@ -45,6 +45,7 @@ export const enum VALUE_STORAGE_COMPARE {
     COMPARE_REGISTER1 = 0x10,
     COMPARE_REGISTER2 = 0x20,
     COMPARE_REGISTER3 = 0x30,
+    COMPARE_REGISTER1_DECODE_NAME = 0x40,
 }
 
 export type DataAction = (b: Buffer, s: SignedTransactionData) => SignedTransactionData
@@ -321,6 +322,17 @@ export function COMMAND_FINISH(parsedPath: ValidBIP32Path): Command {
             }
         
         },
+    }
+}
+
+export function ADD_STORAGE_CHECK(check: VALUE_STORAGE_COMPARE, c: Command): Command {
+    const constData: Buffer = Buffer.from(c.constData, "hex")
+    const policyAndStorage: Uint8_t = constData[18] as Uint8_t
+    const newValue: Uint8_t = ((policyAndStorage & 0x0F) | check) as Uint8_t
+    constData.writeUInt8(newValue,18)
+    return {
+        ...c,
+        constData: constData.toString("hex") as HexString,
     }
 }
 
