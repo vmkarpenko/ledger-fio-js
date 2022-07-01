@@ -5,10 +5,11 @@ import { COMMAND, Command, constDataAppendData, VALUE_FORMAT, VALUE_VALIDATION, 
          COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW,
          ADD_STORAGE_CHECK} from "./commands"
 import { uint64_to_buf } from "../../utils/serialize"
-import { validate } from "../../utils/parse"
+import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
 
-export const CONTRACT_ACCOUNT_NAME_TRNSFIOPUBKEY = "0000980ad20ca85be0e1d195ba85e7cd"
+const CONTRACT_ACCOUNT = parseNameString("fio.token", InvalidDataReason.UNEXPECTED_ERROR);
+const CONTRACT_NAME = parseNameString("trnsfiopubky", InvalidDataReason.UNEXPECTED_ERROR);
 
 export function template_trnsfiopubky(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -16,14 +17,16 @@ export function template_trnsfiopubky(chainId: HexString, tx: ParsedTransaction,
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
     validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED);    
 
-    //Template matching
-    if (tx.actions[0].contractAccountName !== CONTRACT_ACCOUNT_NAME_TRNSFIOPUBKEY) return [];
+    // Template matching
+    if (tx.actions[0].account !== CONTRACT_ACCOUNT || tx.actions[0].name !== CONTRACT_NAME) {
+        return [];
+    }
 
     const actionData: ParsedTransferFIOTokensData = tx.actions[0].data as ParsedTransferFIOTokensData;
     const authorization: ParsedActionAuthorisation = tx.actions[0].authorization[0];
 
     return [
-        COMMAND_APPEND_CONST_DATA(CONTRACT_ACCOUNT_NAME_TRNSFIOPUBKEY+"01" as HexString),
+        COMMAND_APPEND_CONST_DATA(tx.actions[0].account+tx.actions[0].name+"01" as HexString),
         COMMAND_SHOW_MESSAGE("Action", "Transfer FIO tokens"),
         COMMAND_STORE_VALUE(1 as Uint8_t, Buffer.from(tx.actions[0].authorization[0].actor, "hex")),
         ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 

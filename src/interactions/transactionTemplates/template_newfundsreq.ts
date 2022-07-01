@@ -1,16 +1,18 @@
 import type {HexString, ParsedTransaction, ParsedRequestFundsData, ValidBIP32Path, ParsedActionAuthorisation, Uint8_t} from "../../types/internal"
 import { Command, templateAlternative, COMMANDS_COUNTED_SECTION, COMMAND_APPEND_DATA_STRING_SHOW, COMMAND_APPEND_CONST_DATA, 
-        COMMAND_SHOW_MESSAGE, COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMAND_APPEND_DATA_NAME_SHOW, COMMANDS_DH_ENCODE, 
-        COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_STORE_VALUE } from "./commands"
+         COMMAND_SHOW_MESSAGE, COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMANDS_DH_ENCODE, COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, 
+         COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_STORE_VALUE } from "./commands"
 import { uint64_to_buf } from "../../utils/serialize"
-import { validate } from "../../utils/parse"
+import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
 
-export const CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ = "00403ed4aa0ba85b00acba384dbdb89a"
+const CONTRACT_ACCOUNT = parseNameString("fio.reqobt", InvalidDataReason.UNEXPECTED_ERROR);
+const CONTRACT_NAME = parseNameString("newfundsreq", InvalidDataReason.UNEXPECTED_ERROR);
 
 function template_newfundsreq_memo(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-    validate(tx.actions[0].contractAccountName === CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ, InvalidDataReason. ACTION_NOT_SUPPORTED);
+    validate(tx.actions[0].account === CONTRACT_ACCOUNT, InvalidDataReason. ACTION_NOT_SUPPORTED);
+    validate(tx.actions[0].name === CONTRACT_NAME, InvalidDataReason. ACTION_NOT_SUPPORTED);
 
     const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
 
@@ -32,7 +34,8 @@ function template_newfundsreq_memo(chainId: HexString, tx: ParsedTransaction, pa
 
 function template_newfundsreq_hash(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-    validate(tx.actions[0].contractAccountName === CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ, InvalidDataReason. ACTION_NOT_SUPPORTED);
+    validate(tx.actions[0].account === CONTRACT_ACCOUNT, InvalidDataReason. ACTION_NOT_SUPPORTED);
+    validate(tx.actions[0].name === CONTRACT_NAME, InvalidDataReason. ACTION_NOT_SUPPORTED);
 
     const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
 
@@ -57,10 +60,9 @@ function template_newfundsreq_hash(chainId: HexString, tx: ParsedTransaction, pa
 export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     // Validate template expectations
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-    validate(tx.actions[0].authorization.length == 1, InvalidDataReason.MULTIPLE_AUTHORIZATION_NOT_SUPPORTED);    
-
+    
     // Template matching
-    if (tx.actions[0].contractAccountName !== CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ) {
+    if (tx.actions[0].account !== CONTRACT_ACCOUNT || tx.actions[0].name !== CONTRACT_NAME) {
         return [];
     }
 
@@ -71,7 +73,7 @@ export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, 
     validate(memoAndHash.length !== 0, InvalidDataReason.INVALID_MEMO)
 
     return [
-        COMMAND_APPEND_CONST_DATA(CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ+"01" as HexString),
+        COMMAND_APPEND_CONST_DATA(tx.actions[0].account+tx.actions[0].name+"01" as HexString),
         COMMAND_SHOW_MESSAGE("Action", "Request Funds"),
         COMMAND_STORE_VALUE(1 as Uint8_t, Buffer.from(authorization.actor, "hex")),
         ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 

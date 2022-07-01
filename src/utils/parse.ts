@@ -2,10 +2,7 @@ import { InvalidData, InvalidDataReason } from "../errors"
 import type {_Uint64_bigint, _Uint64_num, FixlenHexString, HexString, NameString, ParsedActionAuthorisation, ParsedTransaction,
     Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedAction, ParsedActionData } from "../types/internal"
 import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata} from "../types/public"
-import { CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ } from "../interactions/transactionTemplates/template_newfundsreq"
-import { CONTRACT_ACCOUNT_NAME_TRNSFIOPUBKEY } from "../interactions/transactionTemplates/template_trnsfiopubky"
 import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken } from "./parseTxActions"
-import { CONTRACT_ACCOUNT_NAME_RECORDOBT } from "../interactions/transactionTemplates/template_recordobt"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 
@@ -211,29 +208,25 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     const authorization = action.authorization[0]
 
     let parsedActionData: ParsedActionData | null = null
-    let contractAccountName: HexString = "" as HexString
 
     if (action.account == "fio.token" && action.name == "trnsfiopubky") {
         parsedActionData = parseActionDataTransferFIOToken(action.data as TransferFIOTokensData)
-        contractAccountName = CONTRACT_ACCOUNT_NAME_TRNSFIOPUBKEY as HexString
     }
     else if (action.account === "fio.reqobt" && action.name === "newfundsreq") {
         parsedActionData = parseActionDataRequestFunds(action.data as RequestFundsData)
-        contractAccountName = CONTRACT_ACCOUNT_NAME_NEWFUNDSREQ as HexString
     }
     else if (action.account === "fio.reqobt" && action.name === "recordobt") {
         parsedActionData = parseActionDataRecordOtherBlockchainTransactionMetadata(action.data as RecordOtherBlockchainTransactionMetadata)
-        contractAccountName = CONTRACT_ACCOUNT_NAME_RECORDOBT as HexString
     }
 
     //manual validate so that automatic tools are OK wit conversion that follows
     if(parsedActionData == null) {
         throw new InvalidData(InvalidDataReason.ACTION_NOT_SUPPORTED) 
     }
-    validate(contractAccountName.length == 32, InvalidDataReason.ACTION_NOT_SUPPORTED)
 
     const parsedAction: ParsedAction = {
-        contractAccountName: contractAccountName,
+        account: parseNameString(action.account, InvalidDataReason.INVALID_ACCOUNT),
+        name: parseNameString(action.name, InvalidDataReason.INVALID_NAME),
         authorization: [parseAuthorization(authorization, InvalidDataReason.INVALID_ACTION_AUTHORIZATION)],
         data: parsedActionData as ParsedActionData,
     }

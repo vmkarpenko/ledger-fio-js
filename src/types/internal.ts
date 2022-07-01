@@ -76,7 +76,8 @@ export type ParsedActionAuthorisation = {
 export type ParsedActionData = ParsedTransferFIOTokensData | ParsedRequestFundsData
 
 export type ParsedAction = {
-    contractAccountName: HexString
+    account: NameString
+    name: NameString
     authorization: Array<ParsedActionAuthorisation>
     data: ParsedActionData
 }
