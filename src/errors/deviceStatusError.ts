@@ -12,7 +12,7 @@ export const DeviceStatusCodes = {
     ERR_REJECTED_BY_USER: 0x6e09 as const,
     ERR_REJECTED_BY_POLICY: 0x6e10 as const,
     ERR_DEVICE_LOCKED: 0x6e11 as const,
-    ERR_UNSUPPORTED_ADDRESS_TYPE: 0x6e12 as const,
+    ERR_INVALID_HMAC: 0x6e12 as const,
 
     // Not thrown by ledger-app-fio itself but other apps
     ERR_CLA_NOT_SUPPORTED: 0x6e00 as const,
@@ -28,7 +28,7 @@ const DeviceStatusMessages: Record<number, string> = {
         "Action rejected by Ledger's security policy",
     [DeviceStatusCodes.ERR_DEVICE_LOCKED]: "Device is locked",
     [DeviceStatusCodes.ERR_CLA_NOT_SUPPORTED]: "Wrong Ledger app",
-    [DeviceStatusCodes.ERR_UNSUPPORTED_ADDRESS_TYPE]: "Unsupported address type",
+    [DeviceStatusCodes.ERR_INVALID_HMAC]: "Invalid HMAC",
 }
 
 const GH_DEVICE_ERRORS_LINK =
