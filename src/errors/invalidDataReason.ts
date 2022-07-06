@@ -36,5 +36,7 @@ export enum InvalidDataReason {
     INVALID_OFFLINE_URL = "invalid offline url",
     INVALID_FIO_REQUEST_ID = "invalid fio request id",
     INVALID_STATUS = "invalid status",
-    INVALID_OBT_ID = "invalid opt id"
+    INVALID_OBT_ID = "invalid opt id",
+    INVALID_MESSAGE = "invalid message",
+    INVALID_CONTEXT = "invalid context",
 }

@@ -3,6 +3,7 @@ export type VarlenAsciiString = string & { __type: 'ascii' }
 export type FixlenHexString<N> = string & { __type: 'hex', __length: N }
 export type NameString = FixlenHexString<16>
 export type HexString = string & { __type: 'hex' }
+export type Base64String = string & { __type: 'base64' }
 
 export type _Uint64_num = number & { __type: 'uint64_t' }
 export type _Uint64_bigint = bigint & { __type: 'uint64_t' }
@@ -89,4 +90,9 @@ export type ParsedTransaction = {
     context_free_actions: Array<ParsedAction>
     actions: Array<ParsedAction>
     transaction_extensions: null
+}
+
+export enum ParsedContext {
+    NEWFUNDSREQ = 1,
+    RECORDOT = 2,
 }

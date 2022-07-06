@@ -6,5 +6,7 @@ export const enum INS {
 
     SIGN_TX = 0x20,
 
+    DECODE_MESSAGE = 0x30,
+
     RUN_TESTS = 0xf0,
 }

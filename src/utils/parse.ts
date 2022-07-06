@@ -1,6 +1,6 @@
 import { InvalidData, InvalidDataReason } from "../errors"
-import type {_Uint64_bigint, _Uint64_num, FixlenHexString, HexString, NameString, ParsedActionAuthorisation, ParsedTransaction,
-    Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedAction, ParsedActionData } from "../types/internal"
+import {_Uint64_bigint, _Uint64_num, FixlenHexString, HexString, NameString, ParsedActionAuthorisation, ParsedTransaction,
+    Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedAction, ParsedActionData, Base64String, ParsedContext } from "../types/internal"
 import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata} from "../types/public"
 import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken } from "./parseTxActions"
 
@@ -39,6 +39,9 @@ export const isHexString = (data: unknown): data is HexString =>
 
 export const isHexStringOfLength = <L extends number>(data: unknown, expectedByteLength: L): data is FixlenHexString<L> =>
     isHexString(data) && data.length === expectedByteLength * 2
+
+export const isBase64String = (data: unknown): data is Base64String =>
+    isString(data) && /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/.test(data)
 
 export const isValidPath = (data: unknown): data is ValidBIP32Path =>
     isArray(data) && data.every(x => isUint32(x)) && data.length <= 5
@@ -99,7 +102,7 @@ export function parseAscii(str: unknown, errMsg: InvalidDataReason, minLen: numb
 
 export function parseHexString(str: unknown, errMsg: InvalidDataReason, minLen: number=0, maxLen: number=Number.MAX_SAFE_INTEGER): HexString {
     validate(isHexString(str), errMsg)
-    validate(minLen <= str.length/2 && str.length <= maxLen/2, errMsg)
+    validate(minLen <= str.length*2 && str.length <= maxLen*2, errMsg)
     return str
 }
 
@@ -243,3 +246,19 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     throw new InvalidData(InvalidDataReason.ACTION_NOT_SUPPORTED)
 }
 
+export function parseMessage(message: string, reason: InvalidDataReason): HexString {
+    validate(isBase64String(message), reason);
+    validate(message.length <= 432, reason); //max message length
+    return Buffer.from(message, "base64").toString("hex") as HexString;
+}
+
+export function parseContext(context: string, reason: InvalidDataReason): ParsedContext {
+    if (context === "newfundsreq") {
+        return ParsedContext.NEWFUNDSREQ
+    }
+    if (context === "recordobt") {
+        return ParsedContext.RECORDOT
+    }
+
+    validate(false, reason)
+}

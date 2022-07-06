@@ -15,6 +15,7 @@
  *  limitations under the License.
  ********************************************************************************/
 import type Transport from "@ledgerhq/hw-transport"
+import { decodeMessage } from "./interactions/decodeMessage"
 
 import {DeviceStatusCodes, DeviceStatusError, InvalidDataReason} from './errors'
 import type {Interaction, SendParams} from './interactions/common/types'
@@ -23,11 +24,11 @@ import {getSerial} from "./interactions/getSerial"
 import {getCompatibility, getVersion} from "./interactions/getVersion"
 import {runTests} from "./interactions/runTests"
 import {signTransaction} from "./interactions/signTransaction"
-import type {HexString, ParsedTransaction, ValidBIP32Path} from './types/internal'
+import {HexString, ParsedContext, ParsedTransaction, PUBLIC_KEY_LENGTH, ValidBIP32Path} from './types/internal'
 import type {BIP32Path, DeviceCompatibility, Serial, SignedTransactionData, Transaction, Version} from './types/public'
 import {stripRetcodeFromResponse} from "./utils"
 import {assert} from './utils/assert'
-import {isArray, parseBIP32Path, parseHexString, parseTransaction, validate} from './utils/parse'
+import {isArray, parseBIP32Path, parseContext, parseHexString, parseMessage, parseTransaction, validate} from './utils/parse'
 
 export * from './errors'
 export * from './types/public'
@@ -220,7 +221,7 @@ export class Fio {
      *
      * @example
      * ```
-     * const sign = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ], chainId, tx);
+     * const sign = await fio.signTransaction({path, chainId, tx});
      * console.log(sign);
      * @see [[SignTransactionRequest]]
      * @see [[SignTransactionResponse]]
@@ -237,6 +238,33 @@ export class Fio {
     * _signTransaction(parsedPath: ValidBIP32Path, chainId: HexString, tx: ParsedTransaction) {
         const version = yield* getVersion()
         return yield* signTransaction(version, parsedPath, chainId, tx)
+    }
+
+    /**
+     * Decode mesage encoded using DH shared cypher.
+     *
+     * @returns Decoded message
+     *
+     * @example
+     * ```
+     * const decoded = await fio.getPublicKey[[ HARDENED + 44, HARDENED + 235, HARDENED + 0, 0, 0 ], chainId, tx);
+     * console.log(sign);
+     * @see [[DecodeMessageRequest]]
+     * @see [[DecodeMessageResponse]]
+ * ```
+     */
+     async decodeMessage({path, publicKeyHex, message, context}: DecodeMessageRequest): Promise<DecodeMessageResponse> {
+        const parsedPath = parseBIP32Path(path, InvalidDataReason.INVALID_PATH)
+        const parsedPubkey = parseHexString(publicKeyHex, InvalidDataReason.INVALID_PUBLIC_KEY, PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH)
+        const parsedMessage = parseMessage(message, InvalidDataReason.INVALID_MESSAGE)
+        const parsedContext = parseContext(context, InvalidDataReason.INVALID_CONTEXT)
+        return interact(this._decodeMessage(parsedPath, parsedPubkey, parsedMessage, parsedContext), this._send)
+    }
+
+    /** @ignore */
+    * _decodeMessage(parsedPath: ValidBIP32Path, pubkey: HexString, message: HexString, context: ParsedContext) {
+        const version = yield* getVersion()
+        return yield* decodeMessage(version, parsedPath, pubkey, message, context)
     }
 
     /**
@@ -257,7 +285,7 @@ export class Fio {
 /**
  * Get FIO app version [[Fio.getVersion]] response data
  * @category Main
- * @see [[DeviceCompatibility]
+ * @see [[DeviceCompatibility]]
  */
 export type GetVersionResponse = {
     version: Version
@@ -315,5 +343,31 @@ export type SignTransactionRequest = {
  * @see [[SignedTransactionData]]
  */
 export type SignTransactionResponse = SignedTransactionData
+
+/**
+ * Sign transaction ([[Fio.signTransaction]]) request data
+ * @category Main
+ * @see [[DecodeMessageResponse]]
+ */
+ export type DecodeMessageRequest = {
+    /** Path to public key used to decode the message */
+    path: BIP32Path,
+    /** Other public key in raw hex format*/
+    publicKeyHex: string,
+    /** Base64 encoded message */
+    message: string,
+    /** Message context, either "newfundsreq" or "recordobt" */
+    context: string,
+}
+
+/**
+ * Sign transaction ([[Fio.signTransaction]]) response data
+ * @category Main
+ * @see [[DecodeMessageRequest]]
+ */
+export type DecodeMessageResponse = {
+    /** Decoded message */
+    message: Buffer,
+}
 
 export default Fio
