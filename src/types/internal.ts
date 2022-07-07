@@ -34,7 +34,7 @@ export type ParsedRequestFundsData = {
     tpid: VarlenAsciiString
 
     //we need this to start DH encryption - 
-    payee_public_key: Buffer  //fiojs PublicKey .toUncompressed().toBuffer()
+    payee_public_key: HexString
     //content
     payee_public_address: VarlenAsciiString
     amount: VarlenAsciiString
@@ -54,7 +54,7 @@ export type ParsedRecordOtherBlockchainTransactionMetadata = {
     tpid: VarlenAsciiString
 
     //we need this to start DH encryption
-    payee_public_key: any
+    payee_public_key: HexString
     //content
     payee_public_address: VarlenAsciiString
     payer_public_address: VarlenAsciiString

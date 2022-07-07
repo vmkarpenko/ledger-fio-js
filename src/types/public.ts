@@ -157,8 +157,11 @@ export type TransferFIOTokensData = {
     actor: string
     tpid: string
 
+    /**
+     * Payee public key - needed for DH encryprion. in raw format as hex string.
+     */
     //we need this to start DH encryption
-    payee_public_key: any
+    payee_public_key: string
     //content
     payee_public_address: string
     amount: string

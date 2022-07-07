@@ -1,6 +1,6 @@
 import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata } from "fio";
 import  {InvalidDataReason} from "../errors"
-import type {
+import {
     _Uint64_bigint,
     _Uint64_num,
     HexString,
@@ -8,8 +8,9 @@ import type {
     ParsedTransferFIOTokensData,
     ParsedRequestFundsData,
     ParsedRecordOtherBlockchainTransactionMetadata,
+    PUBLIC_KEY_LENGTH,
 } from "../types/internal"
-import { parseAscii, parseNameString, parseUint64_str, validate } from "./parse";
+import { parseAscii, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
 
 export function parseActionDataTransferFIOToken(data: TransferFIOTokensData): ParsedTransferFIOTokensData {
@@ -23,16 +24,7 @@ export function parseActionDataTransferFIOToken(data: TransferFIOTokensData): Pa
 }
 
 
-export function parseActionDataRequestFunds(data: RequestFundsData): ParsedRequestFundsData {
-    let payee_public_key: Buffer
-    try {
-        payee_public_key = data.payee_public_key.toUncompressed().toBuffer()
-    }
-    catch {
-        validate(false, InvalidDataReason.INVALID_PUBLIC_KEY)
-    }
-    validate(payee_public_key.length == 65, InvalidDataReason.INVALID_PUBLIC_KEY) 
-    
+export function parseActionDataRequestFunds(data: RequestFundsData): ParsedRequestFundsData {    
     return {
         payer_fio_address: parseAscii(data.payer_fio_address, InvalidDataReason.INVALID_PAYER_FIO_ADDRESS, 3, 64),
         payee_fio_address: parseAscii(data.payee_fio_address, InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS, 3, 64),
@@ -40,7 +32,7 @@ export function parseActionDataRequestFunds(data: RequestFundsData): ParsedReque
         actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
 
-        payee_public_key: payee_public_key,
+        payee_public_key: parseHexString(data.payee_public_key, InvalidDataReason.INVALID_PUBLIC_KEY, PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH),
         payee_public_address: parseAscii(data.payee_public_address, InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS),
         amount: parseAscii(data.amount, InvalidDataReason.INVALID_AMOUNT),
         chain_code: parseAscii(data.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
@@ -52,15 +44,6 @@ export function parseActionDataRequestFunds(data: RequestFundsData): ParsedReque
 }
 
 export function parseActionDataRecordOtherBlockchainTransactionMetadata(data: RecordOtherBlockchainTransactionMetadata): ParsedRecordOtherBlockchainTransactionMetadata {
-    let payee_public_key: Buffer
-    try {
-        payee_public_key = data.payee_public_key.toUncompressed().toBuffer()
-    }
-    catch {
-        validate(false, InvalidDataReason.INVALID_PUBLIC_KEY)
-    }
-    validate(payee_public_key.length == 65, InvalidDataReason.INVALID_PUBLIC_KEY) 
-
     return {
         fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
         payer_fio_address: parseAscii(data.payer_fio_address, InvalidDataReason.INVALID_PAYER_FIO_ADDRESS, 3, 64),
@@ -69,7 +52,7 @@ export function parseActionDataRecordOtherBlockchainTransactionMetadata(data: Re
         actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
 
-        payee_public_key: payee_public_key,
+        payee_public_key: parseHexString(data.payee_public_key, InvalidDataReason.INVALID_PUBLIC_KEY, PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH),
         payer_public_address: parseAscii(data.payer_public_address, InvalidDataReason.INVALID_PAYER_PUBLIC_ADDRESS),
         payee_public_address: parseAscii(data.payee_public_address, InvalidDataReason.INVALID_PAYEE_PUBLIC_ADDRESS),
         amount: parseAscii(data.amount, InvalidDataReason.INVALID_AMOUNT),

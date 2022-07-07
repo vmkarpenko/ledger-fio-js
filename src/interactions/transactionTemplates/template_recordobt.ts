@@ -91,7 +91,7 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
                 COMMAND_APPEND_DATA_STRING_SHOW("Payee FIO Address", Buffer.from(actionData.payee_fio_address), 3, 64)
             ]), 
             ...COMMANDS_COUNTED_SECTION([
-                ...COMMANDS_DH_ENCODE(actionData.payee_public_key, [
+                ...COMMANDS_DH_ENCODE(Buffer.from(actionData.payee_public_key, "hex"), [
                     ...COMMANDS_COUNTED_SECTION([
                         COMMAND_APPEND_DATA_STRING_SHOW("Payer Public Addr.", Buffer.from(actionData.payer_public_address)),
                     ]),

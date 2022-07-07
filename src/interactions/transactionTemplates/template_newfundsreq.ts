@@ -87,7 +87,7 @@ export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, 
                 COMMAND_APPEND_DATA_STRING_SHOW("Payee FIO Address", Buffer.from(actionData.payee_fio_address), 3, 64)
             ]), 
             ...COMMANDS_COUNTED_SECTION([
-                ...COMMANDS_DH_ENCODE(actionData.payee_public_key, [
+                ...COMMANDS_DH_ENCODE(Buffer.from(actionData.payee_public_key, "hex"), [
                     ...COMMANDS_COUNTED_SECTION([
                         COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.payee_public_address)),
                     ]),
