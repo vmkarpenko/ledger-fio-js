@@ -26,8 +26,10 @@ export enum InvalidDataReason {
     UNEXPECTED_ERROR = "Unexpected error",
     INVALID_PAYER_FIO_ADDRESS =  "invalid payer fio address",
     INVALID_PAYEE_FIO_ADDRESS =  "invalid payer fio address",
+    INVALID_FIO_ADDRESS =  "invalid fio address",
     INVALID_PAYER_PUBLIC_ADDRESS =  "invalid payer public address",
     INVALID_PAYEE_PUBLIC_ADDRESS =  "invalid payer public address",
+    INVALID_PUBLIC_ADDRESS =  "invalid public address",
     INVALID_CHAIN_CODE = "invalid chain code",
     INVALID_TOKEN_CODE = "invalid token code",
     INVALID_PUBLIC_KEY = "invalid public key",
@@ -39,4 +41,5 @@ export enum InvalidDataReason {
     INVALID_OBT_ID = "invalid opt id",
     INVALID_MESSAGE = "invalid message",
     INVALID_CONTEXT = "invalid context",
+    INCORRECT_NUMBER_OF_PUBLIC_ADDRESSES = "incorrect number of public addresses",
 }

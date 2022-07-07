@@ -68,13 +68,30 @@ export type ParsedRecordOtherBlockchainTransactionMetadata = {
     offline_url?: VarlenAsciiString
 }
 
+export type ParsedPublicAddress = {
+    chain_code: VarlenAsciiString
+    token_code: VarlenAsciiString
+    public_address: VarlenAsciiString
+}
+
+export type ParsedMapBlockchainPublicAddress = {
+    fio_address: VarlenAsciiString
+    public_addresses: Array<ParsedPublicAddress>
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
 
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString
 }
 
-export type ParsedActionData = ParsedTransferFIOTokensData | ParsedRequestFundsData
+export type ParsedActionData = 
+    ParsedTransferFIOTokensData | 
+    ParsedRequestFundsData | 
+    ParsedRecordOtherBlockchainTransactionMetadata |
+    ParsedMapBlockchainPublicAddress
 
 export type ParsedAction = {
     account: NameString

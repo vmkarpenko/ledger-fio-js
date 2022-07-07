@@ -6,6 +6,7 @@ import { InvalidDataReason } from "../../errors";
 import { template_trnsfiopubky } from "./template_trnsfiopubky";
 import { template_newfundsreq } from "./template_newfundsreq";
 import { template_recordopt } from "./template_recordobt";
+import { template_addaddress } from "./template_addaddress";
 
 export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -17,6 +18,7 @@ export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPa
         template_trnsfiopubky, 
         template_newfundsreq,
         template_recordopt,
+        template_addaddress,
     ])(chainId, tx, parsedPath)
     if (actionCommands.length == 0) return [];
 

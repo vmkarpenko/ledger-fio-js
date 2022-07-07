@@ -1,5 +1,6 @@
-import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata } from "fio";
-import  {InvalidDataReason} from "../errors"
+import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress,
+    PublicAddress } from "fio";
+import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
     _Uint64_num,
@@ -9,6 +10,8 @@ import {
     ParsedRequestFundsData,
     ParsedRecordOtherBlockchainTransactionMetadata,
     PUBLIC_KEY_LENGTH,
+    ParsedMapBlockchainPublicAddress,
+    ParsedPublicAddress,
 } from "../types/internal"
 import { parseAscii, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -66,3 +69,25 @@ export function parseActionDataRecordOtherBlockchainTransactionMetadata(data: Re
     }
 }
 
+function parsePublicAddress(a: PublicAddress): ParsedPublicAddress {
+    return {
+        chain_code: parseAscii(a.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
+        token_code: parseAscii(a.token_code, InvalidDataReason.INVALID_TOKEN_CODE, 1, 10),
+        public_address: parseAscii(a.public_address, InvalidDataReason.INVALID_TOKEN_CODE, 3, 64),
+    }
+}
+
+function parsePublicAddsesses(a: Array<PublicAddress>): Array<ParsedPublicAddress> {
+    validate(1 <= a.length && a.length <= 5, InvalidDataReason.INCORRECT_NUMBER_OF_PUBLIC_ADDRESSES)
+    return a.map( e => parsePublicAddress(e))
+}
+
+export function parseMapBlockchainPublicAddress(data: MapBlockchainPublicAddress): ParsedMapBlockchainPublicAddress {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        public_addresses: parsePublicAddsesses(data.public_addresses),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}

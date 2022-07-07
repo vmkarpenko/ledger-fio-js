@@ -1,4 +1,5 @@
 import fiojs from "@fioprotocol/fiojs"
+import { PublicKeyInput } from "crypto"
 /**
  * Type for 64-bit integers.
  *
@@ -158,9 +159,8 @@ export type TransferFIOTokensData = {
     tpid: string
 
     /**
-     * Payee public key - needed for DH encryprion. in raw format as hex string.
+     * Payee public key - needed for DH encryprion. In uncomressed format as hex string.
      */
-    //we need this to start DH encryption
     payee_public_key: string
     //content
     payee_public_address: string
@@ -185,8 +185,10 @@ export type TransferFIOTokensData = {
     actor: string
     tpid: string
 
-    //we need this to start DH encryption
-    payee_public_key: any
+    /**
+     * Payee public key - needed for DH encryprion. In uncomressed format as hex string.
+     */
+    payee_public_key: string
     //content
     payee_public_address: string
     payer_public_address: string
@@ -198,6 +200,30 @@ export type TransferFIOTokensData = {
     memo?: string
     hash?: string
     offline_url?: string
+}
+
+/**
+ * Represents Public addresses .
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type PublicAddress = {
+    chain_code: string
+    token_code: string
+    public_address: string
+ }
+
+/**
+ * Represents Map blockchain public address data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type MapBlockchainPublicAddress = {
+    fio_address: string
+    public_addresses: Array<PublicAddress>
+    max_fee: bigint_like
+    actor: string
+    tpid: string
 }
 
 
@@ -221,7 +247,11 @@ export type Action = {
     account: string
     name: string
     authorization: Array<ActionAuthorisation>
-    data: TransferFIOTokensData | RequestFundsData
+    data: 
+        TransferFIOTokensData | 
+        RequestFundsData | 
+        RecordOtherBlockchainTransactionMetadata |
+        MapBlockchainPublicAddress
 }
 
 
