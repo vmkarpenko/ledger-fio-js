@@ -1,61 +1,13 @@
 import type {HexString, ParsedTransaction, ParsedRequestFundsData, ValidBIP32Path, ParsedActionAuthorisation, ParsedRecordOtherBlockchainTransactionMetadata, Uint8_t} from "../../types/internal"
 import { Command, templateAlternative, COMMANDS_COUNTED_SECTION, COMMAND_APPEND_DATA_STRING_SHOW, COMMAND_APPEND_CONST_DATA, 
         COMMAND_SHOW_MESSAGE, COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMAND_APPEND_DATA_NAME_SHOW, COMMANDS_DH_ENCODE, 
-        COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, COMMAND_STORE_VALUE, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE } from "./commands"
+        COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, COMMAND_STORE_VALUE, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_MEMO_HASH } from "./commands"
 import { uint64_to_buf } from "../../utils/serialize"
 import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
 
 const CONTRACT_ACCOUNT = parseNameString("fio.reqobt", InvalidDataReason.UNEXPECTED_ERROR);
 const CONTRACT_NAME = parseNameString("recordobt", InvalidDataReason.UNEXPECTED_ERROR);
-
-function template_recordopt_memo(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
-    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-    validate(tx.actions[0].account === CONTRACT_ACCOUNT, InvalidDataReason. ACTION_NOT_SUPPORTED);
-    validate(tx.actions[0].name === CONTRACT_NAME, InvalidDataReason. ACTION_NOT_SUPPORTED);
-
-    const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
-
-    //Matching template
-    if (!actionData.memo) {
-        return []
-    }
-    validate(!actionData.hash, InvalidDataReason.INVALID_HASH)
-    validate(!actionData.offline_url, InvalidDataReason.INVALID_OFFLINE_URL)
-    
-    return [
-        COMMAND_APPEND_CONST_DATA("01" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Memo", Buffer.from(actionData.memo as string)),
-        ]),
-        COMMAND_APPEND_CONST_DATA("0000" as HexString),
-    ]
-}
-
-function template_recordopt_hash(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
-    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-    validate(tx.actions[0].account === CONTRACT_ACCOUNT, InvalidDataReason. ACTION_NOT_SUPPORTED);
-    validate(tx.actions[0].name === CONTRACT_NAME, InvalidDataReason. ACTION_NOT_SUPPORTED);
-
-    const actionData: ParsedRequestFundsData = tx.actions[0].data as ParsedRequestFundsData;
-
-    //Matching template
-    if (!actionData.hash || !actionData.offline_url) {
-        return []
-    }
-    validate(!actionData.memo, InvalidDataReason.INVALID_MEMO)
-
-    return [
-        COMMAND_APPEND_CONST_DATA("0001" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Hash", Buffer.from(actionData.hash)),
-        ], 0, 0xFFFFFFFFFFFF),
-        COMMAND_APPEND_CONST_DATA("01" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Offline url", Buffer.from(actionData.offline_url)),
-        ], 0, 0xFFFFFFFFFFFF),
-    ]
-}
 
 export function template_recordopt(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     // Validate template expectations
@@ -69,9 +21,6 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
 
     const actionData: ParsedRecordOtherBlockchainTransactionMetadata = tx.actions[0].data as ParsedRecordOtherBlockchainTransactionMetadata;
     const authorization: ParsedActionAuthorisation = tx.actions[0].authorization[0];
-
-    const memoAndHash: Array<Command> = templateAlternative([template_recordopt_memo, template_recordopt_hash])(chainId, tx, parsedPath)
-    validate(memoAndHash.length !== 0, InvalidDataReason.INVALID_MEMO)
 
     return [
         COMMAND_APPEND_CONST_DATA(tx.actions[0].account+tx.actions[0].name+"01" as HexString),
@@ -113,7 +62,7 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
                     ...COMMANDS_COUNTED_SECTION([
                         COMMAND_APPEND_DATA_STRING_SHOW("Obt ID", Buffer.from(actionData.obt_id)),
                     ]),
-                    ...memoAndHash,
+                    COMMAND_MEMO_HASH(actionData.memo, actionData.hash, actionData.offline_url),
                 ])
             ], 64, 432),
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()),

@@ -1,9 +1,10 @@
 import { assert } from "console";
-import { InvalidDataReason } from "errors"
-import { HexString, Uint8_t, ParsedTransaction, ValidBIP32Path } from "types/internal"
-import { buf_to_hex, path_to_buf, varuint32_to_buf } from "../../utils/serialize";
+import { InvalidDataReason } from "../../errors"
+import { HexString, Uint8_t, ParsedTransaction, ValidBIP32Path, VarlenAsciiString } from "types/internal"
+import { buf_to_hex, path_to_buf, uint8_to_buf, varuint32_to_buf } from "../../utils/serialize";
 import type { SignedTransactionData } from "../../types/public";
 import { chunkBy } from "../../utils/ioHelpers"
+import { validate } from "../../utils/parse";
 
 export const enum COMMAND {
     NONE = 0x00,
@@ -27,6 +28,8 @@ export const enum VALUE_FORMAT {
     VALUE_FORMAT_FIO_AMOUNT = 0x10,
     VALUE_FORMAT_UINT64 = 0x14,
     VALUE_FORMAT_VARUINT32 = 0x17,
+
+    VALUE_FORMAT_MEMO_HASH = 0x20,
 }
 
 export const enum VALUE_VALIDATION {
@@ -336,3 +339,41 @@ export function ADD_STORAGE_CHECK(check: VALUE_STORAGE_COMPARE, c: Command): Com
     }
 }
 
+export function COMMAND_MEMO_HASH(memo?: VarlenAsciiString, hash?: VarlenAsciiString, offline_url?: VarlenAsciiString): Command {
+    var varData: Buffer = Buffer.from("");
+    if (memo === undefined) {
+        validate(hash !== undefined, InvalidDataReason.INVALID_HASH);
+        validate(offline_url !== undefined, InvalidDataReason.INVALID_OFFLINE_URL);
+        varData = Buffer.concat([
+            Buffer.from("0001", "hex"), 
+            uint8_to_buf(hash.length as Uint8_t), 
+            Buffer.from(hash),
+            Buffer.from("01", "hex"),
+            uint8_to_buf(offline_url.length as Uint8_t), 
+            Buffer.from(offline_url),
+        ])
+    }
+    else {
+        validate(hash === undefined, InvalidDataReason.INVALID_HASH);
+        validate(hash === undefined, InvalidDataReason.INVALID_OFFLINE_URL);
+        varData = Buffer.concat([
+            Buffer.from("01", "hex"), 
+            uint8_to_buf(memo.length as Uint8_t), 
+            Buffer.from(memo),
+            Buffer.from("0000", "hex"),
+        ])
+    }
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_MEMO_HASH,
+            VALUE_VALIDATION.VALUE_VALIDATION_NONE, BigInt(0), BigInt(0),
+            VALUE_POLICY.VALUE_DO_NOT_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            ""
+        ),
+        varData: varData,
+        txLen: varData.length,
+    }
+}
