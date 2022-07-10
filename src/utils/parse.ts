@@ -1,8 +1,8 @@
 import { InvalidData, InvalidDataReason } from "../errors"
 import {_Uint64_bigint, _Uint64_num, FixlenHexString, HexString, NameString, ParsedActionAuthorisation, ParsedTransaction,
     Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedAction, ParsedActionData, Base64String, ParsedContext } from "../types/internal"
-import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress, RemoveMappedAddress} from "../types/public"
-import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, parseMapBlockchainPublicAddress, parseRemoveMappedAddress } from "./parseTxActions"
+import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress, RemoveMappedAddress, MapNFTSignature} from "../types/public"
+import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, parseMapBlockchainPublicAddress, parseMapNFTSignature, parseRemoveMappedAddress } from "./parseTxActions"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 
@@ -226,6 +226,9 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     }
     else if (action.account === "fio.address" && action.name === "remaddress") {
         parsedActionData = parseRemoveMappedAddress(action.data as RemoveMappedAddress)
+    }
+    else if (action.account === "fio.address" && action.name === "addnft") {
+        parsedActionData = parseMapNFTSignature(action.data as MapNFTSignature)
     }
 
     //manual validate so that automatic tools are OK wit conversion that follows

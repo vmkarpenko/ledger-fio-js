@@ -90,6 +90,23 @@ export type ParsedRemoveAddress = {
     tpid: VarlenAsciiString
 }
 
+export type ParsedNFT = {
+    chain_code: VarlenAsciiString
+    contract_address: VarlenAsciiString
+    token_id: VarlenAsciiString
+    url: VarlenAsciiString
+    hash: VarlenAsciiString
+    metadata: VarlenAsciiString
+}
+
+export type ParsedMapNFTSignature = {
+    fio_address: VarlenAsciiString
+    nfts: Array<ParsedNFT>
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString
@@ -100,7 +117,8 @@ export type ParsedActionData =
     ParsedRequestFundsData | 
     ParsedRecordOtherBlockchainTransactionMetadata |
     ParsedMapBlockchainPublicAddress |
-    ParsedRemoveAddress
+    ParsedRemoveAddress |
+    ParsedMapNFTSignature
 
 export type ParsedAction = {
     account: NameString

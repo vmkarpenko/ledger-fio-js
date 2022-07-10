@@ -227,13 +227,40 @@ export type TransferFIOTokensData = {
 }
 
 /**
- * Represents Map blockchain public address data.
+ * Represents Remove mapped address data.
  * @category Basic types
  * @see [[Action]]
  */
  export type RemoveMappedAddress = {
     fio_address: string
     public_addresses: Array<PublicAddress>
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Represents NFT.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type NFT = {
+    chain_code: string
+    contract_address: string
+    token_id: string
+    url: string
+    hash: string
+    metadata: string
+ }
+
+ /**
+ * Represents Map NFT Signature to a FIO Crypto Handle data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type MapNFTSignature = {
+    fio_address: string
+    nfts: Array<NFT>
     max_fee: bigint_like
     actor: string
     tpid: string
@@ -264,7 +291,8 @@ export type Action = {
         RequestFundsData | 
         RecordOtherBlockchainTransactionMetadata |
         MapBlockchainPublicAddress |
-        RemoveMappedAddress
+        RemoveMappedAddress |
+        MapNFTSignature
 }
 
 

@@ -1,5 +1,5 @@
 import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress,
-    PublicAddress, RemoveMappedAddress } from "fio";
+    PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature } from "fio";
 import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
@@ -13,6 +13,8 @@ import {
     ParsedMapBlockchainPublicAddress,
     ParsedPublicAddress,
     ParsedRemoveAddress as ParsedRemoveMappedAddress,
+    ParsedNFT,
+    ParsedMapNFTSignature,
 } from "../types/internal"
 import { parseAscii, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -102,3 +104,30 @@ export function parseRemoveMappedAddress(data: RemoveMappedAddress): ParsedRemov
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
     }
 }
+
+function parseNFT(a: NFT): ParsedNFT {
+    return {
+        chain_code: parseAscii(a.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
+        contract_address: parseAscii(a.contract_address, InvalidDataReason.INVALID_TOKEN_CODE, 1, 128),
+        token_id: parseAscii(a.token_id, InvalidDataReason.INVALID_TOKEN_CODE, 1, 64),
+        url: parseAscii(a.url, InvalidDataReason.INVALID_TOKEN_CODE, 0, 128),
+        hash: parseAscii(a.hash, InvalidDataReason.INVALID_TOKEN_CODE, 1, 64),
+        metadata: parseAscii(a.metadata, InvalidDataReason.INVALID_TOKEN_CODE, 0, 128),
+    }
+}
+
+function parseNFTs(a: Array<NFT>): Array<ParsedNFT> {
+    validate(1 <= a.length && a.length <= 3, InvalidDataReason.INCORRECT_NUMBER_OF_NFTS)
+    return a.map( e => parseNFT(e))
+}
+
+export function parseMapNFTSignature(data: MapNFTSignature): ParsedMapNFTSignature {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        nfts: parseNFTs(data.nfts),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+

@@ -31,6 +31,7 @@ export const enum VALUE_FORMAT {
 
     VALUE_FORMAT_MEMO_HASH = 0x20,
     VALUE_FORMAT_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR = 0x21,
+    VALUE_FORMAT_CHAIN_CODE_CONTRACT_ADDR_TOKEN_ID = 0x22,
 }
 
 export const enum VALUE_VALIDATION {
@@ -394,6 +395,30 @@ export function COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW(key: 
         command: COMMAND.APPEND_DATA, 
         constData: constDataAppendData(
             VALUE_FORMAT.VALUE_FORMAT_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR,
+            VALUE_VALIDATION.VALUE_VALIDATION_NONE, BigInt(0), BigInt(0),
+            VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            key
+        ),
+        varData: varData,
+        txLen: varData.length,
+    }
+}
+
+export function COMMAND_APPEND_DATA_CHAIN_CODE_CONTRACT_ADDR_TOKEN_TD_SHOW(key: string, chainCode: VarlenAsciiString, contractAddr: VarlenAsciiString, tokenId: VarlenAsciiString): Command {
+    const varData: Buffer = Buffer.concat([
+            varuint32_to_buf(chainCode.length),
+            Buffer.from(chainCode),
+            varuint32_to_buf(contractAddr.length),
+            Buffer.from(contractAddr),
+            varuint32_to_buf(tokenId.length),
+            Buffer.from(tokenId),
+        ])
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_CHAIN_CODE_CONTRACT_ADDR_TOKEN_ID,
             VALUE_VALIDATION.VALUE_VALIDATION_NONE, BigInt(0), BigInt(0),
             VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
             VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
