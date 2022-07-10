@@ -121,6 +121,28 @@ export type ParsedRemoveNFTSignature = {
     tpid: VarlenAsciiString
 }
 
+export type ParsedRemoveAllMappedAddresses = {
+    fio_address: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedCancelFundsRequest = {
+    fio_request_id: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: VarlenAsciiString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedRejectFundsRequest = {
+    fio_request_id: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: VarlenAsciiString
+    tpid: VarlenAsciiString
+}
+
+
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString
@@ -133,7 +155,10 @@ export type ParsedActionData =
     ParsedMapBlockchainPublicAddress |
     ParsedRemoveAddress |
     ParsedMapNFTSignature |
-    ParsedRemoveNFTSignature
+    ParsedRemoveNFTSignature |
+    ParsedRemoveAllMappedAddresses |
+    ParsedCancelFundsRequest |
+    ParsedRejectFundsRequest
 
 export type ParsedAction = {
     account: NameString

@@ -10,6 +10,9 @@ import { template_addaddress } from "./template_addaddress";
 import { template_remaddress } from "./template_remaddress";
 import { template_addnft } from "./template_addnft";
 import { template_remnft } from "./template_remnft";
+import { template_remalladdr } from "./template_remalladdr";
+import { template_cancelfndreq } from "./template_cancelfndreq";
+import { template_rejectfndreq } from "./template_rejectfndreq";
 
 export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -25,6 +28,9 @@ export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPa
         template_remaddress,
         template_addnft,
         template_remnft,
+        template_remalladdr,
+        template_cancelfndreq,
+        template_rejectfndreq,
     ])(chainId, tx, parsedPath)
     if (actionCommands.length == 0) return [];
 

@@ -289,6 +289,43 @@ export type TransferFIOTokensData = {
     actor: string
     tpid: string
 }
+
+/**
+ * Remove all mapped addresses data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RemoveAllMappedAddresses = {
+    fio_address: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Cancel Funds Request data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type CancelFundsRequest = {
+    fio_request_id: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Reject Funds Request data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RejectFundsRequest = {
+    fio_request_id: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
 /**
  * Represents authorisation in transaction Actions.
  * @category Basic types
@@ -316,7 +353,10 @@ export type Action = {
         MapBlockchainPublicAddress |
         RemoveMappedAddress |
         MapNFTSignature |
-        RemoveNFTSignature
+        RemoveNFTSignature |
+        RemoveAllMappedAddresses |
+        CancelFundsRequest |
+        RejectFundsRequest
 }
 
 

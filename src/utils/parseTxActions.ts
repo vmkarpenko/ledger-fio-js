@@ -1,5 +1,6 @@
 import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress,
-    PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature, RemoveNFTSignature, SmallNFT } from "fio";
+    PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature, RemoveNFTSignature, SmallNFT, RemoveAllMappedAddresses,
+    CancelFundsRequest, RejectFundsRequest } from "fio";
 import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
@@ -17,6 +18,9 @@ import {
     ParsedMapNFTSignature,
     ParsedRemoveNFTSignature,
     ParsedSmallNFT,
+    ParsedRemoveAllMappedAddresses,
+    ParsedCancelFundsRequest,
+    ParsedRejectFundsRequest,
 } from "../types/internal"
 import { parseAscii, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -152,6 +156,33 @@ export function parseRemoveNFTSignature(data: RemoveNFTSignature): ParsedRemoveN
         nfts: parseSmallNFTs(data.nfts),
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseRemoveAllMappedAddresses(data: RemoveAllMappedAddresses): ParsedRemoveAllMappedAddresses {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseCancelRequestFunds(data: CancelFundsRequest): ParsedCancelFundsRequest {    
+    return {
+        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseRejectRequestFunds(data: RejectFundsRequest): ParsedRejectFundsRequest {    
+    return {
+        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
     }
 }
