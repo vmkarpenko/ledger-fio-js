@@ -3,7 +3,8 @@ import { Command, VALUE_STORAGE_COMPARE, COMMAND_APPEND_CONST_DATA, COMMAND_SHOW
          COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMAND_APPEND_DATA_STRING_SHOW, COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, 
          COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW,
          ADD_STORAGE_CHECK,
-         templateAlternative} from "./commands"
+         templateAlternative,
+         COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW} from "./commands"
 import { uint64_to_buf } from "../../utils/serialize"
 import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
@@ -26,15 +27,8 @@ function template1(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
     
     return [
         COMMAND_APPEND_CONST_DATA("01" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[0].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[0].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[0].public_address)),
-        ]),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 1", actionData.public_addresses[0].chain_code,
+                actionData.public_addresses[0].token_code, actionData.public_addresses[0].public_address),
     ]
 }
 
@@ -52,24 +46,10 @@ function template2(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
     
     return [
         COMMAND_APPEND_CONST_DATA("02" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[0].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[0].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[0].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[1].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[1].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[1].public_address)),
-        ]),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 1", actionData.public_addresses[0].chain_code,
+                actionData.public_addresses[0].token_code, actionData.public_addresses[0].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 2", actionData.public_addresses[1].chain_code,
+                actionData.public_addresses[1].token_code, actionData.public_addresses[1].public_address),
     ]
 }
 
@@ -87,33 +67,12 @@ function template3(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
     
     return [
         COMMAND_APPEND_CONST_DATA("03" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[0].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[0].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[0].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[1].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[1].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[1].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[2].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[2].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[2].public_address)),
-        ]),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 1", actionData.public_addresses[0].chain_code,
+                actionData.public_addresses[0].token_code, actionData.public_addresses[0].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 2", actionData.public_addresses[1].chain_code,
+                actionData.public_addresses[1].token_code, actionData.public_addresses[1].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 3", actionData.public_addresses[2].chain_code,
+                actionData.public_addresses[2].token_code, actionData.public_addresses[2].public_address),
     ]
 }
 
@@ -131,42 +90,14 @@ function template4(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
     
     return [
         COMMAND_APPEND_CONST_DATA("04" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[0].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[0].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[0].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[1].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[1].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[1].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[2].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[2].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[2].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[3].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[3].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[3].public_address)),
-        ]),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 1", actionData.public_addresses[0].chain_code,
+                actionData.public_addresses[0].token_code, actionData.public_addresses[0].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 2", actionData.public_addresses[1].chain_code,
+                actionData.public_addresses[1].token_code, actionData.public_addresses[1].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 3", actionData.public_addresses[2].chain_code,
+                actionData.public_addresses[2].token_code, actionData.public_addresses[2].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 4", actionData.public_addresses[3].chain_code,
+                actionData.public_addresses[3].token_code, actionData.public_addresses[3].public_address),
     ]
 }
 
@@ -185,51 +116,16 @@ function template5(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
     
     return [
         COMMAND_APPEND_CONST_DATA("05" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[0].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[0].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[0].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[1].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[1].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[1].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[2].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[2].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[2].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[3].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[3].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[3].public_address)),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Chain code", Buffer.from(actionData.public_addresses[4].chain_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.public_addresses[4].token_code), 1, 10),
-        ]),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Payee Public Addr.", Buffer.from(actionData.public_addresses[4].public_address)),
-        ]),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 1", actionData.public_addresses[0].chain_code,
+                actionData.public_addresses[0].token_code, actionData.public_addresses[0].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 2", actionData.public_addresses[1].chain_code,
+                actionData.public_addresses[1].token_code, actionData.public_addresses[1].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 3", actionData.public_addresses[2].chain_code,
+                actionData.public_addresses[2].token_code, actionData.public_addresses[2].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 4", actionData.public_addresses[3].chain_code,
+                actionData.public_addresses[3].token_code, actionData.public_addresses[3].public_address),
+        COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW("Mapping 5", actionData.public_addresses[4].chain_code,
+                actionData.public_addresses[4].token_code, actionData.public_addresses[4].public_address),
     ]
 }
 

@@ -1,7 +1,7 @@
 import type {HexString, ParsedTransaction, ParsedRequestFundsData, ValidBIP32Path, ParsedActionAuthorisation, ParsedRecordOtherBlockchainTransactionMetadata, Uint8_t} from "../../types/internal"
 import { Command, templateAlternative, COMMANDS_COUNTED_SECTION, COMMAND_APPEND_DATA_STRING_SHOW, COMMAND_APPEND_CONST_DATA, 
         COMMAND_SHOW_MESSAGE, COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMAND_APPEND_DATA_NAME_SHOW, COMMANDS_DH_ENCODE, 
-        COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, COMMAND_STORE_VALUE, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_MEMO_HASH } from "./commands"
+        COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, COMMAND_STORE_VALUE, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_APPEND_DATA_MEMO_HASH } from "./commands"
 import { uint64_to_buf } from "../../utils/serialize"
 import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
@@ -62,7 +62,7 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
                     ...COMMANDS_COUNTED_SECTION([
                         COMMAND_APPEND_DATA_STRING_SHOW("Obt ID", Buffer.from(actionData.obt_id)),
                     ]),
-                    COMMAND_MEMO_HASH(actionData.memo, actionData.hash, actionData.offline_url),
+                    COMMAND_APPEND_DATA_MEMO_HASH(actionData.memo, actionData.hash, actionData.offline_url),
                 ])
             ], 64, 432),
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()),

@@ -1,7 +1,7 @@
 import type {HexString, ParsedTransaction, ParsedRequestFundsData, ValidBIP32Path, ParsedActionAuthorisation, Uint8_t} from "../../types/internal"
 import { Command, templateAlternative, COMMANDS_COUNTED_SECTION, COMMAND_APPEND_DATA_STRING_SHOW, COMMAND_APPEND_CONST_DATA, 
          COMMAND_SHOW_MESSAGE, COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMANDS_DH_ENCODE, COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, 
-         COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_STORE_VALUE, COMMAND_MEMO_HASH } from "./commands"
+         COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_STORE_VALUE, COMMAND_APPEND_DATA_MEMO_HASH } from "./commands"
 import { uint64_to_buf } from "../../utils/serialize"
 import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
@@ -49,7 +49,7 @@ export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, 
                     ...COMMANDS_COUNTED_SECTION([
                         COMMAND_APPEND_DATA_STRING_SHOW("Token code", Buffer.from(actionData.token_code), 1, 10),
                     ]),
-                    COMMAND_MEMO_HASH(actionData.memo, actionData.hash, actionData.offline_url),
+                    COMMAND_APPEND_DATA_MEMO_HASH(actionData.memo, actionData.hash, actionData.offline_url),
                 ])
             ], 64, 296),
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()),

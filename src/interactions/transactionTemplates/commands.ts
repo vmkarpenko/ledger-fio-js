@@ -30,6 +30,7 @@ export const enum VALUE_FORMAT {
     VALUE_FORMAT_VARUINT32 = 0x17,
 
     VALUE_FORMAT_MEMO_HASH = 0x20,
+    VALUE_FORMAT_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR = 0x21,
 }
 
 export const enum VALUE_VALIDATION {
@@ -339,17 +340,17 @@ export function ADD_STORAGE_CHECK(check: VALUE_STORAGE_COMPARE, c: Command): Com
     }
 }
 
-export function COMMAND_MEMO_HASH(memo?: VarlenAsciiString, hash?: VarlenAsciiString, offline_url?: VarlenAsciiString): Command {
+export function COMMAND_APPEND_DATA_MEMO_HASH(memo?: VarlenAsciiString, hash?: VarlenAsciiString, offline_url?: VarlenAsciiString): Command {
     var varData: Buffer = Buffer.from("");
     if (memo === undefined) {
         validate(hash !== undefined, InvalidDataReason.INVALID_HASH);
         validate(offline_url !== undefined, InvalidDataReason.INVALID_OFFLINE_URL);
         varData = Buffer.concat([
             Buffer.from("0001", "hex"), 
-            uint8_to_buf(hash.length as Uint8_t), 
+            varuint32_to_buf(hash.length),
             Buffer.from(hash),
             Buffer.from("01", "hex"),
-            uint8_to_buf(offline_url.length as Uint8_t), 
+            varuint32_to_buf(offline_url.length),
             Buffer.from(offline_url),
         ])
     }
@@ -358,7 +359,7 @@ export function COMMAND_MEMO_HASH(memo?: VarlenAsciiString, hash?: VarlenAsciiSt
         validate(hash === undefined, InvalidDataReason.INVALID_OFFLINE_URL);
         varData = Buffer.concat([
             Buffer.from("01", "hex"), 
-            uint8_to_buf(memo.length as Uint8_t), 
+            varuint32_to_buf(memo.length),
             Buffer.from(memo),
             Buffer.from("0000", "hex"),
         ])
@@ -372,6 +373,31 @@ export function COMMAND_MEMO_HASH(memo?: VarlenAsciiString, hash?: VarlenAsciiSt
             VALUE_POLICY.VALUE_DO_NOT_SHOW_ON_DEVICE,
             VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
             ""
+        ),
+        varData: varData,
+        txLen: varData.length,
+    }
+}
+
+
+export function COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW(key: string, chainCode: VarlenAsciiString, tokenCode: VarlenAsciiString, publicAddr: VarlenAsciiString): Command {
+    const varData: Buffer = Buffer.concat([
+            varuint32_to_buf(chainCode.length),
+            Buffer.from(chainCode),
+            varuint32_to_buf(tokenCode.length),
+            Buffer.from(tokenCode),
+            varuint32_to_buf(publicAddr.length),
+            Buffer.from(publicAddr),
+        ])
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR,
+            VALUE_VALIDATION.VALUE_VALIDATION_NONE, BigInt(0), BigInt(0),
+            VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            key
         ),
         varData: varData,
         txLen: varData.length,
