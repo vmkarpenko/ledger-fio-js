@@ -10,7 +10,7 @@ import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
 
 const CONTRACT_ACCOUNT = parseNameString("fio.address", InvalidDataReason.UNEXPECTED_ERROR);
-const CONTRACT_NAME = parseNameString("addaddress", InvalidDataReason.UNEXPECTED_ERROR);
+const CONTRACT_NAME = parseNameString("remaddress", InvalidDataReason.UNEXPECTED_ERROR);
 
 
 function template1(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
@@ -129,7 +129,7 @@ function template5(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
     ]
 }
 
-export function template_addaddress(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
+export function template_remaddress(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
     validate(tx.context_free_actions.length == 0, InvalidDataReason.CONTEXT_FREE_ACTIONS_NOT_SUPPORTED);
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
@@ -148,7 +148,7 @@ export function template_addaddress(chainId: HexString, tx: ParsedTransaction, p
 
     return [
         COMMAND_APPEND_CONST_DATA(tx.actions[0].account+tx.actions[0].name+"01" as HexString),
-        COMMAND_SHOW_MESSAGE("Action", "Map public address"),
+        COMMAND_SHOW_MESSAGE("Action", "Remove public address mappings"),
         COMMAND_STORE_VALUE(1 as Uint8_t, Buffer.from(tx.actions[0].authorization[0].actor, "hex")),
         ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
             COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.actor, "hex"), 8, 8)),

@@ -31,13 +31,13 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
         COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.permission, "hex"), 8, 8),
         ...COMMANDS_COUNTED_SECTION([
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_SHOW("Fio Request ID", Buffer.from(actionData.fio_request_id))
+                COMMAND_APPEND_DATA_STRING_SHOW("Request ID", Buffer.from(actionData.fio_request_id))
             ]), 
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_SHOW("Payer FIO Address", Buffer.from(actionData.payer_fio_address), 3, 64)
+                COMMAND_APPEND_DATA_STRING_SHOW("Payer FIO Cr.Handle", Buffer.from(actionData.payer_fio_address), 3, 64)
             ]), 
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_SHOW("Payee FIO Address", Buffer.from(actionData.payee_fio_address), 3, 64)
+                COMMAND_APPEND_DATA_STRING_SHOW("Payee FIO Cr.Handle", Buffer.from(actionData.payee_fio_address), 3, 64)
             ]), 
             ...COMMANDS_COUNTED_SECTION([
                 ...COMMANDS_DH_ENCODE(Buffer.from(actionData.payee_public_key, "hex"), [

@@ -82,6 +82,14 @@ export type ParsedMapBlockchainPublicAddress = {
     tpid: VarlenAsciiString
 }
 
+export type ParsedRemoveAddress = {
+    fio_address: VarlenAsciiString
+    public_addresses: Array<ParsedPublicAddress>
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString
@@ -91,7 +99,8 @@ export type ParsedActionData =
     ParsedTransferFIOTokensData | 
     ParsedRequestFundsData | 
     ParsedRecordOtherBlockchainTransactionMetadata |
-    ParsedMapBlockchainPublicAddress
+    ParsedMapBlockchainPublicAddress |
+    ParsedRemoveAddress
 
 export type ParsedAction = {
     account: NameString

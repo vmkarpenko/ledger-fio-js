@@ -226,6 +226,18 @@ export type TransferFIOTokensData = {
     tpid: string
 }
 
+/**
+ * Represents Map blockchain public address data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RemoveMappedAddress = {
+    fio_address: string
+    public_addresses: Array<PublicAddress>
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
 
 /**
  * Represents authorisation in transaction Actions.
@@ -251,7 +263,8 @@ export type Action = {
         TransferFIOTokensData | 
         RequestFundsData | 
         RecordOtherBlockchainTransactionMetadata |
-        MapBlockchainPublicAddress
+        MapBlockchainPublicAddress |
+        RemoveMappedAddress
 }
 
 

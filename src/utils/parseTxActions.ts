@@ -1,5 +1,5 @@
 import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress,
-    PublicAddress } from "fio";
+    PublicAddress, RemoveMappedAddress } from "fio";
 import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
@@ -12,6 +12,7 @@ import {
     PUBLIC_KEY_LENGTH,
     ParsedMapBlockchainPublicAddress,
     ParsedPublicAddress,
+    ParsedRemoveAddress as ParsedRemoveMappedAddress,
 } from "../types/internal"
 import { parseAscii, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -83,6 +84,16 @@ function parsePublicAddsesses(a: Array<PublicAddress>): Array<ParsedPublicAddres
 }
 
 export function parseMapBlockchainPublicAddress(data: MapBlockchainPublicAddress): ParsedMapBlockchainPublicAddress {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        public_addresses: parsePublicAddsesses(data.public_addresses),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseRemoveMappedAddress(data: RemoveMappedAddress): ParsedRemoveMappedAddress {
     return {
         fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
         public_addresses: parsePublicAddsesses(data.public_addresses),
