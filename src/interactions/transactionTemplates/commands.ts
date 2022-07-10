@@ -260,6 +260,22 @@ export function COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW(key: string, varData: Buffer
     }  
 }
 
+export function COMMAND_APPEND_DATA_UINT64_SHOW(key: string, varData: Buffer, minAmount: number = 0, maxAmount: number = 0xFFFFFFFF): Command {
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_UINT64,
+            VALUE_VALIDATION.VALUE_VALIDATION_NUMBER, BigInt(minAmount), BigInt(maxAmount),
+            VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            key
+        ),
+        varData: varData,
+        txLen: varData.length,
+    }  
+}
+
 
 export function COMMANDS_COUNTED_SECTION(commands: Array<Command>, min: number = 0, max: number = 0xFFFFFFFF): Array<Command> {
     const varData = varuint32_to_buf(getCommandVarLength(commands));

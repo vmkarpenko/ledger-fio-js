@@ -1,8 +1,8 @@
 import { InvalidData, InvalidDataReason } from "../errors"
 import {_Uint64_bigint, _Uint64_num, FixlenHexString, HexString, NameString, ParsedActionAuthorisation, ParsedTransaction,
     Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedAction, ParsedActionData, Base64String, ParsedContext } from "../types/internal"
-import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress, RemoveMappedAddress, MapNFTSignature, RemoveNFTSignature, RemoveAllMappedAddresses, CancelFundsRequest, RejectFundsRequest} from "../types/public"
-import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, parseCancelRequestFunds, parseMapBlockchainPublicAddress, parseMapNFTSignature, parseRejectRequestFunds, parseRemoveAllMappedAddresses, parseRemoveMappedAddress, parseRemoveNFTSignature } from "./parseTxActions"
+import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress, RemoveMappedAddress, MapNFTSignature, RemoveNFTSignature, RemoveAllMappedAddresses, CancelFundsRequest, RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain, RenewDomain} from "../types/public"
+import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, parseBuyBundledTransaction, parseCancelRequestFunds, parseMapBlockchainPublicAddress, parseMapNFTSignature, parseRegisterAddress, parseRegisterDomain, parseRejectRequestFunds, parseRemoveAllMappedAddresses, parseRemoveMappedAddress, parseRemoveNFTSignature, parseRenewDomain, parseTransferAddress } from "./parseTxActions"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 
@@ -241,6 +241,21 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     }
     else if (action.account === "fio.reqobt" && action.name === "rejectfndreq") {
         parsedActionData = parseRejectRequestFunds(action.data as RejectFundsRequest)
+    }
+    else if (action.account === "fio.address" && action.name === "addbundles") {
+        parsedActionData = parseBuyBundledTransaction(action.data as BuyBundledTransaction)
+    }
+    else if (action.account === "fio.address" && action.name === "regaddress") {
+        parsedActionData = parseRegisterAddress(action.data as RegisterAddress)
+    }
+    else if (action.account === "fio.address" && action.name === "xferaddress") {
+        parsedActionData = parseTransferAddress(action.data as TransferAddress)
+    }
+    else if (action.account === "fio.address" && action.name === "regdomain") {
+        parsedActionData = parseRegisterDomain(action.data as RegisterDomain)
+    }
+    else if (action.account === "fio.address" && action.name === "renewdomain") {
+        parsedActionData = parseRenewDomain(action.data as RenewDomain)
     }
 
     //manual validate so that automatic tools are OK wit conversion that follows

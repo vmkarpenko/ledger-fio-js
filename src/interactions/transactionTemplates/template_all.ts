@@ -13,6 +13,11 @@ import { template_remnft } from "./template_remnft";
 import { template_remalladdr } from "./template_remalladdr";
 import { template_cancelfndreq } from "./template_cancelfndreq";
 import { template_rejectfndreq } from "./template_rejectfndreq";
+import { template_addbundles } from "./template_addbundles";
+import { template_regaddress } from "./template_regaddress";
+import { template_xferaddress } from "./template_xferaddress";
+import { template_regdomain } from "./template_regdomain";
+import { template_renewdomain } from "./template_renewdomain";
 
 export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -31,6 +36,11 @@ export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPa
         template_remalladdr,
         template_cancelfndreq,
         template_rejectfndreq,
+        template_addbundles,
+        template_regaddress,
+        template_xferaddress,
+        template_regdomain,
+        template_renewdomain,
     ])(chainId, tx, parsedPath)
     if (actionCommands.length == 0) return [];
 

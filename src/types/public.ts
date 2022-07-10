@@ -327,6 +327,70 @@ export type TransferFIOTokensData = {
 }
 
 /**
+ * Buy bundled ransaction data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type BuyBundledTransaction = {
+    fio_address: string
+    bundle_sets: bigint_like
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Register address data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RegisterAddress = {
+    fio_address: string
+    owner_fio_public_key: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Transfer address data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type TransferAddress = {
+    fio_address: string
+    new_owner_fio_public_key: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Register domain data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RegisterDomain = {
+    fio_domain: string
+    owner_fio_public_key: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Renew domain data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RenewDomain = {
+    fio_domain: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
  * Represents authorisation in transaction Actions.
  * @category Basic types
  * @see [[Action]]
@@ -356,7 +420,12 @@ export type Action = {
         RemoveNFTSignature |
         RemoveAllMappedAddresses |
         CancelFundsRequest |
-        RejectFundsRequest
+        RejectFundsRequest |
+        BuyBundledTransaction |
+        RegisterAddress |
+        TransferAddress |
+        RegisterDomain |
+        RenewDomain
 }
 
 

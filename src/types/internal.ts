@@ -142,6 +142,45 @@ export type ParsedRejectFundsRequest = {
     tpid: VarlenAsciiString
 }
 
+export type ParsedBuyBundledTransaction = {
+    fio_address: VarlenAsciiString
+    bundle_sets: Uint64_str
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedRegisterAddress = {
+    fio_address: VarlenAsciiString
+    owner_fio_public_key: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedTransferAddress = {
+    fio_address: VarlenAsciiString
+    new_owner_fio_public_key: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedRegisterDomain = {
+    fio_domain: VarlenAsciiString
+    owner_fio_public_key: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedRenewDomain = {
+    fio_domain: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
 
 export type ParsedActionAuthorisation = {
     actor: NameString
@@ -158,7 +197,12 @@ export type ParsedActionData =
     ParsedRemoveNFTSignature |
     ParsedRemoveAllMappedAddresses |
     ParsedCancelFundsRequest |
-    ParsedRejectFundsRequest
+    ParsedRejectFundsRequest |
+    ParsedRegisterAddress |
+    ParsedTransferAddress |
+    ParsedBuyBundledTransaction |
+    ParsedRegisterDomain |
+    ParsedRenewDomain
 
 export type ParsedAction = {
     account: NameString

@@ -1,12 +1,12 @@
 import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress,
     PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature, RemoveNFTSignature, SmallNFT, RemoveAllMappedAddresses,
-    CancelFundsRequest, RejectFundsRequest } from "fio";
+    CancelFundsRequest, RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain,
+    RenewDomain, 
+ } from "fio";
 import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
     _Uint64_num,
-    HexString,
-    ParsedAction, 
     ParsedTransferFIOTokensData,
     ParsedRequestFundsData,
     ParsedRecordOtherBlockchainTransactionMetadata,
@@ -21,6 +21,11 @@ import {
     ParsedRemoveAllMappedAddresses,
     ParsedCancelFundsRequest,
     ParsedRejectFundsRequest,
+    ParsedBuyBundledTransaction,
+    ParsedRegisterAddress,
+    ParsedTransferAddress,
+    ParsedRegisterDomain,
+    ParsedRenewDomain,
 } from "../types/internal"
 import { parseAscii, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -183,6 +188,55 @@ export function parseRejectRequestFunds(data: RejectFundsRequest): ParsedRejectF
         fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseBuyBundledTransaction(data: BuyBundledTransaction): ParsedBuyBundledTransaction {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        bundle_sets: parseUint64_str(data.bundle_sets, {}, InvalidDataReason.INVALID_BUNDLE_SETS),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseRegisterAddress(data: RegisterAddress): ParsedRegisterAddress {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        owner_fio_public_key: parseAscii(data.owner_fio_public_key, InvalidDataReason.INVALID_PUBLIC_KEY),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseTransferAddress(data: TransferAddress): ParsedTransferAddress {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        new_owner_fio_public_key: parseAscii(data.new_owner_fio_public_key, InvalidDataReason.INVALID_PUBLIC_KEY),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseRegisterDomain(data: RegisterDomain): ParsedRegisterDomain {
+    return {
+        fio_domain: parseAscii(data.fio_domain, InvalidDataReason.INVALID_FIO_ADDRESS, 1, 62),
+        owner_fio_public_key: parseAscii(data.owner_fio_public_key, InvalidDataReason.INVALID_PUBLIC_KEY),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseRenewDomain(data: RenewDomain): ParsedRenewDomain {
+    return {
+        fio_domain: parseAscii(data.fio_domain, InvalidDataReason.INVALID_FIO_ADDRESS, 1, 62),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
     }
 }
