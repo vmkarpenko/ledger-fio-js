@@ -1,5 +1,5 @@
 import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress,
-    PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature } from "fio";
+    PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature, RemoveNFTSignature, SmallNFT } from "fio";
 import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
@@ -15,6 +15,8 @@ import {
     ParsedRemoveAddress as ParsedRemoveMappedAddress,
     ParsedNFT,
     ParsedMapNFTSignature,
+    ParsedRemoveNFTSignature,
+    ParsedSmallNFT,
 } from "../types/internal"
 import { parseAscii, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -131,3 +133,25 @@ export function parseMapNFTSignature(data: MapNFTSignature): ParsedMapNFTSignatu
     }
 }
 
+function parseSmallNFT(a: SmallNFT): ParsedSmallNFT {
+    return {
+        chain_code: parseAscii(a.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
+        contract_address: parseAscii(a.contract_address, InvalidDataReason.INVALID_TOKEN_CODE, 1, 128),
+        token_id: parseAscii(a.token_id, InvalidDataReason.INVALID_TOKEN_CODE, 1, 64),
+    }
+}
+
+function parseSmallNFTs(a: Array<SmallNFT>): Array<ParsedSmallNFT> {
+    validate(1 <= a.length && a.length <= 3, InvalidDataReason.INCORRECT_NUMBER_OF_NFTS)
+    return a.map( e => parseSmallNFT(e))
+}
+
+export function parseRemoveNFTSignature(data: RemoveNFTSignature): ParsedRemoveNFTSignature {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        nfts: parseSmallNFTs(data.nfts),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}

@@ -240,7 +240,7 @@ export type TransferFIOTokensData = {
 }
 
 /**
- * Represents NFT.
+ * Represents NFT for addnft.
  * @category Basic types
  * @see [[Action]]
  */
@@ -251,6 +251,17 @@ export type TransferFIOTokensData = {
     url: string
     hash: string
     metadata: string
+ }
+
+ /**
+ * Represents NFT for remnft.
+ * @category Basic types
+ * @see [[Action]]
+ */
+  export type SmallNFT = {
+    chain_code: string
+    contract_address: string
+    token_id: string
  }
 
  /**
@@ -266,6 +277,18 @@ export type TransferFIOTokensData = {
     tpid: string
 }
 
+/**
+ * Remove NFT Signature from FIO Crypto Handle data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RemoveNFTSignature = {
+    fio_address: string
+    nfts: Array<SmallNFT>
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
 /**
  * Represents authorisation in transaction Actions.
  * @category Basic types
@@ -292,7 +315,8 @@ export type Action = {
         RecordOtherBlockchainTransactionMetadata |
         MapBlockchainPublicAddress |
         RemoveMappedAddress |
-        MapNFTSignature
+        MapNFTSignature |
+        RemoveNFTSignature
 }
 
 

@@ -107,6 +107,20 @@ export type ParsedMapNFTSignature = {
     tpid: VarlenAsciiString
 }
 
+export type ParsedSmallNFT = {
+    chain_code: VarlenAsciiString
+    contract_address: VarlenAsciiString
+    token_id: VarlenAsciiString
+}
+
+export type ParsedRemoveNFTSignature = {
+    fio_address: VarlenAsciiString
+    nfts: Array<ParsedSmallNFT>
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString
@@ -118,7 +132,8 @@ export type ParsedActionData =
     ParsedRecordOtherBlockchainTransactionMetadata |
     ParsedMapBlockchainPublicAddress |
     ParsedRemoveAddress |
-    ParsedMapNFTSignature
+    ParsedMapNFTSignature |
+    ParsedRemoveNFTSignature
 
 export type ParsedAction = {
     account: NameString

@@ -9,6 +9,7 @@ import { template_recordopt } from "./template_recordobt";
 import { template_addaddress } from "./template_addaddress";
 import { template_remaddress } from "./template_remaddress";
 import { template_addnft } from "./template_addnft";
+import { template_remnft } from "./template_remnft";
 
 export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -23,6 +24,7 @@ export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPa
         template_addaddress,
         template_remaddress,
         template_addnft,
+        template_remnft,
     ])(chainId, tx, parsedPath)
     if (actionCommands.length == 0) return [];
 
