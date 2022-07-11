@@ -430,6 +430,56 @@ export type TransferFIOTokensData = {
 }
 
 /**
+ * Stake fio data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type StakeFIO = {
+    amount: bigint_like
+    fio_address: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Unstake fio data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type UnstakeFIO = {
+    amount: bigint_like
+    fio_address: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * Vote on block producers data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type VoteOnBlockProducers = {
+    producers: Array<string>
+    fio_address: string
+    max_fee: bigint_like
+    actor: string
+}
+
+/**
+ * Proxy votes to registred proxy data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type ProxyVotesToRegisteredProxy = {
+    proxy: string
+    fio_address: string
+    max_fee: bigint_like
+    actor: string
+}
+
+/**
  * Represents authorisation in transaction Actions.
  * @category Basic types
  * @see [[Action]]
@@ -467,7 +517,11 @@ export type Action = {
         RenewDomain |
         MakeDomainPublic |
         TransferDomain |
-        RemoveAllNFT
+        RemoveAllNFT |
+        StakeFIO |
+        UnstakeFIO |
+        VoteOnBlockProducers |
+        ProxyVotesToRegisteredProxy
 }
 
 

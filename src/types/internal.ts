@@ -204,6 +204,36 @@ export type ParsedRemoveAllNFT = {
     tpid: VarlenAsciiString
 }
 
+export type ParsedStakeFIO = {
+    fio_address: VarlenAsciiString
+    amount: Uint64_str
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedUnstakeFIO = {
+    fio_address: VarlenAsciiString
+    amount: Uint64_str
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedVoteOnBlockProducers = {
+    producers: Array<VarlenAsciiString>
+    fio_address: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+}
+
+ export type ParsedProxyVotesToRegisteredProxy = {
+    proxy: VarlenAsciiString
+    fio_address: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+}
+
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString
@@ -227,7 +257,11 @@ export type ParsedActionData =
     ParsedRenewDomain |
     ParsedMakeDomainPublic |
     ParsedTransferDomain |
-    ParsedRemoveAllNFT
+    ParsedRemoveAllNFT |
+    ParsedStakeFIO |
+    ParsedUnstakeFIO |
+    ParsedVoteOnBlockProducers |
+    ParsedProxyVotesToRegisteredProxy
 
 export type ParsedAction = {
     account: NameString

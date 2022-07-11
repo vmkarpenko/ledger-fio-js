@@ -1,8 +1,16 @@
 import { InvalidData, InvalidDataReason } from "../errors"
 import {_Uint64_bigint, _Uint64_num, FixlenHexString, HexString, NameString, ParsedActionAuthorisation, ParsedTransaction,
     Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedAction, ParsedActionData, Base64String, ParsedContext } from "../types/internal"
-import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress, RemoveMappedAddress, MapNFTSignature, RemoveNFTSignature, RemoveAllMappedAddresses, CancelFundsRequest, RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain, RenewDomain, MakeDomainPublic, TransferDomain, RemoveAllNFT} from "../types/public"
-import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, parseBuyBundledTransaction, parseCancelRequestFunds, parseMakeDomainPublic, parseMapBlockchainPublicAddress, parseMapNFTSignature, parseRegisterAddress, parseRegisterDomain, parseRejectRequestFunds, parseRemoveAllMappedAddresses, parseRemoveAllNFT, parseRemoveMappedAddress, parseRemoveNFTSignature, parseRenewDomain, parseTransferAddress, parseTransferDomain } from "./parseTxActions"
+import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, 
+    MapBlockchainPublicAddress, RemoveMappedAddress, MapNFTSignature, RemoveNFTSignature, RemoveAllMappedAddresses, CancelFundsRequest, 
+    RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain, RenewDomain, MakeDomainPublic, 
+    TransferDomain, RemoveAllNFT, StakeFIO, UnstakeFIO, VoteOnBlockProducers, ProxyVotesToRegisteredProxy} from "../types/public"
+import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, 
+    parseBuyBundledTransaction, parseCancelRequestFunds, parseMakeDomainPublic, parseMapBlockchainPublicAddress, parseMapNFTSignature, 
+    parseProxyVotesToRegisteredProxy, 
+    parseRegisterAddress, parseRegisterDomain, parseRejectRequestFunds, parseRemoveAllMappedAddresses, parseRemoveAllNFT, 
+    parseRemoveMappedAddress, parseRemoveNFTSignature, parseRenewDomain, parseStakeFIO, parseTransferAddress, 
+    parseTransferDomain, parseUnstakeFIO, parseVoteOnBlockProducers } from "./parseTxActions"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 
@@ -275,6 +283,18 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     }
     else if (action.account === "fio.address" && action.name === "remallnfts") {
         parsedActionData = parseRemoveAllNFT(action.data as RemoveAllNFT)
+    }
+    else if (action.account === "fio.staking" && action.name === "stakefio") {
+        parsedActionData = parseStakeFIO(action.data as StakeFIO)
+    }
+    else if (action.account === "fio.staking" && action.name === "unstakefio") {
+        parsedActionData = parseUnstakeFIO(action.data as UnstakeFIO)
+    }
+    else if (action.account === "eosio" && action.name === "voteproducer") {
+        parsedActionData = parseVoteOnBlockProducers(action.data as VoteOnBlockProducers)
+    }
+    else if (action.account === "eosio" && action.name === "voteproxy") {
+        parsedActionData = parseProxyVotesToRegisteredProxy(action.data as ProxyVotesToRegisteredProxy)
     }
 
     //manual validate so that automatic tools are OK wit conversion that follows

@@ -1,8 +1,8 @@
 import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress,
     PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature, RemoveNFTSignature, SmallNFT, RemoveAllMappedAddresses,
     CancelFundsRequest, RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain,
-    RenewDomain, MakeDomainPublic, TransferDomain, RemoveAllNFT
- } from "fio";
+    RenewDomain, MakeDomainPublic, TransferDomain, RemoveAllNFT, StakeFIO, UnstakeFIO, VoteOnBlockProducers,
+    ProxyVotesToRegisteredProxy } from "fio";
 import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
@@ -29,6 +29,11 @@ import {
     ParsedMakeDomainPublic,
     ParsedTransferDomain,
     ParsedRemoveAllNFT,
+    ParsedStakeFIO,
+    ParsedUnstakeFIO,
+    ParsedVoteOnBlockProducers,
+    VarlenAsciiString,
+    ParsedProxyVotesToRegisteredProxy,
 } from "../types/internal"
 import { parseAscii, parseBoolean, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -270,5 +275,48 @@ export function parseRemoveAllNFT(data: RemoveAllNFT): ParsedRemoveAllNFT {
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseStakeFIO(data: StakeFIO): ParsedStakeFIO {
+    return {
+        amount: parseUint64_str(data.amount, {}, InvalidDataReason.INVALID_AMOUNT),
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseUnstakeFIO(data: UnstakeFIO): ParsedUnstakeFIO {
+    return {
+        amount: parseUint64_str(data.amount, {}, InvalidDataReason.INVALID_AMOUNT),
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+function parseProducers(a: Array<string>): Array<VarlenAsciiString> {
+    validate(1 <= a.length && a.length <= 5, InvalidDataReason.INCORRECT_NUMBER_OF_PRODUCERS)
+    return a.map( e => parseAscii(e, InvalidDataReason.INVALID_PRODUCER, 3, 64))
+}
+
+export function parseVoteOnBlockProducers(data: VoteOnBlockProducers): ParsedVoteOnBlockProducers {
+    return {
+        producers: parseProducers(data.producers),
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+    }
+}
+
+export function parseProxyVotesToRegisteredProxy(data: ProxyVotesToRegisteredProxy): ParsedProxyVotesToRegisteredProxy {
+    return {
+        proxy: parseAscii(data.proxy, InvalidDataReason.INVALID_PROXY, 3, 64),
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
     }
 }

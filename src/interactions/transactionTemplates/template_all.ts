@@ -21,6 +21,10 @@ import { template_renewdomain } from "./template_renewdomain";
 import { template_setdomainpub } from "./template_setdomainpub";
 import { template_xferdomain } from "./template_xferdomain";
 import { template_remallnfts } from "./template_remallnfts";
+import { template_stakefio } from "./template_stakefio";
+import { template_unstakefio } from "./template_unstakefio";
+import { template_voteproducer } from "./template_voteproducer";
+import { template_voteproxy } from "./template_voteproxy";
 
 export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -47,6 +51,10 @@ export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPa
         template_setdomainpub,
         template_xferdomain,
         template_remallnfts,
+        template_stakefio,
+        template_unstakefio,
+        template_voteproducer,
+        template_voteproxy,
     ])(chainId, tx, parsedPath)
     if (actionCommands.length == 0) return [];
 

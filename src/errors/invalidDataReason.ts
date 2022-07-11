@@ -45,4 +45,7 @@ export enum InvalidDataReason {
     INCORRECT_NUMBER_OF_NFTS = "incorrect number of nfts",
     INVALID_BUNDLE_SETS = "invalid bundle sets",
     INVALID_IS_PUBLIC = "ivalid is public",
+    INCORRECT_NUMBER_OF_PRODUCERS = "incorrect number of producers",
+    INVALID_PRODUCER = "invalid producer",
+    INVALID_PROXY = "invalid proxy",
 }
