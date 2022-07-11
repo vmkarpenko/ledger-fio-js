@@ -18,6 +18,9 @@ import { template_regaddress } from "./template_regaddress";
 import { template_xferaddress } from "./template_xferaddress";
 import { template_regdomain } from "./template_regdomain";
 import { template_renewdomain } from "./template_renewdomain";
+import { template_setdomainpub } from "./template_setdomainpub";
+import { template_xferdomain } from "./template_xferdomain";
+import { template_remallnfts } from "./template_remallnfts";
 
 export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -41,6 +44,9 @@ export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPa
         template_xferaddress,
         template_regdomain,
         template_renewdomain,
+        template_setdomainpub,
+        template_xferdomain,
+        template_remallnfts,
     ])(chainId, tx, parsedPath)
     if (actionCommands.length == 0) return [];
 

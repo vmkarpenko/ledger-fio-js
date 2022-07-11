@@ -43,5 +43,6 @@ export enum InvalidDataReason {
     INVALID_CONTEXT = "invalid context",
     INCORRECT_NUMBER_OF_PUBLIC_ADDRESSES = "incorrect number of public addresses",
     INCORRECT_NUMBER_OF_NFTS = "incorrect number of nfts",
-    INVALID_BUNDLE_SETS = "invalid bundle sets"
+    INVALID_BUNDLE_SETS = "invalid bundle sets",
+    INVALID_IS_PUBLIC = "ivalid is public",
 }

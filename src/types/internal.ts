@@ -181,6 +181,28 @@ export type ParsedRenewDomain = {
     tpid: VarlenAsciiString
 }
 
+export type ParsedMakeDomainPublic = {
+    fio_domain: VarlenAsciiString
+    is_public: boolean
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedTransferDomain = {
+    fio_domain: VarlenAsciiString
+    new_owner_fio_public_key: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
+
+export type ParsedRemoveAllNFT = {
+    fio_address: VarlenAsciiString
+    max_fee: Uint64_str
+    actor: NameString
+    tpid: VarlenAsciiString
+}
 
 export type ParsedActionAuthorisation = {
     actor: NameString
@@ -202,7 +224,10 @@ export type ParsedActionData =
     ParsedTransferAddress |
     ParsedBuyBundledTransaction |
     ParsedRegisterDomain |
-    ParsedRenewDomain
+    ParsedRenewDomain |
+    ParsedMakeDomainPublic |
+    ParsedTransferDomain |
+    ParsedRemoveAllNFT
 
 export type ParsedAction = {
     account: NameString

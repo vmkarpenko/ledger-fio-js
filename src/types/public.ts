@@ -391,6 +391,45 @@ export type TransferFIOTokensData = {
 }
 
 /**
+ * Make domain public data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type MakeDomainPublic = {
+    fio_domain: string
+    is_public: bigint_like
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+
+/**
+ * Transfer domain data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type TransferDomain = {
+    fio_domain: string
+    new_owner_fio_public_key: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
+ * RemoveAllNFT data.
+ * @category Basic types
+ * @see [[Action]]
+ */
+ export type RemoveAllNFT = {
+    fio_address: string
+    max_fee: bigint_like
+    actor: string
+    tpid: string
+}
+
+/**
  * Represents authorisation in transaction Actions.
  * @category Basic types
  * @see [[Action]]
@@ -425,7 +464,10 @@ export type Action = {
         RegisterAddress |
         TransferAddress |
         RegisterDomain |
-        RenewDomain
+        RenewDomain |
+        MakeDomainPublic |
+        TransferDomain |
+        RemoveAllNFT
 }
 
 

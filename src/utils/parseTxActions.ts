@@ -1,7 +1,7 @@
 import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress,
     PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature, RemoveNFTSignature, SmallNFT, RemoveAllMappedAddresses,
     CancelFundsRequest, RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain,
-    RenewDomain, 
+    RenewDomain, MakeDomainPublic, TransferDomain, RemoveAllNFT
  } from "fio";
 import  { InvalidDataReason } from "../errors"
 import {
@@ -26,8 +26,11 @@ import {
     ParsedTransferAddress,
     ParsedRegisterDomain,
     ParsedRenewDomain,
+    ParsedMakeDomainPublic,
+    ParsedTransferDomain,
+    ParsedRemoveAllNFT,
 } from "../types/internal"
-import { parseAscii, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
+import { parseAscii, parseBoolean, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
 
 export function parseActionDataTransferFIOToken(data: TransferFIOTokensData): ParsedTransferFIOTokensData {
@@ -235,6 +238,35 @@ export function parseRegisterDomain(data: RegisterDomain): ParsedRegisterDomain 
 export function parseRenewDomain(data: RenewDomain): ParsedRenewDomain {
     return {
         fio_domain: parseAscii(data.fio_domain, InvalidDataReason.INVALID_FIO_ADDRESS, 1, 62),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseMakeDomainPublic(data: MakeDomainPublic): ParsedMakeDomainPublic {
+    return {
+        fio_domain: parseAscii(data.fio_domain, InvalidDataReason.INVALID_FIO_ADDRESS, 1, 62),
+        is_public: parseBoolean(data.is_public, InvalidDataReason.INVALID_IS_PUBLIC),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseTransferDomain(data: TransferDomain): ParsedTransferDomain {
+    return {
+        fio_domain: parseAscii(data.fio_domain, InvalidDataReason.INVALID_FIO_ADDRESS, 1, 62),
+        new_owner_fio_public_key: parseAscii(data.new_owner_fio_public_key, InvalidDataReason.INVALID_PUBLIC_KEY),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function parseRemoveAllNFT(data: RemoveAllNFT): ParsedRemoveAllNFT {
+    return {
+        fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),

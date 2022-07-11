@@ -1,8 +1,8 @@
 import { InvalidData, InvalidDataReason } from "../errors"
 import {_Uint64_bigint, _Uint64_num, FixlenHexString, HexString, NameString, ParsedActionAuthorisation, ParsedTransaction,
     Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedAction, ParsedActionData, Base64String, ParsedContext } from "../types/internal"
-import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress, RemoveMappedAddress, MapNFTSignature, RemoveNFTSignature, RemoveAllMappedAddresses, CancelFundsRequest, RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain, RenewDomain} from "../types/public"
-import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, parseBuyBundledTransaction, parseCancelRequestFunds, parseMapBlockchainPublicAddress, parseMapNFTSignature, parseRegisterAddress, parseRegisterDomain, parseRejectRequestFunds, parseRemoveAllMappedAddresses, parseRemoveMappedAddress, parseRemoveNFTSignature, parseRenewDomain, parseTransferAddress } from "./parseTxActions"
+import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, MapBlockchainPublicAddress, RemoveMappedAddress, MapNFTSignature, RemoveNFTSignature, RemoveAllMappedAddresses, CancelFundsRequest, RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain, RenewDomain, MakeDomainPublic, TransferDomain, RemoveAllNFT} from "../types/public"
+import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, parseBuyBundledTransaction, parseCancelRequestFunds, parseMakeDomainPublic, parseMapBlockchainPublicAddress, parseMapNFTSignature, parseRegisterAddress, parseRegisterDomain, parseRejectRequestFunds, parseRemoveAllMappedAddresses, parseRemoveAllNFT, parseRemoveMappedAddress, parseRemoveNFTSignature, parseRenewDomain, parseTransferAddress, parseTransferDomain } from "./parseTxActions"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 
@@ -142,6 +142,16 @@ export function parseUint8_t(value: number, errMsg: InvalidDataReason): Uint8_t 
     return value
 }
 
+export function parseBoolean(value: unknown, errMsg: InvalidDataReason): boolean {
+    if (value == 0) {
+        return false;
+    }
+    if (value == 1) {
+        return true;
+    }
+    validate(false, errMsg)
+}
+
 export function parseBIP32Path(value: unknown, errMsg: InvalidDataReason): ValidBIP32Path {
     validate(isValidPath(value), errMsg)
     return value
@@ -256,6 +266,15 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     }
     else if (action.account === "fio.address" && action.name === "renewdomain") {
         parsedActionData = parseRenewDomain(action.data as RenewDomain)
+    }
+    else if (action.account === "fio.address" && action.name === "setdomainpub") {
+        parsedActionData = parseMakeDomainPublic(action.data as MakeDomainPublic)
+    }
+    else if (action.account === "fio.address" && action.name === "xferdomain") {
+        parsedActionData = parseTransferDomain(action.data as TransferDomain)
+    }
+    else if (action.account === "fio.address" && action.name === "remallnfts") {
+        parsedActionData = parseRemoveAllNFT(action.data as RemoveAllNFT)
     }
 
     //manual validate so that automatic tools are OK wit conversion that follows
