@@ -110,7 +110,7 @@ export function template_remnft(chainId: HexString, tx: ParsedTransaction, parse
             ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
                 COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(actionData.actor, "hex"), 8, 8)),
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid), 0, 21),
+                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid)),
             ]),    
         ]),
     ];

@@ -77,7 +77,7 @@ function template3(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
 function template4(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
 
-    const actionData: ParsedVoteOnBlockProducers = tx.actions[3].data as ParsedVoteOnBlockProducers;
+    const actionData: ParsedVoteOnBlockProducers = tx.actions[0].data as ParsedVoteOnBlockProducers;
 
     //Matching template
     if (actionData.producers.length != 4) {
@@ -150,7 +150,7 @@ export function template_voteproducer(chainId: HexString, tx: ParsedTransaction,
 
     return [
         COMMAND_APPEND_CONST_DATA(tx.actions[0].account+tx.actions[0].name+"01" as HexString),
-        COMMAND_SHOW_MESSAGE("Action", "Stake FIO Tokens"),
+        COMMAND_SHOW_MESSAGE("Action", "Vote for FIO Block producers"),
         COMMAND_STORE_VALUE(1 as Uint8_t, Buffer.from(tx.actions[0].authorization[0].actor, "hex")),
         ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
             COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.actor, "hex"), 8, 8)),

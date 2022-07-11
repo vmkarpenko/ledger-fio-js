@@ -34,14 +34,14 @@ export function template_trnsfiopubky(chainId: HexString, tx: ParsedTransaction,
         COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.permission, "hex"), 8, 8),
         ...COMMANDS_COUNTED_SECTION([
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_SHOW("Payee Pubkey", Buffer.from(actionData.payee_public_key), 0, 55),
+                COMMAND_APPEND_DATA_STRING_SHOW("Payee Pubkey", Buffer.from(actionData.payee_public_key)),
             ]),
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Amount", uint64_to_buf(actionData.amount).reverse()), 
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()), 
             ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
                 COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(actionData.actor, "hex"), 8, 8)),
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid), 0, 21),
+                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid)),
             ]),    
         ]),
     ];

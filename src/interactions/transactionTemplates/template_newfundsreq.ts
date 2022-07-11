@@ -58,7 +58,7 @@ export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, 
                     COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.actor), 0, 14)),
             ]),
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid), 0, 21),
+                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid)),
             ]),
         ]),
     ];

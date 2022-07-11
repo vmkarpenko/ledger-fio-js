@@ -24,7 +24,7 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
 
     return [
         COMMAND_APPEND_CONST_DATA(tx.actions[0].account+tx.actions[0].name+"01" as HexString),
-        COMMAND_SHOW_MESSAGE("Action", "Record other blockchain transaction metadata"),
+        COMMAND_SHOW_MESSAGE("Action", "Record metadata"),
         COMMAND_STORE_VALUE(1 as Uint8_t, Buffer.from(authorization.actor, "hex")),
         ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
             COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.actor, "hex"), 8, 8)),
@@ -71,7 +71,7 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
                     COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.actor), 0, 14)),
                 ]),
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid), 0, 21),
+                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid)),
             ]),
         ]),
     ];

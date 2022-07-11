@@ -30,7 +30,7 @@ export function template_addbundles(chainId: HexString, tx: ParsedTransaction, p
     
     return [
         COMMAND_APPEND_CONST_DATA(tx.actions[0].account+tx.actions[0].name+"01" as HexString),
-        COMMAND_SHOW_MESSAGE("Action", "Remove all public address mappings"),
+        COMMAND_SHOW_MESSAGE("Action", "Add Bundles"),
         COMMAND_STORE_VALUE(1 as Uint8_t, Buffer.from(tx.actions[0].authorization[0].actor, "hex")),
         ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
             COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.actor, "hex"), 8, 8)),
@@ -42,7 +42,7 @@ export function template_addbundles(chainId: HexString, tx: ParsedTransaction, p
             COMMAND_APPEND_DATA_UINT64_SHOW("Bundle sets", uint64_to_buf(actionData.bundle_sets).reverse()), 
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()), 
             ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid), 0, 21),
+                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid)),
             ]),    
             ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
                 COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(actionData.actor, "hex"), 8, 8)),
