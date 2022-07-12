@@ -4,131 +4,32 @@ import { Command, VALUE_STORAGE_COMPARE, COMMAND_APPEND_CONST_DATA, COMMAND_SHOW
          COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW,
          ADD_STORAGE_CHECK, 
          templateAlternative} from "./commands"
-import { uint64_to_buf } from "../../utils/serialize"
+import { uint64_to_buf, uint8_to_buf } from "../../utils/serialize"
 import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
 
 const CONTRACT_ACCOUNT = parseNameString("eosio", InvalidDataReason.UNEXPECTED_ERROR);
 const CONTRACT_NAME = parseNameString("voteproducer", InvalidDataReason.UNEXPECTED_ERROR);
 
-function template1(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
-    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
+function template_n(n: number) {
+    return (chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> => {
+        validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
+        const actionData: ParsedVoteOnBlockProducers = tx.actions[0].data as ParsedVoteOnBlockProducers;
 
-    const actionData: ParsedVoteOnBlockProducers = tx.actions[0].data as ParsedVoteOnBlockProducers;
-
-    //Matching template
-    if (actionData.producers.length != 1) {
-        return []
+        //Matching template
+        if (actionData.producers.length != n) {
+            return []
+        }
+        
+        return [
+            COMMAND_APPEND_CONST_DATA(uint8_to_buf(n as Uint8_t).toString("hex") as HexString),
+            ... [...Array(n).keys()].flatMap(
+                k => COMMANDS_COUNTED_SECTION([
+                    COMMAND_APPEND_DATA_STRING_SHOW("Producer " + (k+1), Buffer.from(actionData.producers[k]), 3, 64)
+                ]),                     
+            ) 
+        ]
     }
-    
-    return [
-        COMMAND_APPEND_CONST_DATA("01" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 1", Buffer.from(actionData.producers[0]), 3, 64)
-        ]), 
-    ]
-}
-
-function template2(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
-    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-
-    const actionData: ParsedVoteOnBlockProducers = tx.actions[0].data as ParsedVoteOnBlockProducers;
-
-    //Matching template
-    if (actionData.producers.length != 2) {
-        return []
-    }
-    
-    return [
-        COMMAND_APPEND_CONST_DATA("02" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 1", Buffer.from(actionData.producers[0]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 2", Buffer.from(actionData.producers[1]), 3, 64)
-        ]), 
-    ]
-}
-
-function template3(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
-    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-
-    const actionData: ParsedVoteOnBlockProducers = tx.actions[0].data as ParsedVoteOnBlockProducers;
-
-    //Matching template
-    if (actionData.producers.length != 3) {
-        return []
-    }
-    
-    return [
-        COMMAND_APPEND_CONST_DATA("03" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 1", Buffer.from(actionData.producers[0]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 2", Buffer.from(actionData.producers[1]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 3", Buffer.from(actionData.producers[2]), 3, 64)
-        ]), 
-    ]
-}
-
-function template4(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
-    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-
-    const actionData: ParsedVoteOnBlockProducers = tx.actions[0].data as ParsedVoteOnBlockProducers;
-
-    //Matching template
-    if (actionData.producers.length != 4) {
-        return []
-    }
-    
-    return [
-        COMMAND_APPEND_CONST_DATA("04" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 1", Buffer.from(actionData.producers[0]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 2", Buffer.from(actionData.producers[1]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 3", Buffer.from(actionData.producers[2]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 4", Buffer.from(actionData.producers[3]), 3, 64)
-        ]), 
-    ]
-}
-
-function template5(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
-    validate(tx.actions.length == 1, InvalidDataReason.MULTIPLE_ACTIONS_NOT_SUPPORTED);
-
-    const actionData: ParsedVoteOnBlockProducers = tx.actions[0].data as ParsedVoteOnBlockProducers;
-
-    //Matching template
-    if (actionData.producers.length != 5) {
-        return []
-    }
-    
-    return [
-        COMMAND_APPEND_CONST_DATA("05" as HexString),
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 1", Buffer.from(actionData.producers[0]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 2", Buffer.from(actionData.producers[1]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 3", Buffer.from(actionData.producers[2]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 4", Buffer.from(actionData.producers[3]), 3, 64)
-        ]), 
-        ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_SHOW("Producer 5", Buffer.from(actionData.producers[4]), 3, 64)
-        ]), 
-    ]
 }
 
 export function template_voteproducer(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
@@ -145,8 +46,10 @@ export function template_voteproducer(chainId: HexString, tx: ParsedTransaction,
     const actionData: ParsedVoteOnBlockProducers = tx.actions[0].data as ParsedVoteOnBlockProducers;
     const authorization: ParsedActionAuthorisation = tx.actions[0].authorization[0];
 
-    const producerCommands: Array<Command> = templateAlternative([template1, template2, template3, template4, template5])(chainId, tx, parsedPath)
-    validate(producerCommands.length !== 0, InvalidDataReason.INCORRECT_NUMBER_OF_PUBLIC_ADDRESSES)
+    const producerCommands: Array<Command> = templateAlternative(
+                [...Array(actionData.producers.length).keys()].map(k=>template_n(k+1))
+            )(chainId, tx, parsedPath)
+    validate(producerCommands.length !== 0, InvalidDataReason.INCORRECT_NUMBER_OF_PRODUCERS)
 
     return [
         COMMAND_APPEND_CONST_DATA(tx.actions[0].account+tx.actions[0].name+"01" as HexString),

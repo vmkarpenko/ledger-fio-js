@@ -299,7 +299,7 @@ export function parseUnstakeFIO(data: UnstakeFIO): ParsedUnstakeFIO {
 }
 
 function parseProducers(a: Array<string>): Array<VarlenAsciiString> {
-    validate(1 <= a.length && a.length <= 5, InvalidDataReason.INCORRECT_NUMBER_OF_PRODUCERS)
+    validate(1 <= a.length && a.length <= 30, InvalidDataReason.INCORRECT_NUMBER_OF_PRODUCERS)
     return a.map( e => parseAscii(e, InvalidDataReason.INVALID_PRODUCER, 3, 64))
 }
 
