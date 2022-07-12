@@ -3,7 +3,8 @@ import { Command, VALUE_STORAGE_COMPARE, COMMAND_APPEND_CONST_DATA, COMMAND_SHOW
          COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMAND_APPEND_DATA_STRING_SHOW, COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, 
          COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW,
          ADD_STORAGE_CHECK, 
-         templateAlternative} from "./commands"
+         templateAlternative,
+         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW} from "./commands"
 import { uint64_to_buf, uint8_to_buf } from "../../utils/serialize"
 import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
@@ -23,10 +24,8 @@ function template_n(n: number) {
         
         return [
             COMMAND_APPEND_CONST_DATA(uint8_to_buf(n as Uint8_t).toString("hex") as HexString),
-            ... [...Array(n).keys()].flatMap(
-                k => COMMANDS_COUNTED_SECTION([
-                    COMMAND_APPEND_DATA_STRING_SHOW("Producer " + (k+1), Buffer.from(actionData.producers[k]), 3, 64)
-                ]),                     
+            ... [...Array(n).keys()].map(
+                k => COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Producer " + (k+1), Buffer.from(actionData.producers[k]), 3, 64)
             ) 
         ]
     }
@@ -60,9 +59,7 @@ export function template_voteproducer(chainId: HexString, tx: ParsedTransaction,
         COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.permission, "hex"), 8, 8),
         ...COMMANDS_COUNTED_SECTION([
             ...producerCommands,
-            ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_SHOW("FIO Crypto Handle", Buffer.from(actionData.fio_address), 3, 64)
-            ]), 
+            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("FIO Cr. Handle", Buffer.from(actionData.fio_address), 3, 64),
             ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
                 COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(actionData.actor, "hex"), 8, 8)),
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()), 

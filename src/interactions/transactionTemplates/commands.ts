@@ -24,6 +24,7 @@ export const enum VALUE_FORMAT {
     VALUE_FORMAT_BUFFER_SHOW_AS_HEX = 0x01,
     VALUE_FORMAT_ASCII_STRING = 0x02,
     VALUE_FORMAT_NAME = 0x03,
+    VALUE_FORMAT_ASCII_STRING_WITH_LENGTH = 0x04,
 
     VALUE_FORMAT_FIO_AMOUNT = 0x10,
     VALUE_FORMAT_UINT64 = 0x14,
@@ -225,6 +226,45 @@ export function COMMAND_APPEND_DATA_STRING_SHOW(key: string, varData: Buffer, bu
         ),
         varData: varData,
         txLen: varData.length,
+    }  
+}
+
+//calculates the length of varint
+function lenlen(n: number): number {
+    return 1 + (n >= 128 ? 1 : 0) + (n >= 16384 ? 1 : 0) + (n >= 2097152 ? 1 : 0) + (n >= 268435456 ? 1 : 0)
+}
+
+export function COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(varData: Buffer, bufLenMin: number = 0, bufLenMax: number = 0xFFFFFFFF): Command {
+    const vD = Buffer.concat([varuint32_to_buf(varData.length), varData]);
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_ASCII_STRING_WITH_LENGTH,
+            VALUE_VALIDATION.VALUE_VALIDATION_INBUFFER_LENGTH, BigInt(bufLenMin + lenlen(bufLenMin)), BigInt(bufLenMax + lenlen(bufLenMax)),
+            VALUE_POLICY.VALUE_DO_NOT_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            ""
+        ),
+        varData: vD,
+        txLen: vD.length,
+    }
+}
+
+export function COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW(key: string, varData: Buffer, bufLenMin: number = 0, bufLenMax: number = 0xFFFFFFFF): Command {
+    const vD = Buffer.concat([varuint32_to_buf(varData.length), varData]);
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_ASCII_STRING_WITH_LENGTH,
+            VALUE_VALIDATION.VALUE_VALIDATION_INBUFFER_LENGTH, BigInt(bufLenMin + lenlen(bufLenMin)), BigInt(bufLenMax + lenlen(bufLenMax)),
+            VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            key
+        ),
+        varData: vD,
+        txLen: vD.length,
     }  
 }
 

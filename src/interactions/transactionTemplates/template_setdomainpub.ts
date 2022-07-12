@@ -4,7 +4,9 @@ import { Command, VALUE_STORAGE_COMPARE, COMMAND_APPEND_CONST_DATA, COMMAND_SHOW
          COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW,
          ADD_STORAGE_CHECK,
          templateAlternative,
-         COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW} from "./commands"
+         COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW,
+         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW,
+         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW} from "./commands"
 import { uint64_to_buf } from "../../utils/serialize"
 import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
@@ -68,16 +70,12 @@ export function template_setdomainpub(chainId: HexString, tx: ParsedTransaction,
             COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.actor, "hex"), 8, 8)),
         COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.permission, "hex"), 8, 8),
         ...COMMANDS_COUNTED_SECTION([
-            ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_SHOW("FIO Domain", Buffer.from(actionData.fio_domain), 1, 62)
-            ]), 
+            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("FIO Domain", Buffer.from(actionData.fio_domain), 1, 62),
             ...isPublicCommands,
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()), 
             ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
                 COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(actionData.actor, "hex"), 8, 8)),
-            ...COMMANDS_COUNTED_SECTION([
-                COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW(Buffer.from(actionData.tpid)),
-            ]),    
+            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.tpid)),
         ]),
     ];
 }
