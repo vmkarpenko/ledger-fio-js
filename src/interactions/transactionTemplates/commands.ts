@@ -1,6 +1,6 @@
 import { assert } from "console";
 import { InvalidDataReason } from "../../errors"
-import { HexString, Uint8_t, ParsedTransaction, ValidBIP32Path, VarlenAsciiString } from "types/internal"
+import { HexString, Uint8_t, ParsedTransaction, ValidBIP32Path, VarlenAsciiString, Uint64_str } from "types/internal"
 import { buf_to_hex, path_to_buf, uint8_to_buf, varuint32_to_buf } from "../../utils/serialize";
 import type { SignedTransactionData } from "../../types/public";
 import { chunkBy } from "../../utils/ioHelpers"
@@ -98,8 +98,7 @@ export function constDataAppendData(format: VALUE_FORMAT, validation: VALUE_VALI
     return buf.toString("hex") as HexString;
 }
 
-export function constDataShowMessage(key: string, value: string) {
-    const buf = Buffer.allocUnsafe(2+key.length+value.length);
+export function constDataShowMessage(key: string, value: string) {    const buf = Buffer.allocUnsafe(2+key.length+value.length);
     buf.writeUInt8(key.length, 0);
     buf.write(key, 1);
     buf.writeUInt8(value.length, 1+key.length);
@@ -284,7 +283,7 @@ export function COMMAND_APPEND_DATA_NAME_SHOW(key: string, name: HexString): Com
     }  
 }
 
-export function COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW(key: string, varData: Buffer, minAmount: number = 0, maxAmount: number = 0xFFFFFFFF): Command {
+export function COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW(key: string, varData: Buffer, minAmount: number = 0, maxAmount: bigint = BigInt("0x7FFFFFFFFFFFFFFF")): Command {
     return {
         ...defaultCommand,
         command: COMMAND.APPEND_DATA, 
@@ -300,7 +299,7 @@ export function COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW(key: string, varData: Buffer
     }  
 }
 
-export function COMMAND_APPEND_DATA_UINT64_SHOW(key: string, varData: Buffer, minAmount: number = 0, maxAmount: number = 0xFFFFFFFF): Command {
+export function COMMAND_APPEND_DATA_UINT64_SHOW(key: string, varData: Buffer, minAmount: number = 0, maxAmount: bigint = BigInt("0x7FFFFFFFFFFFFFFF")): Command {
     return {
         ...defaultCommand,
         command: COMMAND.APPEND_DATA, 

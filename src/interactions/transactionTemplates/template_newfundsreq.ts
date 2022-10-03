@@ -29,8 +29,8 @@ export function template_newfundsreq(chainId: HexString, tx: ParsedTransaction, 
             COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.actor, "hex"), 8, 8)),
         COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.permission, "hex"), 8, 8),
         ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payer FIO Cr. H.", Buffer.from(actionData.payer_fio_address), 3, 64),
-            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payee FIO Cr. H.", Buffer.from(actionData.payee_fio_address), 3, 64),
+            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payer FIO Handle", Buffer.from(actionData.payer_fio_address), 3, 64),
+            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payee FIO Handle", Buffer.from(actionData.payee_fio_address), 3, 64),
             ...COMMANDS_COUNTED_SECTION([
                 ...COMMANDS_DH_ENCODE(Buffer.from(actionData.payee_public_key, "hex"), [
                     COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payee Public Addr", Buffer.from(actionData.payee_public_address)),

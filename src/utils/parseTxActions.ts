@@ -6,7 +6,6 @@ import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransacti
 import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
-    _Uint64_num,
     ParsedTransferFIOTokensData,
     ParsedRequestFundsData,
     ParsedRecordOtherBlockchainTransactionMetadata,
@@ -70,7 +69,7 @@ export function parseActionDataRequestFunds(data: RequestFundsData): ParsedReque
 
 export function parseActionDataRecordOtherBlockchainTransactionMetadata(data: RecordOtherBlockchainTransactionMetadata): ParsedRecordOtherBlockchainTransactionMetadata {
     return {
-        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
+        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID),
         payer_fio_address: parseAscii(data.payer_fio_address, InvalidDataReason.INVALID_PAYER_FIO_ADDRESS, 3, 64),
         payee_fio_address: parseAscii(data.payee_fio_address, InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS, 3, 64),
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
@@ -130,7 +129,7 @@ function parseNFT(a: NFT): ParsedNFT {
         contract_address: parseAscii(a.contract_address, InvalidDataReason.INVALID_TOKEN_CODE, 1, 128),
         token_id: parseAscii(a.token_id, InvalidDataReason.INVALID_TOKEN_CODE, 1, 64),
         url: parseAscii(a.url, InvalidDataReason.INVALID_TOKEN_CODE, 0, 128),
-        hash: parseAscii(a.hash, InvalidDataReason.INVALID_TOKEN_CODE, 1, 64),
+        hash: parseAscii(a.hash, InvalidDataReason.INVALID_TOKEN_CODE, 0, 64),
         metadata: parseAscii(a.metadata, InvalidDataReason.INVALID_TOKEN_CODE, 0, 128),
     }
 }
@@ -184,7 +183,7 @@ export function parseRemoveAllMappedAddresses(data: RemoveAllMappedAddresses): P
 
 export function parseCancelRequestFunds(data: CancelFundsRequest): ParsedCancelFundsRequest {    
     return {
-        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
+        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID),
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
@@ -193,7 +192,7 @@ export function parseCancelRequestFunds(data: CancelFundsRequest): ParsedCancelF
 
 export function parseRejectRequestFunds(data: RejectFundsRequest): ParsedRejectFundsRequest {    
     return {
-        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID, 3, 64),
+        fio_request_id: parseAscii(data.fio_request_id, InvalidDataReason.INVALID_FIO_REQUEST_ID),
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),

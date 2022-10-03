@@ -33,7 +33,7 @@ function template1(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
         COMMAND_APPEND_DATA_CHAIN_CODE_CONTRACT_ADDR_TOKEN_TD_SHOW("Mapping 1", actionData.nfts[0].chain_code,
                 actionData.nfts[0].contract_address, actionData.nfts[0].token_id),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].url), 0, 128),
-        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].hash), 1, 64),
+        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].hash), 0, 64),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].metadata), 0, 128),
     ]
 }
@@ -55,12 +55,12 @@ function template2(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
         COMMAND_APPEND_DATA_CHAIN_CODE_CONTRACT_ADDR_TOKEN_TD_SHOW("Mapping 1", actionData.nfts[0].chain_code,
                 actionData.nfts[0].contract_address, actionData.nfts[0].token_id),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].url), 0, 128),
-        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].hash), 1, 64),
+        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].hash), 0, 64),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].metadata), 0, 128),
         COMMAND_APPEND_DATA_CHAIN_CODE_CONTRACT_ADDR_TOKEN_TD_SHOW("Mapping 2", actionData.nfts[1].chain_code,
                 actionData.nfts[1].contract_address, actionData.nfts[1].token_id),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[1].url), 0, 128),
-        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[1].hash), 1, 64),
+        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[1].hash), 0, 64),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[1].metadata), 0, 128),
     ]
 }
@@ -82,17 +82,17 @@ function template3(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidB
         COMMAND_APPEND_DATA_CHAIN_CODE_CONTRACT_ADDR_TOKEN_TD_SHOW("Mapping 1", actionData.nfts[0].chain_code,
                 actionData.nfts[0].contract_address, actionData.nfts[0].token_id),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].url), 0, 128),
-        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].hash), 1, 64),
+        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].hash), 0, 64),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[0].metadata), 0, 128),
         COMMAND_APPEND_DATA_CHAIN_CODE_CONTRACT_ADDR_TOKEN_TD_SHOW("Mapping 2", actionData.nfts[1].chain_code,
                 actionData.nfts[1].contract_address, actionData.nfts[1].token_id),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[1].url), 0, 128),
-        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[1].hash), 1, 64),
+        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[1].hash), 0, 64),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[1].metadata), 0, 128),
         COMMAND_APPEND_DATA_CHAIN_CODE_CONTRACT_ADDR_TOKEN_TD_SHOW("Mapping 3", actionData.nfts[2].chain_code,
                 actionData.nfts[2].contract_address, actionData.nfts[2].token_id),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[2].url), 0, 128),
-        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[2].hash), 1, 64),
+        COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[2].hash), 0, 64),
         COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW(Buffer.from(actionData.nfts[2].metadata), 0, 128),
     ]
 }
@@ -122,7 +122,7 @@ export function template_addnft(chainId: HexString, tx: ParsedTransaction, parse
             COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.actor, "hex"), 8, 8)),
         COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.permission, "hex"), 8, 8),
         ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("FIO Cr. Handle", Buffer.from(actionData.fio_address), 3, 64),
+            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("FIO Handle", Buffer.from(actionData.fio_address), 3, 64),
             ...addressesCommands,
             COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW("Max fee", uint64_to_buf(actionData.max_fee).reverse()), 
             ADD_STORAGE_CHECK(VALUE_STORAGE_COMPARE.COMPARE_REGISTER1, 
