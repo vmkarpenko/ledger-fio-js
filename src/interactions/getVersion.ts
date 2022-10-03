@@ -36,12 +36,12 @@ export function* getVersion(): Interaction<Version> {
 
 export function getCompatibility(version: Version): DeviceCompatibility {
     // We restrict forward compatibility only to backward-compatible semver changes
-    const v0_0 = isLedgerAppVersionAtLeast(version, 0, 0) &&
-                 isLedgerAppVersionAtMost(version, 0, Infinity)
+    const v1_0 = isLedgerAppVersionAtLeast(version, 1, 0) &&
+                 isLedgerAppVersionAtMost(version, 1, 0)
 
     return {
-        isCompatible: v0_0,
-        recommendedVersion: v0_0 ? null : '0.0',
+        isCompatible: v1_0,
+        recommendedVersion: v1_0 ? null : '1.0',
     }
 }
 
