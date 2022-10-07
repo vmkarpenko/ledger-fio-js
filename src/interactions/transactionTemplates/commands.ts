@@ -1,4 +1,4 @@
-import { assert } from "console";
+import { assert } from "../../utils/assert";
 import { InvalidDataReason } from "../../errors"
 import { HexString, Uint8_t, ParsedTransaction, ValidBIP32Path, VarlenAsciiString, Uint64_str } from "types/internal"
 import { buf_to_hex, path_to_buf, uint8_to_buf, varuint32_to_buf } from "../../utils/serialize";
