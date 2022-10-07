@@ -1,7 +1,7 @@
 import type {HexString, ParsedTransaction, ParsedRequestFundsData, ValidBIP32Path, ParsedActionAuthorisation, ParsedRecordOtherBlockchainTransactionMetadata, Uint8_t} from "../../types/internal"
 import { Command, templateAlternative, COMMANDS_COUNTED_SECTION, COMMAND_APPEND_DATA_STRING_SHOW, COMMAND_APPEND_CONST_DATA, 
         COMMAND_SHOW_MESSAGE, COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW, COMMAND_APPEND_DATA_NAME_SHOW, COMMANDS_DH_ENCODE, 
-        COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, COMMAND_STORE_VALUE, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_APPEND_DATA_MEMO_HASH, COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW, COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW } from "./commands"
+        COMMAND_APPEND_DATA_FIO_AMOUNT_SHOW, COMMAND_APPEND_DATA_STRING_DO_NOT_SHOW, COMMAND_STORE_VALUE, ADD_STORAGE_CHECK, VALUE_STORAGE_COMPARE, COMMAND_APPEND_DATA_MEMO_HASH, COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW, COMMAND_APPEND_DATA_STRING_WITH_LENGTH_DO_NOT_SHOW, COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW_IF_NON_EMPTY } from "./commands"
 import { uint64_to_buf } from "../../utils/serialize"
 import { parseNameString, validate } from "../../utils/parse"
 import { InvalidDataReason } from "../../errors";
@@ -30,7 +30,7 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
             COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.actor, "hex"), 8, 8)),
         COMMAND_APPEND_DATA_BUFFER_DO_NOT_SHOW(Buffer.from(authorization.permission, "hex"), 8, 8),
         ...COMMANDS_COUNTED_SECTION([
-            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Request ID", Buffer.from(actionData.fio_request_id)),
+            COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW_IF_NON_EMPTY("Request ID", Buffer.from(actionData.fio_request_id)),
             COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payer FIO Handle", Buffer.from(actionData.payer_fio_address), 3, 64),
             COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payee FIO Handle", Buffer.from(actionData.payee_fio_address), 3, 64),
             ...COMMANDS_COUNTED_SECTION([

@@ -43,6 +43,7 @@ export const enum VALUE_VALIDATION {
 
 export const enum VALUE_POLICY {
     VALUE_SHOW_ON_DEVICE = 5,
+    VALUE_SHOW_ON_DEVICE_IF_NONEMPTY = 6,
     VALUE_DO_NOT_SHOW_ON_DEVICE = 2,
 }
 
@@ -259,6 +260,23 @@ export function COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW(key: string, varData
             VALUE_FORMAT.VALUE_FORMAT_ASCII_STRING_WITH_LENGTH,
             VALUE_VALIDATION.VALUE_VALIDATION_INBUFFER_LENGTH, BigInt(bufLenMin + lenlen(bufLenMin)), BigInt(bufLenMax + lenlen(bufLenMax)),
             VALUE_POLICY.VALUE_SHOW_ON_DEVICE,
+            VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
+            key
+        ),
+        varData: vD,
+        txLen: vD.length,
+    }  
+}
+
+export function COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW_IF_NON_EMPTY(key: string, varData: Buffer, bufLenMin: number = 0, bufLenMax: number = 0xFFFFFFFF): Command {
+    const vD = Buffer.concat([varuint32_to_buf(varData.length), varData]);
+    return {
+        ...defaultCommand,
+        command: COMMAND.APPEND_DATA, 
+        constData: constDataAppendData(
+            VALUE_FORMAT.VALUE_FORMAT_ASCII_STRING_WITH_LENGTH,
+            VALUE_VALIDATION.VALUE_VALIDATION_INBUFFER_LENGTH, BigInt(bufLenMin + lenlen(bufLenMin)), BigInt(bufLenMax + lenlen(bufLenMax)),
+            VALUE_POLICY.VALUE_SHOW_ON_DEVICE_IF_NONEMPTY,
             VALUE_STORAGE_COMPARE.DO_NOT_COMPARE,
             key
         ),
