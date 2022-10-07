@@ -34,7 +34,7 @@ export function template_recordopt(chainId: HexString, tx: ParsedTransaction, pa
             COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payer FIO Handle", Buffer.from(actionData.payer_fio_address), 3, 64),
             COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payee FIO Handle", Buffer.from(actionData.payee_fio_address), 3, 64),
             ...COMMANDS_COUNTED_SECTION([
-                ...COMMANDS_DH_ENCODE(Buffer.from(actionData.payee_public_key, "hex"), [
+                ...COMMANDS_DH_ENCODE(Buffer.from(actionData.other_public_key, "hex"), [
                     COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payer Public Addr", Buffer.from(actionData.payer_public_address)),
                     COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Payee Public Addr", Buffer.from(actionData.payee_public_address)),
                     COMMAND_APPEND_DATA_STRING_WITH_LENGTH_SHOW("Amount requested", Buffer.from(actionData.amount)),

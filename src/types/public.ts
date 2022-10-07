@@ -159,9 +159,9 @@ export type TransferFIOTokensData = {
     tpid: string
 
     /**
-     * Payee public key - needed for DH encryprion. In uncomressed format as hex string.
+     * Other public key - needed for DH encryprion. In uncomressed format as hex string.
      */
-    payee_public_key: string
+    other_public_key: string
     //content
     payee_public_address: string
     amount: string
@@ -186,9 +186,9 @@ export type TransferFIOTokensData = {
     tpid: string
 
     /**
-     * Payee public key - needed for DH encryprion. In uncomressed format as hex string.
+     * Other public key - needed for DH encryprion. In uncomressed format as hex string.
      */
-    payee_public_key: string
+    other_public_key: string
     //content
     payee_public_address: string
     payer_public_address: string

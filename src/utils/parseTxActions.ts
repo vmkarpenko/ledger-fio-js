@@ -56,7 +56,7 @@ export function parseActionDataRequestFunds(data: RequestFundsData): ParsedReque
         actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
 
-        payee_public_key: parseHexString(data.payee_public_key, InvalidDataReason.INVALID_PUBLIC_KEY, PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH),
+        other_public_key: parseHexString(data.other_public_key, InvalidDataReason.INVALID_PUBLIC_KEY, PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH),
         payee_public_address: parseAscii(data.payee_public_address, InvalidDataReason.INVALID_PAYEE_FIO_ADDRESS),
         amount: parseAscii(data.amount, InvalidDataReason.INVALID_AMOUNT),
         chain_code: parseAscii(data.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
@@ -76,7 +76,7 @@ export function parseActionDataRecordOtherBlockchainTransactionMetadata(data: Re
         actor: parseAscii(data.actor, InvalidDataReason.INVALID_ACTOR),
         tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
 
-        payee_public_key: parseHexString(data.payee_public_key, InvalidDataReason.INVALID_PUBLIC_KEY, PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH),
+        other_public_key: parseHexString(data.other_public_key, InvalidDataReason.INVALID_PUBLIC_KEY, PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH),
         payer_public_address: parseAscii(data.payer_public_address, InvalidDataReason.INVALID_PAYER_PUBLIC_ADDRESS),
         payee_public_address: parseAscii(data.payee_public_address, InvalidDataReason.INVALID_PAYEE_PUBLIC_ADDRESS),
         amount: parseAscii(data.amount, InvalidDataReason.INVALID_AMOUNT),
