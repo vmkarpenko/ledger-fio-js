@@ -456,10 +456,10 @@ export function COMMAND_APPEND_DATA_MEMO_HASH(memo?: VarlenAsciiString, hash?: V
 
 export function COMMAND_APPEND_DATA_CHAIN_CODE_TOKEN_CODE_PUBLIC_ADDR_SHOW(key: string, chainCode: VarlenAsciiString, tokenCode: VarlenAsciiString, publicAddr: VarlenAsciiString): Command {
     const varData: Buffer = Buffer.concat([
-            varuint32_to_buf(chainCode.length),
-            Buffer.from(chainCode),
             varuint32_to_buf(tokenCode.length),
             Buffer.from(tokenCode),
+            varuint32_to_buf(chainCode.length),
+            Buffer.from(chainCode),
             varuint32_to_buf(publicAddr.length),
             Buffer.from(publicAddr),
         ])
