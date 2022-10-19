@@ -94,7 +94,7 @@ function parsePublicAddress(a: PublicAddress): ParsedPublicAddress {
     return {
         chain_code: parseAscii(a.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
         token_code: parseAscii(a.token_code, InvalidDataReason.INVALID_TOKEN_CODE, 1, 10),
-        public_address: parseAscii(a.public_address, InvalidDataReason.INVALID_TOKEN_CODE, 3, 64),
+        public_address: parseAscii(a.public_address, InvalidDataReason.INVALID_PUBLIC_ADDRESS, 1, 64),
     }
 }
 
