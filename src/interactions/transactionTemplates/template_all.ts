@@ -25,6 +25,8 @@ import { template_stakefio } from "./template_stakefio";
 import { template_unstakefio } from "./template_unstakefio";
 import { template_voteproducer } from "./template_voteproducer";
 import { template_voteproxy } from "./template_voteproxy";
+import { template_wrapdomain } from "./template_wrapdomain";
+import { template_wraptokens } from "./template_wraptokens";
 
 export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPath: ValidBIP32Path): Array<Command> {
     //Validate template expectations
@@ -55,6 +57,8 @@ export function templete_all(chainId: HexString, tx: ParsedTransaction, parsedPa
         template_unstakefio,
         template_voteproducer,
         template_voteproxy,
+        template_wrapdomain,
+        template_wraptokens
     ])(chainId, tx, parsedPath)
     if (actionCommands.length == 0) return [];
 

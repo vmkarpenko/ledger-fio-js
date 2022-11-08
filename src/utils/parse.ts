@@ -4,9 +4,9 @@ import {_Uint64_bigint, _Uint64_num, FixlenHexString, HexString, NameString, Par
 import type {ActionAuthorisation, bigint_like, Transaction, TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransactionMetadata, 
     MapBlockchainPublicAddress, RemoveMappedAddress, MapNFTSignature, RemoveNFTSignature, RemoveAllMappedAddresses, CancelFundsRequest, 
     RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain, RenewDomain, MakeDomainPublic, 
-    TransferDomain, RemoveAllNFT, StakeFIO, UnstakeFIO, VoteOnBlockProducers, ProxyVotesToRegisteredProxy} from "../types/public"
+    TransferDomain, RemoveAllNFT, StakeFIO, UnstakeFIO, VoteOnBlockProducers, ProxyVotesToRegisteredProxy, WrapDomain, WrapTokens} from "../types/public"
 import { parseActionDataRecordOtherBlockchainTransactionMetadata, parseActionDataRequestFunds, parseActionDataTransferFIOToken, 
-    parseBuyBundledTransaction, parseCancelRequestFunds, parseMakeDomainPublic, parseMapBlockchainPublicAddress, parseMapNFTSignature, 
+    parseBuyBundledTransaction, parseCancelRequestFunds, ParsedWrapDomain, ParsedWrapTokens, parseMakeDomainPublic, parseMapBlockchainPublicAddress, parseMapNFTSignature, 
     parseProxyVotesToRegisteredProxy, 
     parseRegisterAddress, parseRegisterDomain, parseRejectRequestFunds, parseRemoveAllMappedAddresses, parseRemoveAllNFT, 
     parseRemoveMappedAddress, parseRemoveNFTSignature, parseRenewDomain, parseStakeFIO, parseTransferAddress, 
@@ -295,6 +295,12 @@ export function parseTransaction(chainId: string, tx: Transaction): ParsedTransa
     }
     else if (action.account === "eosio" && action.name === "voteproxy") {
         parsedActionData = parseProxyVotesToRegisteredProxy(action.data as ProxyVotesToRegisteredProxy)
+    }
+    else if (action.account === "fio.oracle" && action.name === "wrapdomain") {
+        parsedActionData = ParsedWrapDomain(action.data as WrapDomain)
+    }
+    else if (action.account === "fio.oracle" && action.name === "wraptokens") {
+        parsedActionData = ParsedWrapTokens(action.data as WrapTokens)
     }
 
     //manual validate so that automatic tools are OK wit conversion that follows

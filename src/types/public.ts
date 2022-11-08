@@ -489,6 +489,36 @@ export type ActionAuthorisation = {
     permission: string
 }
 
+/**
+ * Wrap domain
+ * @category Basic types
+ * @see [[Action]]
+ */
+export type WrapDomain = {
+    fio_domain: string
+    chain_code: string
+    public_address: string
+    max_oracle_fee: bigint_like
+    max_fee: bigint_like
+    tpid: string
+    actor: string
+}
+
+/**
+ * Wrap tokens
+ * @category Basic types
+ * @see [[Action]]
+ */
+export type WrapTokens = {
+    amount: bigint_like
+    chain_code: string
+    public_address: string
+    max_oracle_fee: bigint_like
+    max_fee: bigint_like
+    tpid: string
+    actor: string
+}
+
 
 /**
  * Represents actions in the transaction.
@@ -521,7 +551,9 @@ export type Action = {
         StakeFIO |
         UnstakeFIO |
         VoteOnBlockProducers |
-        ProxyVotesToRegisteredProxy
+        ProxyVotesToRegisteredProxy |
+        WrapDomain |
+        WrapTokens
 }
 
 

@@ -234,6 +234,26 @@ export type ParsedVoteOnBlockProducers = {
     actor: NameString
 }
 
+export type ParsedWrapDomain = {
+    fio_domain: VarlenAsciiString
+    chain_code: VarlenAsciiString
+    public_address: VarlenAsciiString
+    max_oracle_fee: Uint64_str
+    max_fee: Uint64_str
+    tpid: VarlenAsciiString
+    actor: NameString
+}
+
+export type ParsedWrapTokens = {
+    amount: Uint64_str
+    chain_code: VarlenAsciiString
+    public_address: VarlenAsciiString
+    max_oracle_fee: Uint64_str
+    max_fee: Uint64_str
+    tpid: VarlenAsciiString
+    actor: NameString
+}
+
 export type ParsedActionAuthorisation = {
     actor: NameString
     permission: NameString
@@ -261,7 +281,9 @@ export type ParsedActionData =
     ParsedStakeFIO |
     ParsedUnstakeFIO |
     ParsedVoteOnBlockProducers |
-    ParsedProxyVotesToRegisteredProxy
+    ParsedProxyVotesToRegisteredProxy |
+    ParsedWrapDomain |
+    ParsedWrapTokens
 
 export type ParsedAction = {
     account: NameString

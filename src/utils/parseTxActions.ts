@@ -2,7 +2,7 @@ import { TransferFIOTokensData, RequestFundsData, RecordOtherBlockchainTransacti
     PublicAddress, RemoveMappedAddress, NFT, MapNFTSignature, RemoveNFTSignature, SmallNFT, RemoveAllMappedAddresses,
     CancelFundsRequest, RejectFundsRequest, BuyBundledTransaction, RegisterAddress, TransferAddress, RegisterDomain,
     RenewDomain, MakeDomainPublic, TransferDomain, RemoveAllNFT, StakeFIO, UnstakeFIO, VoteOnBlockProducers,
-    ProxyVotesToRegisteredProxy } from "fio";
+    ProxyVotesToRegisteredProxy, WrapDomain, WrapTokens } from "fio";
 import  { InvalidDataReason } from "../errors"
 import {
     _Uint64_bigint,
@@ -33,6 +33,8 @@ import {
     ParsedVoteOnBlockProducers,
     VarlenAsciiString,
     ParsedProxyVotesToRegisteredProxy,
+    ParsedWrapDomain,
+    ParsedWrapTokens,
 } from "../types/internal"
 import { parseAscii, parseBoolean, parseHexString, parseNameString, parseUint64_str, validate } from "./parse";
 
@@ -317,5 +319,29 @@ export function parseProxyVotesToRegisteredProxy(data: ProxyVotesToRegisteredPro
         fio_address: parseAscii(data.fio_address, InvalidDataReason.INVALID_FIO_ADDRESS, 3, 64),
         max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
         actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+    }
+}
+
+export function ParsedWrapDomain(data: WrapDomain): ParsedWrapDomain {
+    return {
+        fio_domain: parseAscii(data.fio_domain, InvalidDataReason.INVALID_FIO_ADDRESS, 1, 62),
+        chain_code: parseAscii(data.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
+        public_address: parseAscii(data.public_address, InvalidDataReason.INVALID_PUBLIC_ADDRESS, 1, 64),
+        max_oracle_fee: parseUint64_str(data.max_oracle_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
+    }
+}
+
+export function ParsedWrapTokens(data: WrapTokens): ParsedWrapTokens {
+    return {
+        amount: parseUint64_str(data.amount, {}, InvalidDataReason.INVALID_AMOUNT),
+        chain_code: parseAscii(data.chain_code, InvalidDataReason.INVALID_CHAIN_CODE, 1, 10),
+        public_address: parseAscii(data.public_address, InvalidDataReason.INVALID_PUBLIC_ADDRESS, 1, 64),
+        max_oracle_fee: parseUint64_str(data.max_oracle_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        max_fee: parseUint64_str(data.max_fee, {}, InvalidDataReason.INVALID_MAX_FEE),
+        actor: parseNameString(data.actor, InvalidDataReason.INVALID_ACTOR),
+        tpid: parseAscii(data.tpid, InvalidDataReason.INVALID_TPID, 0, 20),
     }
 }
